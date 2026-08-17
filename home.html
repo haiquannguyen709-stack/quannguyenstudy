@@ -2316,6 +2316,22 @@
                 return;
             }
 
+            // ============================================================
+// LƯU TÀI KHOẢN HIỆN TẠI (Đồng bộ cho các trang khóa học)
+// ============================================================
+if (user) {
+    // Chuẩn hóa object người dùng có đủ fullName/studentId hoặc hoTen/id
+    const currentUser = {
+        username: user.username || user.id || '',
+        fullName: user.hoTen || user.fullName || user.name || 'Chưa xác định',
+        studentId: user.id || user.studentId || 'Chưa xác định'
+    };
+    
+    // Lưu vào cả sessionStorage và localStorage để đảm bảo tương thích
+    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+}
+
             function setText(id, value) {
                 const el = document.getElementById(id);
                 if (el) el.textContent = (value === undefined || value === null || value === '') ? '-' : value;
