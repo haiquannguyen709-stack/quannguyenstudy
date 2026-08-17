@@ -1,0 +1,3438 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quân Nguyễn Study - Hệ thống Quản lý Học tập</title>
+    <style>
+        /* ==========================================
+           1. RESET & BASE STYLES
+           ========================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-blue: #1565C0;       /* rgb(21, 101, 192) - Status Bar */
+            --primary-blue-hover: #0d47a1;
+            --sidebar-bg: #FFFFFF;
+            --sidebar-active-bg: #E3F2FD;
+            --sidebar-hover-bg: #F1F5F9;
+            --text-main: #2c3e50;
+            --text-sub: #607d8b;
+            --text-white: #ffffff;
+            --border-color: #d0e3f0;
+            --status-bar-height: 62px;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: var(--text-main);
+            background-color: #f8fafc;
+            height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==========================================
+           2. STATUS BAR
+           ========================================== */
+        .status-bar {
+            height: var(--status-bar-height);
+            background-color: var(--primary-blue);
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-bar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-bar-icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-white);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color var(--transition-speed) ease;
+        }
+
+        .status-bar-icon-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ==========================================
+           3. APP CONTAINER & GRID LAYOUT
+           ========================================== */
+        .app-container {
+            margin-top: var(--status-bar-height);
+            height: calc(100vh - var(--status-bar-height));
+            display: grid;
+            grid-template-columns: 280px 1fr; /* Sidebar cố định 280px bên trái, Main Content chiếm phần còn lại */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ==========================================
+           4. SIDEBAR
+           ========================================== */
+        .sidebar {
+            background-color: #FFFFFF;
+            border-right: 1px solid #E5E7EB;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            white-space: nowrap;
+            height: 100%;
+        }
+
+        /* --- NẤC 1: LOGO --- */
+        .sidebar-section-logo {
+            padding: 20px 16px 10px 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sidebar-logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sidebar-logo {
+            width: 150px;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* --- NẤC 2: THÔNG TIN THÍ SINH --- */
+        .sidebar-section-user {
+            padding: 12px 16px 20px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border-bottom: 1px dashed rgba(21, 101, 192, 0.2);
+            margin-bottom: 12px;
+        }
+
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            border: 2px solid var(--primary-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .user-code {
+            font-size: 0.825rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            background-color: rgba(21, 101, 192, 0.1);
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+
+        /* --- NẤC 3 & 4: MENU GROUPS --- */
+        .menu-group {
+            padding: 8px 12px;
+        }
+
+        .menu-group-title {
+            font-size: 0.725rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 8px 12px 6px 12px;
+        }
+
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: #37474F;
+            text-decoration: none;
+            font-size: 0.925rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background-color: var(--sidebar-hover-bg);
+            color: #1565C0;
+        }
+
+        .menu-item.active {
+            background-color: #E3F2FD;
+            color: #1565C0;
+            font-weight: 700;
+        }
+
+        .menu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 15%;
+            height: 70%;
+            width: 4px;
+            background-color: var(--primary-blue);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .menu-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ==========================================
+           5. MAIN CONTENT AREA
+           ========================================== */
+        .main-content {
+            background-color: #f8fafc;
+            padding: 28px 36px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Section chuyển đổi trang (SPA) */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.25s ease-in-out forwards;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .page-breadcrumb {
+            font-size: 0.875rem;
+            color: var(--text-sub);
+        }
+
+        /* Card Giao diện Placeholder */
+        .content-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .placeholder-icon {
+            width: 64px;
+            height: 64px;
+            background-color: #eef6ff;
+            color: var(--primary-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .placeholder-text-main {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .placeholder-text-sub {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            max-width: 400px;
+        }
+
+        /* Grid hiển thị demo khóa học */
+        .courses-placeholder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .course-card-skeleton {
+            background-color: #ffffff;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .skeleton-img {
+            height: 120px;
+            background-color: #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .skeleton-title {
+            height: 18px;
+            width: 75%;
+            background-color: #cbd5e1;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-desc {
+            height: 12px;
+            width: 50%;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+
+        /* ==========================================
+           6. RESPONSIVE DESIGN
+           ========================================== */
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 220px 1fr;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+        }
+        /* ==========================================
+           7. NOTIFICATION SYSTEM STYLES
+           ========================================== */
+        .notification-container {
+            width: 100%;
+        }
+
+        .notification-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            min-height: 380px;
+        }
+
+        /* Bảng danh sách thông báo */
+        .notification-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .notification-table th {
+            padding: 14px 16px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            border-bottom: 2px solid var(--border-color);
+            background-color: #f8fafc;
+        }
+
+        .notification-th-title {
+            width: 75%;
+            text-align: left;
+        }
+
+        .notification-th-date {
+            width: 25%;
+            text-align: right;
+        }
+
+        .notification-row {
+            cursor: pointer;
+            transition: background-color var(--transition-speed) ease;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .notification-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .notification-row:hover {
+            background-color: #f0f7ff;
+        }
+
+        .notification-cell-title {
+            padding: 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification-item-icon {
+            color: var(--primary-blue);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-cell-date {
+            padding: 16px;
+            font-size: 0.875rem;
+            color: var(--text-sub);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        /* Trang chi tiết thông báo */
+        .notification-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--primary-blue);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .notification-back-btn:hover {
+            background-color: var(--sidebar-active-bg);
+            border-color: var(--primary-blue);
+        }
+
+        .notification-detail-main-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .notification-detail-meta {
+            font-size: 0.875rem;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        .notification-divider {
+            border: 0;
+            height: 1px;
+            background: #e2e8f0;
+            margin: 16px 0 24px 0;
+        }
+
+        /* Trình bày nội dung chi tiết */
+        .notification-body {
+            color: #334155;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .notification-body h3 {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin: 18px 0 10px 0;
+            font-weight: 700;
+        }
+
+        .notification-body h4 {
+            font-size: 1rem;
+            color: var(--primary-blue);
+            margin: 14px 0 8px 0;
+            font-weight: 600;
+        }
+
+        .notification-body p {
+            margin-bottom: 12px;
+        }
+
+        .notification-body ul {
+            margin: 8px 0 16px 24px;
+        }
+
+        .notification-body li {
+            margin-bottom: 6px;
+        }
+
+        /* Bảng lồng trong nội dung chi tiết */
+        .notification-inner-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .notification-inner-table th,
+        .notification-inner-table td {
+            border: 1px solid #cbd5e1;
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .notification-inner-table th {
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .notification-inner-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .notification-th-title { width: 65%; }
+            .notification-th-date { width: 35%; }
+            .notification-cell-title { font-size: 0.875rem; }
+            .notification-cell-date { font-size: 0.8rem; }
+        }
+
+        /* ==========================================
+           8. COURSE STYLES
+           ========================================== */
+        .course-search-container {
+            margin-bottom: 24px;
+            width: 100%;
+        }
+
+        .course-search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .course-search-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .course-search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            font-size: 0.95rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            background-color: #ffffff;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .course-search-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+        }
+
+        .course-no-result {
+            grid-column: 1 / -1;
+            background-color: #ffffff;
+            padding: 40px;
+            text-align: center;
+            border-radius: 12px;
+            border: 1px dashed #cbd5e1;
+            color: var(--text-sub);
+            font-size: 0.95rem;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+
+        @media (max-width: 992px) {
+            .course-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .course-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .course-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+            animation: courseFadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes courseFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        .course-image {
+            height: 140px;
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .course-image img.img-error {
+            display: none;
+        }
+
+        .course-image svg {
+            width: 48px;
+            height: 48px;
+            opacity: 0.85;
+        }
+
+        .course-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-badge-allowed {
+            background-color: #2e7d32;
+        }
+
+        .course-badge-unallowed {
+            background-color: #64748b;
+        }
+
+        .course-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .course-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            line-height: 1.35;
+            min-height: 2.7em;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .course-level-tag {
+            display: inline-block;
+            align-self: flex-start;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 6px;
+            margin-bottom: 14px;
+        }
+
+        .course-meta {
+            font-size: 0.875rem;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .course-footer {
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .course-students {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .course-btn {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .course-btn:active {
+            transform: scale(0.98);
+        }
+
+        .course-btn-enter {
+            background-color: #2e7d32;
+            color: #ffffff;
+        }
+
+        .course-btn-enter:hover {
+            background-color: #1b5e20;
+        }
+
+        .course-btn-enroll {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+        }
+
+        .course-btn-enroll:hover {
+            background-color: var(--primary-blue-hover);
+        }
+        .course-badge-requested {
+            background-color: #f9a825;
+        }
+
+        .course-btn-requested {
+            background-color: #cbd5e1;
+            color: #475569;
+            cursor: not-allowed;
+        }
+
+        .course-btn-requested:hover {
+            background-color: #cbd5e1;
+        }
+
+        .course-loading-state,
+        .course-error-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-sub);
+        }
+
+        .course-error-state {
+            color: #c62828;
+        }
+
+        .course-retry-btn {
+            margin-top: 12px;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            background-color: var(--primary-blue);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .course-retry-btn:hover {
+            background-color: var(--primary-blue-hover);
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            min-width: 260px;
+            max-width: 360px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast-success { background-color: #2e7d32; }
+        .toast-error { background-color: #c62828; }
+        .toast-info { background-color: #1565C0; }
+        /* ==========================================
+           9. TUITION PAGE STYLES (ĐỘC LẬP / PRE-FIXED)
+           ========================================== */
+        .tuition-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            padding: 24px;
+            animation: tuitionFadeUp 0.35s ease-out forwards;
+        }
+
+        @keyframes tuitionFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tuition-card-header {
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tuition-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .tuition-card-desc {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        .tuition-table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tuition-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.925rem;
+            white-space: nowrap;
+        }
+
+        .tuition-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tuition-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-main);
+            vertical-align: middle;
+            transition: background-color 0.2s ease;
+        }
+
+        .tuition-table tbody tr:hover td {
+            background-color: #f0f7ff;
+        }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+
+        .tuition-amount-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .tuition-amount-highlight {
+            font-weight: 700;
+            color: var(--primary-blue);
+            font-size: 1rem;
+        }
+
+        .tuition-badge {
+            font-size: 0.725rem;
+            font-weight: 600;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            padding: 3px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .tuition-btn-pay {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tuition-btn-pay:hover {
+            background-color: var(--primary-blue-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(21, 101, 192, 0.3);
+        }
+
+        .tuition-btn-pay:active {
+            transform: translateY(0);
+        }
+
+        .tuition-btn-pay:active {
+            transform: translateY(0);
+        }
+
+        /* ==========================================
+           TRẠNG THÁI HỌC PHÍ ĐỘNG (đã nộp / đang tải / lỗi)
+           ========================================== */
+        .tuition-row-paid td {
+            background-color: #f0fdf4;
+            color: #166534;
+        }
+
+        .tuition-row-paid:hover td {
+            background-color: #dcfce7;
+        }
+
+        .tuition-status-paid {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background-color: #dcfce7;
+            color: #15803d;
+            font-weight: 700;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .tuition-table-loading,
+        .tuition-table-error {
+            color: var(--text-sub);
+            padding: 24px 12px;
+        }
+
+        .tuition-table-error {
+            color: #c62828;
+        }
+
+        /* MODAL STYLES */
+        .tuition-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(2px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .tuition-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .tuition-modal {
+            background-color: #ffffff;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 440px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+
+        .tuition-modal-overlay.active .tuition-modal {
+            transform: scale(1);
+        }
+
+        .tuition-modal-header {
+            padding: 16px 20px;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tuition-modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .tuition-modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .tuition-modal-close:hover {
+            color: var(--text-main);
+        }
+
+        .tuition-modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tuition-modal-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.925rem;
+            color: var(--text-main);
+        }
+
+        .tuition-modal-label {
+            color: var(--text-sub);
+        }
+
+        .tuition-modal-value {
+            font-weight: 600;
+        }
+
+        .tuition-modal-row-total {
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px dashed #cbd5e1;
+            font-size: 1rem;
+        }
+
+        .tuition-modal-value-highlight {
+            font-weight: 700;
+            color: var(--primary-blue);
+            font-size: 1.1rem;
+        }
+
+        .tuition-modal-footer {
+            padding: 16px 20px;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .tuition-btn-cancel {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tuition-btn-cancel:hover {
+            background-color: #f1f5f9;
+        }
+
+        .tuition-btn-confirm {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tuition-btn-confirm:hover {
+            background-color: var(--primary-blue-hover);
+        }
+        /* ==========================================
+           10b. SCHEDULE PAGE STYLES (ĐỒNG BỘ TRANG HỌC PHÍ)
+           ========================================== */
+        .schedule-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            padding: 24px;
+            animation: tuitionFadeUp 0.35s ease-out forwards;
+        }
+
+        .schedule-card-header {
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .schedule-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .schedule-card-desc {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        .schedule-table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            table-layout: fixed;
+        }
+
+        .schedule-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            padding: 12px 10px;
+            border-bottom: 2px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .schedule-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-main);
+            vertical-align: middle;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.45;
+        }
+
+        /* Phân bổ tỷ lệ độ rộng 8 cột cân đối */
+        .col-stt { width: 5%; }
+        .col-ngay { width: 11%; }
+        .col-gio { width: 11%; }
+        .col-thuoluong { width: 11%; }
+        .col-khoahoc { width: 17%; }
+        .col-noidung { width: 23%; }
+        .col-chuyencan { width: 10%; }
+        .col-thaotac { width: 12%; }
+
+        .text-left { text-align: left; }
+
+        /* MÀU NỀN DÒNG CÓ THỨ TỰ ƯU TIÊN */
+        /* Trạng thái 1: Sắp diễn ra (Ưu tiên cao nhất) */
+        .schedule-row-upcoming td {
+            background-color: #E7F1FF !important;
+        }
+
+        /* Trạng thái 2: Đã diễn ra nhưng Chưa học */
+        .schedule-row-absent td {
+            background-color: #FDECEC !important;
+        }
+
+        /* Trạng thái 3: Đã học */
+        .schedule-row-attended td {
+            background-color: #EAF7EA !important;
+        }
+
+        /* BADGE CỘT CHUYÊN CẦN */
+        .chuyencan-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .chuyencan-attended {
+            background-color: #D1E7DD;
+            color: #0F5132;
+        }
+
+        .chuyencan-absent {
+            background-color: #F8D7DA;
+            color: #842029;
+        }
+
+        .chuyencan-upcoming {
+            background-color: #C3E0FF;
+            color: #0A438A;
+        }
+
+        /* NÚT VÀO HỌC */
+        .schedule-btn-join {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.15);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            width: 100%;
+            max-width: 95px;
+        }
+
+        .schedule-btn-join:hover:not(:disabled) {
+            background-color: var(--primary-blue-hover);
+            transform: translateY(-1px);
+        }
+
+        .schedule-btn-join:disabled {
+            background-color: #cbd5e1;
+            color: #64748b;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        /* ==========================================
+           10. PROFILE PAGE STYLES (ĐỘC LẬP & TỰ ĐỘNG ẨN TRỐNG)
+           ========================================== */
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: profileFadeIn 0.35s ease-out forwards;
+        }
+
+        @keyframes profileFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hero Banner Cá nhân */
+        .profile-hero-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .profile-hero-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            border: 2px solid var(--primary-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(21, 101, 192, 0.12);
+            flex-shrink: 0;
+        }
+
+        .profile-hero-name {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .profile-hero-tags {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .profile-hero-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            background-color: rgba(21, 101, 192, 0.1);
+            color: var(--primary-blue);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .profile-hero-badge.badge-role {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        /* Lưới các thẻ chi tiết */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .profile-item-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .profile-item-card:hover {
+            border-color: #93c5fd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.06);
+        }
+
+        .profile-icon {
+            font-size: 1.4rem;
+            width: 42px;
+            height: 42px;
+            background-color: #f1f5f9;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+        }
+
+        .profile-label {
+            font-size: 0.775rem;
+            color: var(--text-sub);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .profile-value {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            font-weight: 600;
+            word-break: break-word;
+        }
+        /* ==========================================
+           11. STUDY RESULT PAGE STYLES
+           ========================================== */
+        .study-result-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            padding: 24px;
+            animation: studyFadeUp 0.35s ease-out forwards;
+        }
+
+        @keyframes studyFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .study-result-filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-size: 0.925rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-select-wrapper {
+            position: relative;
+            min-width: 240px;
+        }
+
+        .study-filter-select {
+            width: 100%;
+            padding: 9px 36px 9px 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: all 0.2s ease;
+        }
+
+        .study-filter-select:hover {
+            border-color: var(--primary-blue);
+            background-color: #ffffff;
+        }
+
+        .study-filter-select:focus {
+            border-color: var(--primary-blue);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+        }
+
+        .filter-select-wrapper::after {
+            content: '▼';
+            font-size: 0.7rem;
+            color: var(--text-sub);
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .study-result-table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 8px;
+            transition: opacity 0.2s ease;
+        }
+
+        .study-result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.925rem;
+            text-align: left;
+        }
+
+        .study-result-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 700;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .study-result-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .study-result-table tbody tr:hover td {
+            background-color: #f0f7ff;
+        }
+
+        /* Định dạng điểm số */
+        .score-display {
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .score-high {
+            color: #15803d;
+            background-color: #dcfce7;
+        }
+
+        .score-medium {
+            color: #1565c0;
+            background-color: #e3f2fd;
+        }
+
+        .score-low {
+            color: #c2410c;
+            background-color: #ffedd5;
+        }
+
+        .score-empty {
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        /* Định dạng Badge ghi chú */
+        .note-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-excellent {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-good {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .badge-completed {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        .badge-warning {
+            background-color: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-default {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+
+        /* Giao diện Empty State */
+        .study-empty-state {
+            padding: 48px 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .study-empty-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.9;
+        }
+
+        .study-empty-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .study-empty-desc {
+            font-size: 0.875rem;
+            color: var(--text-sub);
+            max-width: 360px;
+        }
+
+        /* ==========================================
+   BẢNG KẾT QUẢ HỌC TẬP - DEMO VÍ DỤ MẪU
+   ========================================== */
+.demo-table-header {
+    margin-top: 16px;
+    margin-bottom: 16px;
+}
+
+.demo-table-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    margin-bottom: 2px;
+}
+
+.demo-table-sub {
+    font-size: 0.825rem;
+    color: var(--text-sub);
+}
+
+.study-result-table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.study-result-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.925rem;
+    text-align: left;
+}
+
+.study-result-table th {
+    background-color: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.study-result-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+.study-result-table tbody tr:hover td {
+    background-color: #f0f7ff;
+}
+
+/* Định dạng Điểm số */
+.score-badge {
+    display: inline-block;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 4px 12px;
+    border-radius: 6px;
+}
+
+.score-excellent {
+    color: #15803d;
+    background-color: #dcfce7;
+}
+
+.score-good {
+    color: #1565c0;
+    background-color: #e3f2fd;
+}
+
+.score-pass {
+    color: #475569;
+    background-color: #f1f5f9;
+}
+
+.score-warn {
+    color: #c2410c;
+    background-color: #ffedd5;
+}
+
+/* Định dạng Badge Ghi chú */
+.note-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.note-excellent {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.note-good {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.note-pass {
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+.note-warn {
+    background-color: #fef3c7;
+    color: #b45309;
+}
+/* Điểm đánh giá — KHÔNG badge, KHÔNG block màu, chỉ lớn hơn & đậm hơn chữ cùng dòng */
+.score-display-plain {
+    font-weight: 700;
+    font-size: 1.15em; /* lớn hơn khoảng 1 cỡ so với chữ cùng dòng trong bảng */
+    color: var(--text-main);
+}
+    </style>
+</head>
+<body>
+
+    <!-- STATUS BAR -->
+    <header class="status-bar">
+        <div class="status-bar-title">
+            <span>Quân Nguyễn Study</span>
+        </div>
+        <button class="status-bar-icon-btn" id="btn-notification-bell" title="Thông báo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+        </button>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="app-container" id="app-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            
+
+            
+            
+            <!-- NẤC 1: LOGO -->
+            <div class="sidebar-section-logo">
+                <div class="sidebar-logo-container">
+                    <img src="logo.png" alt="Logo" class="sidebar-logo">
+                </div>
+            </div>
+
+            <!-- NẤC 2: THÔNG TIN THÍ SINH -->
+            <div class="sidebar-section-user">
+                <div class="user-avatar">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="user-name" id="sidebarUserName">Đang tải...</div>
+                <div class="user-code" id="sidebarUserCode">------</div>
+            </div>
+
+            <!-- NẤC 3: TRANG CÁ NHÂN -->
+            <div class="menu-group">
+                <div class="menu-group-title">Trang cá nhân</div>
+                <ul class="menu-list">
+                    <li>
+                        <a class="menu-item" data-page="profile-page">
+                            <span class="menu-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                            </span>
+                            <span>Thông tin cá nhân</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu-item" data-page="notification-page">
+                            <span class="menu-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                </svg>
+                            </span>
+                            <span>Thông báo</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- NẤC 4: CHỨC NĂNG TRỰC TUYẾN -->
+            <div class="menu-group">
+                <div class="menu-group-title">Chức năng trực tuyến</div>
+                <ul class="menu-list">
+                    <li>
+                        <a class="menu-item" data-page="study-result-page">
+                            <span class="menu-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                                </svg>
+                            </span>
+                            <span>Kết quả học tập</span>
+                        </a>
+                    </li>
+                    <li>
+                        <!-- Mặc định Active -->
+                        <a class="menu-item active" data-page="course-page">
+                            <span class="menu-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                </svg>
+                            </span>
+                            <span>Khóa học</span>
+                        </a>
+                    </li>
+                    
+                    <li>
+                        <a class="menu-item" data-page="schedule-page">
+                            <span class="menu-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                            </span>
+                            <span>Lịch học</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu-item" data-page="tuition-page">
+                            <span class="menu-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                                </svg>
+                            </span>
+                            <span>Học phí</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <!-- NẤC 5: ĐĂNG XUẤT -->
+            <div class="menu-group">
+                <ul class="menu-list">
+                    <li>
+                        <a class="menu-item" id="btn-logout">
+                            <span class="menu-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                            </span>
+                            <span>Đăng xuất</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+
+            <!-- 1. TRANG KHÓA HỌC (MẶC ĐỊNH) -->
+            <section class="page-section active" id="course-page">
+                <div class="page-header">
+                    <h1 class="page-title">KHÓA HỌC</h1>
+                    <div class="page-breadcrumb">Trang chủ / Chức năng trực tuyến / Khóa học</div>
+                </div>
+                
+                <!-- Thanh tìm kiếm khóa học -->
+                <div class="course-search-container">
+                    <div class="course-search-box">
+                        <svg class="course-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="course-search-input" class="course-search-input" placeholder="Tìm kiếm khóa học theo tên hoặc giảng viên...">
+                    </div>
+                </div>
+
+                <div id="course-grid-container" class="course-grid">
+                    <!-- Khóa học sẽ được render động từ JavaScript -->
+                </div>
+            </section>
+
+            <!-- 2. TRANG THÔNG TIN CÁ NHÂN -->
+            <section class="page-section" id="profile-page">
+                <div class="page-header">
+                    <h1 class="page-title">THÔNG TIN CÁ NHÂN</h1>
+                    <div class="page-breadcrumb">Trang chủ / Trang cá nhân / Thông tin cá nhân</div>
+                </div>
+
+                <div class="profile-container">
+                    <!-- Thẻ tổng quan người dùng -->
+                    <div class="profile-hero-card">
+                        <div class="profile-hero-avatar">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div class="profile-hero-info">
+                            <h2 class="profile-hero-name" id="hero-hoTen">--</h2>
+                            <div class="profile-hero-tags">
+                                <span class="profile-hero-badge" id="hero-id">--</span>
+                                <span class="profile-hero-badge badge-role">Thí sinh / Học sinh</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lưới các mục thông tin -->
+                    <div class="profile-grid" id="profile-grid">
+                        <div class="profile-item-card" data-key="id">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Mã định danh (ID)</span>
+                                <strong class="profile-value" id="profile-id">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="hoTen">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Họ và tên</span>
+                                <strong class="profile-value" id="profile-hoTen">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="ngaySinh">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Ngày sinh</span>
+                                <strong class="profile-value" id="profile-ngaySinh">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="noiSinh">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Nơi sinh</span>
+                                <strong class="profile-value" id="profile-noiSinh">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="gioiTinh">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Giới tính</span>
+                                <strong class="profile-value" id="profile-gioiTinh">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="username">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Tài khoản</span>
+                                <strong class="profile-value" id="profile-username">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="email">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Email</span>
+                                <strong class="profile-value" id="profile-email">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="soDienThoai">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Số điện thoại</span>
+                                <strong class="profile-value" id="profile-soDienThoai">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="soGD">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Sở GD&ĐT</span>
+                                <strong class="profile-value" id="profile-soGD">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="truong">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Trường</span>
+                                <strong class="profile-value" id="profile-truong">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="khoi">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Khối</span>
+                                <strong class="profile-value" id="profile-khoi">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="lop">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Lớp</span>
+                                <strong class="profile-value" id="profile-lop">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="nganhDaoTao">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Ngành đào tạo</span>
+                                <strong class="profile-value" id="profile-nganhDaoTao">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="profile-item-card" data-key="khoa">
+                            
+                            <div class="profile-details">
+                                <span class="profile-label">Khoa</span>
+                                <strong class="profile-value" id="profile-khoa">-</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- SECTION KẾT QUẢ HỌC TẬP -->
+            <section class="page-section" id="study-result-page">
+                <div class="page-header">
+                    <h1 class="page-title">KẾT QUẢ HỌC TẬP</h1>
+                    <div class="page-breadcrumb">Trang chủ / Chức năng trực tuyến / Kết quả học tập</div>
+                </div>
+
+                <div class="study-result-card">
+                    <!-- Thanh bộ lọc khóa học -->
+                    <div class="study-result-filter-bar">
+                        <label for="study-course-filter" class="filter-label">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                            Lọc theo khóa học:
+                        </label>
+                        <div class="filter-select-wrapper">
+                            <select id="study-course-filter" class="study-filter-select">
+                                <option value="all">Tất cả khóa học</option>
+                                <option value="Nhập môn Giải tích I">Nhập môn Giải tích I</option>
+                                <option value="Nhập môn Đại số tuyến tính">Nhập môn Đại số tuyến tính</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Tiêu đề phụ Bảng ví dụ mẫu -->
+                    
+
+                    <!-- Vùng chứa bảng -->
+                    <div id="study-result-content-area">
+                        <div class="study-result-table-responsive">
+                            <table class="study-result-table" id="study-result-table">
+                                <thead id="study-result-thead">
+                                    <!-- Render động qua JavaScript -->
+                                </thead>
+                                <tbody id="study-result-tbody">
+                                    <!-- Render động qua JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            
+
+            <!-- 3. TRANG THÔNG BÁO -->
+            <section class="page-section" id="notification-page">
+                <div class="page-header">
+                    <h1 class="page-title">THÔNG BÁO</h1>
+                    <div class="page-breadcrumb">Trang chủ / Trang cá nhân / Thông báo</div>
+                </div>
+                <div class="notification-container">
+                    <!-- Danh sách thông báo dạng bảng -->
+                    <div id="notification-list-view" class="notification-card">
+                        <table class="notification-table">
+                            <thead>
+                                <tr>
+                                    <th class="notification-th-title">Tiêu đề</th>
+                                    <th class="notification-th-date">Ngày đăng</th>
+                                </tr>
+                            </thead>
+                            <tbody id="notification-table-body">
+                                <!-- Render từ JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Chi tiết thông báo -->
+                    <div id="notification-detail-view" class="notification-card notification-detail" style="display: none;">
+                        <button type="button" class="notification-back-btn" onclick="closeNotification()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="19" y1="12" x2="5" y2="12"></line>
+                                <polyline points="12 19 5 12 12 5"></polyline>
+                            </svg>
+                            <span>Quay lại danh sách thông báo</span>
+                        </button>
+                        
+                        <h2 id="notification-detail-title" class="notification-detail-main-title"></h2>
+                        <div id="notification-detail-date" class="notification-detail-meta"></div>
+                        <hr class="notification-divider">
+                        <div id="notification-detail-content" class="notification-body"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. TRANG LỊCH HỌC -->
+            <section class="page-section" id="schedule-page">
+                <div class="page-header">
+                    <h1 class="page-title">LỊCH HỌC</h1>
+                    <div class="page-breadcrumb">Trang chủ / Chức năng trực tuyến / Lịch học</div>
+                </div>
+                
+                <div class="schedule-card">
+                    <div class="schedule-card-header">
+                        <div>
+                            <div class="schedule-card-title">Thời khóa biểu học tập</div>
+                            <div class="schedule-card-desc">Danh sách các buổi học chi tiết theo lịch giảng dạy</div>
+                        </div>
+                    </div>
+
+                    <div class="schedule-table-responsive">
+                        <table class="schedule-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-stt text-center">STT</th>
+                                    <th class="col-ngay text-center">Ngày học</th>
+                                    <th class="col-gio text-center">Thời gian bắt đầu học</th>
+                                    <th class="col-thuoluong text-center">Thời lượng học</th>
+                                    <th class="col-khoahoc text-left">Khóa học</th>
+                                    <th class="col-noidung text-left">Nội dung buổi học</th>
+                                    <th class="col-chuyencan text-center">Chuyên cần</th>
+                                    <th class="col-thaotac text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="schedule-table-body">
+                                <tr>
+                                    <td colspan="8" class="text-center">Đang tải lịch học...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. TRANG HỌC PHÍ -->
+            <section class="page-section" id="tuition-page">
+                <div class="page-header">
+                    <h1 class="page-title">HỌC PHÍ</h1>
+                    <div class="page-breadcrumb">Trang chủ / Chức năng trực tuyến / Học phí</div>
+                </div>
+                
+                <div class="tuition-card">
+                    <div class="tuition-card-header">
+                        <div>
+                            <div class="tuition-card-title">Danh sách học phí</div>
+                            <div class="tuition-card-desc">Các khoản học phí đang chờ thanh toán</div>
+                        </div>
+                    </div>
+
+                    <div class="tuition-table-responsive">
+                        <table class="tuition-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 60px;">STT</th>
+                                    <th class="text-center">Ngày bắt đầu tính học phí</th>
+                                    <th class="text-center">Ngày kết thúc tính học phí</th>
+                                    <th class="text-right">Học phí gốc</th>
+                                    <th class="text-right">Miễn giảm</th>
+                                    <th class="text-right">Học phí cần thanh toán</th>
+                                    <th class="text-center" style="width: 160px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tuition-table-body">
+                                <tr>
+                                    <td colspan="7" class="text-center">
+                                        Đang tải dữ liệu học phí...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODAL XÁC NHẬN THANH TOÁN -->
+            <div id="tuition-modal-overlay" class="tuition-modal-overlay">
+                <div class="tuition-modal">
+                    <div class="tuition-modal-header">
+                        <h3 class="tuition-modal-title">Xác nhận nộp học phí</h3>
+                        <button type="button" class="tuition-modal-close" onclick="closeTuitionModal()">&times;</button>
+                    </div>
+                    <div class="tuition-modal-body">
+                        <div class="tuition-modal-row">
+                            <span class="tuition-modal-label">Khoản học phí:</span>
+                            <span class="tuition-modal-value" id="modal-tuition-period">10/08/2026 – 31/08/2026</span>
+                        </div>
+                        <div class="tuition-modal-row">
+                            <span class="tuition-modal-label">Học phí gốc:</span>
+                            <span class="tuition-modal-value" id="modal-tuition-original">1.800.000</span>
+                        </div>
+                        <div class="tuition-modal-row">
+                            <span class="tuition-modal-label">Miễn giảm:</span>
+                            <span class="tuition-modal-value" id="modal-tuition-discount">1.500.000</span>
+                        </div>
+                        <div class="tuition-modal-row tuition-modal-row-total">
+                            <span class="tuition-modal-label">Số tiền cần thanh toán:</span>
+                            <span class="tuition-modal-value-highlight" id="modal-tuition-final">300.000</span>
+                        </div>
+                    </div>
+                    <div class="tuition-modal-footer">
+                        <button type="button" class="tuition-btn-cancel" onclick="closeTuitionModal()">Hủy</button>
+                        <button type="button" class="tuition-btn-confirm" onclick="submitTuitionPayment()">Tiếp tục thanh toán</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT CONTROL -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            /* ==========================================
+               0. BẢO VỆ TRANG & NẠP DỮ LIỆU NGƯỜI DÙNG
+               ========================================== */
+            const userData = sessionStorage.getItem('loggedInUser');
+
+            if (!userData) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            let user;
+            try {
+                user = JSON.parse(userData);
+            } catch (e) {
+                sessionStorage.removeItem('loggedInUser');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            function setText(id, value) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = (value === undefined || value === null || value === '') ? '-' : value;
+            }
+
+            // Gán dữ liệu cho Sidebar & Header Hero
+            setText('sidebarUserName', user.hoTen);
+            setText('sidebarUserCode', user.id);
+            setText('hero-hoTen', user.hoTen);
+            setText('hero-id', user.id);
+
+            // Xử lý nạp dữ liệu và ẨN các trường không có dữ liệu
+            const profileCards = document.querySelectorAll('.profile-item-card');
+            profileCards.forEach(card => {
+                const key = card.getAttribute('data-key');
+                const val = user[key];
+                const valueEl = card.querySelector('.profile-value');
+
+                // Kiểm tra xem dữ liệu có tồn tại không (Loại bỏ null, undefined, rỗng hoặc dấu "-")
+                const isValid = val !== undefined && val !== null && String(val).trim() !== '' && String(val).trim() !== '-';
+
+                if (isValid) {
+                    if (valueEl) valueEl.textContent = val;
+                    card.style.display = 'flex'; // Hiển thị ô nếu có dữ liệu
+                } else {
+                    card.style.display = 'none'; // ẨN HOÀN TOÀN ô nếu không có dữ liệu
+                }
+            });
+
+            /* ==========================================
+               0b. ĐĂNG XUẤT
+               ========================================== */
+            const btnLogout = document.getElementById('btn-logout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    sessionStorage.removeItem('loggedInUser');
+                    window.location.href = 'index.html';
+                });
+            }
+            // Element References
+            const btnNotificationBell = document.getElementById('btn-notification-bell');
+            const menuItems = document.querySelectorAll('.menu-item');
+            const pageSections = document.querySelectorAll('.page-section');
+
+            /* ==========================================
+               2. XỬ LÝ CHUYỂN TRANG SPA & MENU ACTIVE
+               ========================================== */
+            function navigateToPage(targetPageId) {
+                // 1. Cập nhật trạng thái Active của Menu
+                menuItems.forEach(item => {
+                    if (item.getAttribute('data-page') === targetPageId) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+
+                // 2. Chuyển đổi hiển thị Section tương ứng
+                pageSections.forEach(section => {
+                    if (section.id === targetPageId) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+
+                // 3. Tải dữ liệu khi người dùng chuyển trang
+                if (targetPageId === 'tuition-page' && !tuitionLoaded) {
+                    loadTuitionData();
+                }
+                if (targetPageId === 'schedule-page' && !scheduleLoaded) {
+                    loadScheduleData();
+                }
+                if (targetPageId === 'study-result-page' && !learningResultsLoaded) {
+                    loadLearningResults();
+                }
+            }
+
+            // Gắn sự kiện Click cho tất cả các item menu trong Sidebar
+            menuItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = item.getAttribute('data-page');
+                    if (pageId) {
+                        navigateToPage(pageId);
+                    }
+                });
+            });
+
+            /* ==========================================
+               3. SỰ KIỆN CLICK CHUÔNG THÔNG BÁO STATUS BAR
+               ========================================== */
+            btnNotificationBell.addEventListener('click', () => {
+                navigateToPage('notification-page');
+            });
+        /* ==========================================
+               4. CHỨC NĂNG QUẢN LÝ THÔNG BÁO
+               ========================================== */
+            const notifications = [
+                {
+                    id: 1,
+                    title: "Mở lớp Nhập môn Toán Cao Cấp theo chương trình đào tạo kỹ sư tại Đại học Bách Khoa Hà Nội",
+                    date: "10/07/2026",
+                    content: `
+                        <p>Lớp học tập trung giảng dạy 2 học phần cốt lõi:</p>
+                        
+                        <h3>1. Nhập môn Đại số Tuyến tính</h3>
+                        <ul>
+                            <li>Logic, tập hợp, ánh xạ, số phức.</li>
+                            <li>Ma trận, định thức và hệ phương trình tuyến tính.</li>
+                            <li>Không gian vectơ, ánh xạ tuyến tính.</li>
+                        </ul>
+
+                        <h3>2. Nhập môn Giải tích I</h3>
+                        <ul>
+                            <li>Giới hạn, tính liên tục của hàm số một biến.</li>
+                            <li>Phép tính vi phân hàm một biến.</li>
+                            <li>Phép tính tích phân hàm một biến.</li>
+                        </ul>
+
+                        <h3>Thông tin đăng ký & lịch học</h3>
+                        <ul>
+                            <li><strong>Hình thức học:</strong> Online (học trực tuyến có tương tác trực tiếp với giảng viên).</li>
+                            <li><strong>Thời lượng đào tạo:</strong> 6 buổi, mỗi buổi 3 giờ.</li>
+                            <li><strong>Đối tượng tham gia:</strong> Sinh viên năm nhất, sinh viên chuẩn bị vào Đại học Bách Khoa hoặc các bạn có định hướng theo khối ngành Kỹ thuật/Khoa học tự nhiên.</li>
+                            <li><strong>Thời gian đóng đăng ký:</strong> 10/08/2026.</li>
+                        </ul>
+                    `
+                },
+                {
+                    id: 2,
+                    title: "Mở lớp Toán học 12 theo chương trình mới",
+                    date: "29/07/2026",
+                    content: `
+                        <h3>TẬP 1: ỨNG DỤNG ĐẠO HÀM, VECTƠ VÀ CÁC SỐ ĐẶC TRƯNG</h3>
+                        
+                        <h4>Chương 1: Ứng dụng đạo hàm để khảo sát và vẽ đồ thị hàm số</h4>
+                        <ul>
+                            <li>Bài 1: Tính đơn điệu và cực trị của hàm số.</li>
+                            <li>Bài 2: Giá trị lớn nhất và giá trị nhỏ nhất của hàm số.</li>
+                            <li>Bài 3: Đường tiệm cận của đồ thị hàm số (tiệm cận đứng, tiệm cận ngang, tiệm cận xiên).</li>
+                            <li>Bài 4: Khảo sát sự biến thiên và vẽ đồ thị của hàm số.</li>
+                            <li>Bài 5: Ứng dụng đạo hàm để giải quyết một số bài toán thực tế (bài toán tối ưu hóa).</li>
+                        </ul>
+
+                        <h4>Chương 2: Tọa độ của vectơ trong không gian</h4>
+                        <ul>
+                            <li>Bài 1: Vectơ và các phép toán vectơ trong không gian.</li>
+                            <li>Bài 2: Tọa độ của vectơ trong không gian Oxyz.</li>
+                            <li>Bài 3: Biểu thức tọa độ của các phép toán vectơ.</li>
+                        </ul>
+
+                        <h4>Chương 3: Các số đặc trưng đo độ tập trung và đo độ phân tán cho mẫu số liệu ghép nhóm</h4>
+                        <ul>
+                            <li>Bài 1: Khoảng biến thiên và khoảng tứ phân vị của mẫu số liệu ghép nhóm.</li>
+                            <li>Bài 2: Phương sai và độ lệch chuẩn của mẫu số liệu ghép nhóm.</li>
+                        </ul>
+
+                        <h3>TẬP 2: TÍCH PHÂN, HÌNH HỌC OXYZ VÀ XÁC SUẤT</h3>
+
+                        <h4>Chương 4: Nguyên hàm và tích phân</h4>
+                        <ul>
+                            <li>Bài 1: Nguyên hàm và các tính chất cơ bản.</li>
+                            <li>Bài 2: Tích phân và tính chất của tích phân.</li>
+                            <li>Bài 3: Ứng dụng hình học của tích phân.</li>
+                            <li>Bài 4: Ứng dụng tích phân trong thực tế.</li>
+                        </ul>
+
+                        <h4>Chương 5: Phương pháp tọa độ trong không gian</h4>
+                        <ul>
+                            <li>Bài 1: Phương trình mặt phẳng.</li>
+                            <li>Bài 4: Góc và khoảng cách trong không gian Oxyz.</li>
+                        </ul>
+
+                        <h4>Chương 6: Xác suất có điều kiện và công thức xác suất toàn phần</h4>
+                        <ul>
+                            <li>Bài 1: Xác suất có điều kiện.</li>
+                            <li>Bài 2: Công thức xác suất toàn phần và công thức Bayes.</li>
+                        </ul>
+
+                        <h3>Cấu trúc mỗi bài học và lộ trình giảng dạy</h3>
+                        <table class="notification-inner-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30%;">Hạng mục</th>
+                                    <th style="width: 70%;">Nội dung thực hiện</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Lý thuyết trọng tâm</strong></td>
+                                    <td>Tóm tắt công thức, khái niệm chuẩn theo SGK mới</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Dạng toán điển hình</strong></td>
+                                    <td>Phân loại từ cơ bản đến nâng cao</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Thực hành Casio/Phần mềm</strong></td>
+                                    <td>Bấm máy tính nhanh, trực quan hóa hình học qua GeoGebra</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Kiểm tra & Đánh giá</strong></td>
+                                    <td>Bài tập rèn luyện định kỳ bám sát cấu trúc đề thi tốt nghiệp THPT mới</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    `
+                }
+            ];
+
+            function renderNotifications() {
+                const tbody = document.getElementById('notification-table-body');
+                if (!tbody) return;
+
+                tbody.innerHTML = notifications.map(item => `
+                    <tr class="notification-row" onclick="openNotification(${item.id})">
+                        <td class="notification-cell-title">
+                            <span class="notification-item-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                </svg>
+                            </span>
+                            <span>${item.title}</span>
+                        </td>
+                        <td class="notification-cell-date">${item.date}</td>
+                    </tr>
+                `).join('');
+            }
+
+            window.openNotification = function(id) {
+                const notif = notifications.find(n => n.id === id);
+                if (!notif) return;
+
+                document.getElementById('notification-detail-title').innerText = notif.title;
+                document.getElementById('notification-detail-date').innerText = 'Ngày đăng: ' + notif.date;
+                document.getElementById('notification-detail-content').innerHTML = notif.content;
+
+                document.getElementById('notification-list-view').style.display = 'none';
+                document.getElementById('notification-detail-view').style.display = 'block';
+            };
+
+            window.closeNotification = function() {
+                document.getElementById('notification-detail-view').style.display = 'none';
+                document.getElementById('notification-list-view').style.display = 'block';
+            };
+
+            // Khởi tạo danh sách thông báo khi tải trang
+            renderNotifications();
+
+            /* ==========================================
+               5. CHỨC NĂNG QUẢN LÝ & PHÂN QUYỀN KHÓA HỌC
+               ========================================== */
+               /* ==========================================
+   CONFIG - KẾT NỐI GOOGLE APPS SCRIPT
+   ========================================== */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwU0yQYe3mghBvwQkFX8sJE3tvTr5G19lYy8mioyv_UdvwxFcsKDIdK51UHt6aj8wR8/exec';
+
+const COURSE_STATUS = {
+    ALLOWED: 'O',
+    NOT_REGISTERED: 'Chưa đăng ký',
+    REQUESTED: 'Yêu cầu'
+};
+
+let coursePermissionMap = {};   // { courseId: 'O' | 'Chưa đăng ký' | 'Yêu cầu' }
+let isPermissionLoaded = false; // tránh render sai trạng thái khi chưa có dữ liệu
+
+function escapeHtml(str) {
+    if (str === undefined || str === null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function showToast(message, type = 'info') {
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3500);
+}
+
+function callAppsScript(params) {
+    const url = new URL(APPS_SCRIPT_URL);
+    Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null) {
+            url.searchParams.append(key, params[key]);
+        }
+    });
+    return fetch(url.toString()).then(res => {
+        if (!res.ok) throw new Error('Lỗi mạng: ' + res.status);
+        return res.json();
+    });
+}
+
+function renderCourseLoadingState() {
+    const container = document.getElementById('course-grid-container');
+    if (!container) return;
+    container.innerHTML = `<div class="course-loading-state">Đang tải danh sách khóa học...</div>`;
+}
+
+function renderCourseErrorState(message) {
+    const container = document.getElementById('course-grid-container');
+    if (!container) return;
+    container.innerHTML = `
+        <div class="course-error-state">
+            ${escapeHtml(message)}
+            <br>
+            <button class="course-retry-btn" onclick="loadCoursePermissions()">Thử lại</button>
+        </div>
+    `;
+}
+
+function loadCoursePermissions() {
+    renderCourseLoadingState();
+    const userId = getCurrentUserId();
+    if (!userId) {
+        renderCourseErrorState('Không xác định được người dùng. Vui lòng đăng nhập lại.');
+        return;
+    }
+    callAppsScript({ action: 'getCoursePermissions', id: userId })
+        .then(response => {
+            if (!response || !response.success) {
+                renderCourseErrorState((response && response.message) || 'Không thể tải dữ liệu quyền khóa học. Vui lòng thử lại.');
+                return;
+            }
+            coursePermissionMap = response.courses || {};
+            isPermissionLoaded = true;
+            renderCourses();
+        })
+        .catch(() => {
+            renderCourseErrorState('Không thể tải dữ liệu quyền khóa học. Vui lòng thử lại.');
+        });
+}
+            const coursesData = [
+                {
+                    id: "course-linear-algebra",
+                    title: "Nhập môn Đại số tuyến tính",
+                    level: "Đại học",
+                    teacher: "Nguyễn Hải Quân",
+                    duration: "3 tuần",
+                    students: 1,
+                    image: "MATH231.png",
+                    url: "course-linear-algebra.html" // TODO: thay bằng URL thật của khóa học
+                },
+                {
+                    id: "course-calculus-1",
+                    title: "Nhập môn Giải tích I",
+                    level: "Đại học",
+                    teacher: "Nguyễn Hải Quân",
+                    duration: "4 tuần",
+                    students: 1,
+                    image: "MATH232.png",
+                    url: "#" 
+                },
+                {
+                    id: "course-social-statistics",
+                    title: "Nhập môn Thống kê xã hội học",
+                    level: "Đại học",
+                    teacher: "Nguyễn Hải Quân",
+                    duration: "2 tuần",
+                    students: 1,
+                    image: "MATH131.jpg",
+                    url: "#" // TODO: thay bằng URL thật của khóa học
+                },
+                {
+                    id: "course-math-12",
+                    title: "Toán học 12",
+                    level: "THPT",
+                    teacher: "Nguyễn Hải Quân",
+                    duration: "8 tuần",
+                    students: 1,
+                    image: "MATH12.jpg",
+                    url: "#" // TODO: thay bằng URL thật của khóa học
+                },
+                 {
+                    id: "course-chemistry-9",
+                    title: "Hóa học 9",
+                    level: "THPT",
+                    teacher: "Nguyễn Thị Mai Phương",
+                    duration: "6 tuần",
+                    students: 6,
+                    image: "CHEM9.jpg", // TODO: đổi ảnh thật cho khóa học này
+                    url: "#" // TODO: thay bằng URL thật của khóa học
+                },{
+                    id: "course-thptqg-2027",
+                    title: "Luyện đề thi THPTQG 2027",
+                    level: "THPT",
+                    teacher: "Nguyễn Hải Quân",
+                    duration: "6 tuần",
+                    students: 0,
+                    image: "THPTQG2027.png", // TODO: đổi ảnh thật cho khóa học này
+                    url: "#" // TODO: thay bằng URL thật của khóa học
+                }
+            ];  
+
+            function getCurrentUserId() {
+                return user ? user.id : "";
+            }
+
+            function getCourseStatus(courseId) {
+                const status = coursePermissionMap[courseId];
+                if (status === COURSE_STATUS.ALLOWED || status === COURSE_STATUS.REQUESTED) {
+                    return status;
+                }
+                if (status === undefined) {
+                    console.warn('Không tìm thấy trạng thái quyền cho khóa học:', courseId);
+                }
+                return COURSE_STATUS.NOT_REGISTERED;
+            }
+
+            function sortCoursesByStatus(courses) {
+                const order = {
+                    [COURSE_STATUS.ALLOWED]: 0,
+                    [COURSE_STATUS.REQUESTED]: 1,
+                    [COURSE_STATUS.NOT_REGISTERED]: 2
+                };
+                return [...courses].sort((a, b) => order[getCourseStatus(a.id)] - order[getCourseStatus(b.id)]);
+            }
+            function renderCourses(searchTerm = '') {
+                const container = document.getElementById('course-grid-container');
+                if (!container) return;
+
+                if (!isPermissionLoaded) {
+                    renderCourseLoadingState();
+                    return;
+                }
+
+                // Lọc khóa học theo tên hoặc tên giảng viên
+                const filteredCourses = coursesData.filter(course => {
+                    const term = searchTerm.toLowerCase().trim();
+                    return course.title.toLowerCase().includes(term) ||
+                           course.teacher.toLowerCase().includes(term);
+                });
+
+                // Sắp xếp: O -> Yêu cầu -> Chưa đăng ký
+                const sortedCourses = sortCoursesByStatus(filteredCourses);
+
+                if (sortedCourses.length === 0) {
+                    container.innerHTML = `
+                        <div class="course-no-result">
+                            Không tìm thấy khóa học nào phù hợp với từ khóa "${escapeHtml(searchTerm)}".
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = sortedCourses.map(course => {
+                    const status = getCourseStatus(course.id);
+
+                    let badgeClass = 'course-badge-unallowed';
+                    let badgeText = 'Chưa đăng ký';
+                    let buttonHtml = `
+                        <button class="course-btn course-btn-enroll" onclick="handleCourseRegistration('${course.id}')">
+                            Đăng ký
+                        </button>
+                    `;
+
+                    if (status === COURSE_STATUS.ALLOWED) {
+                        badgeClass = 'course-badge-allowed';
+                        badgeText = 'Đã tham gia';
+                        buttonHtml = `
+                            <button class="course-btn course-btn-enter" onclick="openCourse('${course.id}')">
+                                Vào học →
+                            </button>
+                        `;
+                    } else if (status === COURSE_STATUS.REQUESTED) {
+                        badgeClass = 'course-badge-requested';
+                        badgeText = 'Đang yêu cầu';
+                        buttonHtml = `
+                            <button class="course-btn course-btn-requested" disabled>
+                                Đã gửi yêu cầu
+                            </button>
+                        `;
+                    }
+
+                    return `
+                        <div class="course-card">
+                            <div class="course-image">
+                                ${course.image ? `
+                                    <img src="${escapeHtml(course.image)}" alt="${escapeHtml(course.title)}" onerror="this.onerror=null; this.classList.add('img-error');">
+                                ` : `
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                                    </svg>
+                                `}
+                                <span class="course-badge ${badgeClass}">
+                                    ${badgeText}
+                                </span>
+                            </div>
+                            <div class="course-body">
+                                <h3 class="course-title" title="${escapeHtml(course.title)}">${escapeHtml(course.title)}</h3>
+                                <span class="course-level-tag">${escapeHtml(course.level)}</span>
+                                <div class="course-meta">
+                                    <strong>GV:</strong> ${escapeHtml(course.teacher)}
+                                </div>
+                                <div class="course-meta">
+                                    <strong>Thời lượng:</strong> ${escapeHtml(course.duration)}
+                                </div>
+                                <div class="course-footer">
+                                    <div class="course-students">
+                                        👤 ${escapeHtml(course.students)}
+                                    </div>
+                                    ${buttonHtml}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            window.openCourse = function(courseId) {
+                const userId = getCurrentUserId();
+                if (!userId) {
+                    showToast('Không xác định được người dùng. Vui lòng đăng nhập lại.', 'error');
+                    return;
+                }
+
+                const course = coursesData.find(c => c.id === courseId);
+                showToast('Đang kiểm tra quyền truy cập...', 'info');
+
+                callAppsScript({ action: 'verifyCourseAccess', userId: userId, courseId: courseId })
+                    .then(response => {
+                        if (response && response.success && response.authorized) {
+                            if (course && course.url && course.url !== '#') {
+                                // Lưu cờ cho phép vào sessionStorage trước khi chuyển trang
+                                sessionStorage.setItem("allowed_course_access", "true");
+                                window.location.href = course.url;
+                            } else {
+                                showToast('Đường dẫn khóa học chưa được cấu hình.', 'error');
+                            }
+                        } else {
+                            showToast('Bạn chưa được cấp quyền truy cập khóa học này.', 'error');
+                            loadCoursePermissions();
+                        }
+                    })
+                    .catch(() => {
+                        showToast('Không thể xác minh quyền truy cập. Vui lòng thử lại.', 'error');
+                    });
+            };
+
+            window.handleCourseRegistration = function(courseId) {
+                const userId = getCurrentUserId();
+                const username = user ? user.username : '';
+
+                if (!userId) {
+                    showToast('Không xác định được người dùng. Vui lòng đăng nhập lại.', 'error');
+                    return;
+                }
+
+                callAppsScript({ action: 'requestCourse', userId: userId, username: username, courseId: courseId })
+                    .then(response => {
+                        if (response && response.success) {
+                            showToast(response.message || 'Đã gửi yêu cầu đăng ký khóa học.', 'success');
+                            coursePermissionMap[courseId] = response.status || COURSE_STATUS.REQUESTED;
+                        } else {
+                            showToast((response && response.message) || 'Không thể gửi yêu cầu. Vui lòng thử lại.', 'error');
+                            if (response && response.status) {
+                                coursePermissionMap[courseId] = response.status;
+                            }
+                        }
+                        const searchInput = document.getElementById('course-search-input');
+                        renderCourses(searchInput ? searchInput.value : '');
+                    })
+                    .catch(() => {
+                        showToast('Không thể gửi yêu cầu. Vui lòng thử lại.', 'error');
+                    });
+            };
+
+            // Lắng nghe sự kiện gõ phím trên thanh tìm kiếm
+            const searchInput = document.getElementById('course-search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    renderCourses(e.target.value);
+                });
+            }
+
+            /* ==========================================
+               5b. CHỨC NĂNG HỌC PHÍ — DỮ LIỆU ĐỘNG TỪ GOOGLE SHEETS
+               ========================================== */
+            let tuitionData = [];
+            let tuitionLoaded = false;
+            /* ==========================================
+               HÀM DÙNG CHUNG: FORMAT NGÀY THEO DẠNG dd/mm/yyyy
+               ========================================== */
+            function formatDateVN(dateVal) {
+                if (!dateVal) return '-';
+                let d;
+                if (dateVal instanceof Date) {
+                    d = dateVal;
+                } else if (typeof dateVal === 'number') {
+                    d = new Date(dateVal);
+                } else if (typeof dateVal === 'string') {
+                    const str = dateVal.trim();
+                    if (!str || str === '-') return '-';
+                    // Nếu đã đúng chuẩn dd/mm/yyyy
+                    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)) {
+                        const parts = str.split('/');
+                        const day = parts[0].padStart(2, '0');
+                        const month = parts[1].padStart(2, '0');
+                        return `${day}/${month}/${parts[2]}`;
+                    }
+                    d = new Date(str);
+                }
+                if (!d || isNaN(d.getTime())) return String(dateVal);
+
+                const day = String(d.getDate()).padStart(2, '0');
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const year = d.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+
+            function formatCurrency(value) {
+                const number = Number(value);
+                if (!Number.isFinite(number)) return '-';
+                return new Intl.NumberFormat('vi-VN').format(number);
+            }
+
+            function renderTuitionTable(rows) {
+                const tbody = document.getElementById('tuition-table-body');
+                if (!tbody) return;
+
+                if (!Array.isArray(rows) || rows.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center">Không có dữ liệu học phí.</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = rows.map((item, index) => {
+                    const status = String(item.status || '').trim();
+                    const isPaid = status === 'Đã nộp';
+                    const rowClass = isPaid ? 'tuition-row-paid' : '';
+
+                    const actionHtml = isPaid
+                        ? `<span class="tuition-status-paid">Đã nộp</span>`
+                        : `
+                            <button type="button" class="tuition-btn-pay" onclick="goToTuitionPayment(${index})">
+                                💳 Nộp học phí
+                            </button>
+                        `;
+
+                    return `
+                        <tr class="${rowClass}">
+                            <td class="text-center">${index + 1}</td>
+                            <td class="text-center">${escapeHtml(formatDateVN(item.startDate))}</td>
+                            <td class="text-center">${escapeHtml(formatDateVN(item.endDate))}</td>
+                            <td class="text-right">${formatCurrency(item.original)}</td>
+                            <td class="text-right">${formatCurrency(item.discount)}</td>
+                            <td class="text-right">
+                                <div class="tuition-amount-container">
+                                    <span class="tuition-amount-highlight">${formatCurrency(item.amount)}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">${actionHtml}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            function loadTuitionData() {
+                const userId = user ? user.id : '';
+                const username = user ? user.username : '';
+
+                if (!userId || !username) {
+                    showToast('Không xác định được thông tin người dùng. Vui lòng đăng nhập lại.', 'error');
+                    return;
+                }
+
+                const tbody = document.getElementById('tuition-table-body');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center">Đang tải dữ liệu học phí...</td>
+                        </tr>
+                    `;
+                }
+
+                callAppsScript({ action: 'getTuition', id: userId, username: username })
+                    .then(response => {
+                        if (!response || !response.success) {
+                            throw new Error((response && response.message) || 'Không thể tải dữ liệu học phí.');
+                        }
+                        tuitionData = Array.isArray(response.data) ? response.data : [];
+                        tuitionLoaded = true;
+                        renderTuitionTable(tuitionData);
+                    })
+                    .catch(error => {
+                        console.error('Lỗi tải học phí:', error);
+                        if (tbody) {
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td colspan="7" class="text-center">Không thể tải dữ liệu học phí.</td>
+                                </tr>
+                            `;
+                        }
+                        showToast(error.message || 'Không thể tải dữ liệu học phí.', 'error');
+                    });
+            }
+
+            window.goToTuitionPayment = function(index) {
+                const item = tuitionData[index];
+                if (!item) {
+                    showToast('Không tìm thấy khoản học phí.', 'error');
+                    return;
+                }
+                if (String(item.status).trim() === 'Đã nộp') {
+                    showToast('Khoản học phí này đã được nộp.', 'info');
+                    return;
+                }
+                openTuitionModal(
+                    `${item.startDate} – ${item.endDate}`,
+                    formatCurrency(item.original),
+                    formatCurrency(item.discount),
+                    formatCurrency(item.amount)
+                );
+            };
+
+            // Gọi tải quyền khóa học và dữ liệu học phí từ Google Sheets ngay khi khởi tạo
+            loadCoursePermissions();
+            loadTuitionData();
+            /* ==========================================
+               5c. CHỨC NĂNG LỊCH HỌC — LOGIC VÀ RENDER
+               ========================================== */
+             let scheduleData = [];
+            let scheduleLoaded = false;
+            let scheduleLessonUrls = [];
+
+            // Kiểm tra URL an toàn trước khi mở (chỉ cho phép http/https)
+            function isSafeLessonUrl(url) {
+                try {
+                    const parsed = new URL(url, window.location.href);
+                    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            window.openScheduleLesson = function (index) {
+                const url = scheduleLessonUrls[index];
+                if (url && isSafeLessonUrl(url)) {
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                }
+            };
+            // Xử lý chuỗi Ngày + Giờ về Date Object theo giờ Việt Nam (GMT+7)
+            function parseDateTimeVN(dateStr, timeStr) {
+                if (!dateStr) return null;
+                let day = 1, month = 1, year = 2026;
+
+                if (typeof dateStr === 'string') {
+                    const parts = dateStr.trim().split('/');
+                    if (parts.length === 3) {
+                        day = parseInt(parts[0], 10);
+                        month = parseInt(parts[1], 10) - 1;
+                        year = parseInt(parts[2], 10);
+                    } else {
+                        const d = new Date(dateStr);
+                        if (!isNaN(d.getTime())) return d;
+                    }
+                } else if (dateStr instanceof Date) {
+                    return dateStr;
+                }
+
+                let hour = 0, minute = 0;
+                if (timeStr && typeof timeStr === 'string') {
+                    const cleanTime = timeStr.trim().toLowerCase().replace('h', ':');
+                    const timeParts = cleanTime.split(':');
+                    if (timeParts.length >= 1) hour = parseInt(timeParts[0], 10) || 0;
+                    if (timeParts.length >= 2) minute = parseInt(timeParts[1], 10) || 0;
+                }
+
+                return new Date(year, month, day, hour, minute, 0);
+            }
+
+            function renderScheduleTable(rows) {
+                const tbody = document.getElementById('schedule-table-body');
+                if (!tbody) return;
+
+                if (!Array.isArray(rows) || rows.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="text-center">Chưa có lịch học được cập nhật cho học kỳ này.</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                 scheduleLessonUrls = [];
+
+                tbody.innerHTML = rows.map((item, index) => {
+                    // Mapping dữ liệu linh hoạt với nhiều định dạng key từ Backend
+                    const stt = item.stt || (index + 1);
+                    const ngayHocRaw = item.ngayHoc || item.startDate || item.date || '';
+                    const ngayHocFormatted = formatDateVN(ngayHocRaw);
+                    const thoiGianBatDau = item.thoiGianBatDau || item.startTime || item.time || '13h30';
+                    const thoiLuong = item.thoiLuong || item.duration || '3 giờ 30 phút';
+                    const khoaHoc = item.khoaHoc || item.courseName || item.courseTitle || '-';
+                    const noiDung = item.noiDung || item.noiDungBuoiHoc || item.lessonContent || '-';
+                    const chuyenCan = String(item.chuyenCan || item.attendance || 'Chưa học').trim();
+                    const lessonUrl = item.lessonUrl || item.meetingUrl || item.url || '';
+
+                    // Trạng thái buổi học lấy TRỰC TIẾP từ cột "Chuyên cần" trong Google Sheets
+                    // (đây là trạng thái điểm danh do giáo viên/hệ thống ghi tay, không suy ra từ ngày/giờ)
+                    const chuyenCanLower = chuyenCan.toLowerCase();
+                    const isUpcoming = (chuyenCanLower === 'chưa diễn ra');
+                    const isAttended = (chuyenCanLower === 'đã học');
+
+                    // Xác định Class màu dòng theo thứ tự ưu tiên
+                    let rowClass = '';
+                    if (isUpcoming) {
+                        rowClass = 'schedule-row-upcoming'; // Ưu tiên 1: #E7F1FF
+                    } else if (!isAttended) {
+                        rowClass = 'schedule-row-absent';   // Ưu tiên 2: #FDECEC
+                    } else {
+                        rowClass = 'schedule-row-attended'; // Ưu tiên 3: #EAF7EA
+                    }
+
+                    // Badge chuyên cần
+                    let chuyenCanBadge = '';
+                    if (isUpcoming) {
+                        chuyenCanBadge = `<span class="chuyencan-badge chuyencan-upcoming">Chưa diễn ra</span>`;
+                    } else if (isAttended) {
+                        chuyenCanBadge = `<span class="chuyencan-badge chuyencan-attended">Đã học</span>`;
+                    } else {
+                        chuyenCanBadge = `<span class="chuyencan-badge chuyencan-absent">Chưa học</span>`;
+                    }
+
+                    // Xác định courseId dựa trên tên khóa học hoặc thuộc tính courseId trong dữ liệu
+                    let targetCourseId = item.courseId || '';
+                    if (!targetCourseId && khoaHoc) {
+                        const foundCourse = coursesData.find(c => c.title.trim().toLowerCase() === khoaHoc.trim().toLowerCase());
+                        if (foundCourse) targetCourseId = foundCourse.id;
+                    }
+
+                    // Button Vào học: ưu tiên "Đường dẫn vào học" từ Google Sheets, sau đó mới đến logic khóa học hiện tại
+                    let actionBtn = '';
+                    if (isUpcoming) {
+                        actionBtn = `<button type="button" class="schedule-btn-join" disabled title="Chưa đến giờ học">Vào học</button>`;
+                    } else if (lessonUrl && isSafeLessonUrl(lessonUrl)) {
+                        const urlIndex = scheduleLessonUrls.push(lessonUrl) - 1;
+                        actionBtn = `<button type="button" class="schedule-btn-join" onclick="openScheduleLesson(${urlIndex})">Vào học</button>`;
+                    } else if (targetCourseId) {
+                        actionBtn = `<button type="button" class="schedule-btn-join" onclick="goToCourseFromSchedule('${targetCourseId}')">Vào học</button>`;
+                    } else {
+                        actionBtn = `<button type="button" class="schedule-btn-join" onclick="navigateToPage('course-page')">Vào học</button>`;
+                    }
+
+                    return `
+                        <tr class="${rowClass}">
+                            <td class="text-center">${stt}</td>
+                            <td class="text-center">${escapeHtml(ngayHocFormatted)}</td>
+                            <td class="text-center">${escapeHtml(thoiGianBatDau)}</td>
+                            <td class="text-center">${escapeHtml(thoiLuong)}</td>
+                            <td class="text-left">${escapeHtml(khoaHoc)}</td>
+                            <td class="text-left">${escapeHtml(noiDung)}</td>
+                            <td class="text-center">${chuyenCanBadge}</td>
+                            <td class="text-center">${actionBtn}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            function loadScheduleData() {
+                const userId = user ? user.id : '';
+                const username = user ? user.username : '';
+
+                const tbody = document.getElementById('schedule-table-body');
+
+                if (!userId) {
+                    if (tbody) {
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center">Không xác định được ID người dùng.</td></tr>`;
+                    }
+                    return;
+                }
+                if (!username) {
+                    if (tbody) {
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center">Không xác định được Username.</td></tr>`;
+                    }
+                    return;
+                }
+
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="text-center">Đang tải dữ liệu lịch học...</td></tr>`;
+                }
+
+                callAppsScript({ action: 'getSchedule', id: userId, username: username })
+                    .then(response => {
+                        if (!response || !response.success) {
+                            throw new Error(response && response.message ? response.message : 'Không thể tải dữ liệu lịch học.');
+                        }
+                        if (!Array.isArray(response.data)) {
+                            throw new Error('Dữ liệu lịch học không hợp lệ.');
+                        }
+
+                        scheduleData = response.data;
+                        scheduleLoaded = true;
+                        renderScheduleTable(scheduleData);
+                    })
+                    .catch(error => {
+                        console.error('Lỗi tải lịch học:', error);
+                        scheduleLoaded = false;
+
+                        if (tbody) {
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td colspan="8" class="text-center">
+                                        Không thể tải dữ liệu lịch học.
+                                        <br>
+                                        <small>${escapeHtml(error.message || 'Vui lòng thử lại sau.')}</small>
+                                    </td>
+                                </tr>
+                            `;
+                        }
+
+                        showToast(error.message || 'Không thể tải dữ liệu lịch học.', 'error');
+                    });
+            }
+
+            
+
+            loadScheduleData();
+            // Hàm chuyển hướng từ Lịch học sang trang Khóa học tương ứng
+            window.goToCourseFromSchedule = function(courseId) {
+                // 1. Chuyển sang tab/trang Khóa học
+                navigateToPage('course-page');
+                
+                // 2. Mở thông tin / truy cập khóa học
+                if (typeof window.openCourse === 'function') {
+                    window.openCourse(courseId);
+                }
+            };
+
+            /* ==========================================
+               5d. CHỨC NĂNG KẾT QUẢ HỌC TẬP (DỮ LIỆU THẬT TỪ GOOGLE SHEETS)
+               ========================================== */
+            let learningResultsData = [];
+            let learningResultsLoaded = false;
+
+            const courseFilterSelect = document.getElementById('study-course-filter');
+
+            // Hiển thị điểm dạng văn bản thường, không badge/block màu — chỉ lớn hơn & đậm hơn chữ cùng dòng
+            function formatScoreDisplay(score) {
+                if (score === null || score === undefined || score === '' || isNaN(score)) return '-';
+                const num = parseFloat(score);
+                return num.toFixed(2).replace(/\.00$/, '.0');
+            }
+
+            // Hàm render Bảng dữ liệu từ learningResultsData (dữ liệu thật)
+            function renderLearningResultsTable(data) {
+                const thead = document.getElementById('study-result-thead');
+                const tbody = document.getElementById('study-result-tbody');
+                if (!thead || !tbody || !courseFilterSelect) return;
+
+                const selectedFilter = courseFilterSelect.value;
+                const isAll = (selectedFilter === 'all');
+                const colSpan = isAll ? 5 : 4;
+
+                // 1. Lọc dữ liệu theo Dropdown
+                const filteredData = isAll
+                    ? data
+                    : data.filter(item => item.course === selectedFilter);
+
+                // 2. Render <thead> (Ẩn/Hiện cột Khóa học)
+                if (isAll) {
+                    thead.innerHTML = `
+                        <tr>
+                            <th class="text-center" style="width: 60px;">STT</th>
+                            <th>Khóa học</th>
+                            <th>Nội dung đánh giá</th>
+                            <th class="text-center" style="width: 140px;">Điểm đánh giá</th>
+                            <th class="text-center" style="width: 150px;">Ghi chú</th>
+                        </tr>
+                    `;
+                } else {
+                    thead.innerHTML = `
+                        <tr>
+                            <th class="text-center" style="width: 60px;">STT</th>
+                            <th>Nội dung đánh giá</th>
+                            <th class="text-center" style="width: 140px;">Điểm đánh giá</th>
+                            <th class="text-center" style="width: 150px;">Ghi chú</th>
+                        </tr>
+                    `;
+                }
+
+                // 3. Render <tbody> (Đánh lại STT tự động từ 1 sau mỗi lần lọc)
+                if (filteredData.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="${colSpan}" class="text-center" style="padding: 24px;">Chưa có dữ liệu kết quả học tập.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = filteredData.map((item, index) => {
+                    const stt = index + 1; // Đánh lại STT bắt đầu từ 1
+                    const courseCol = isAll ? `<td><strong>${escapeHtml(item.course)}</strong></td>` : '';
+
+                    return `
+                        <tr>
+                            <td class="text-center">${stt}</td>
+                            ${courseCol}
+                            <td>${escapeHtml(item.content)}</td>
+                            <td class="text-center"><span class="score-display-plain">${escapeHtml(formatScoreDisplay(item.score))}</span></td>
+                            <td class="text-center">${escapeHtml(item.note)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // Tải dữ liệu Kết quả học tập từ Apps Script (Google Sheets)
+            function loadLearningResults() {
+                const userId = user ? user.id : '';
+                const username = user ? user.username : '';
+
+                const thead = document.getElementById('study-result-thead');
+                const tbody = document.getElementById('study-result-tbody');
+
+                if (!userId || !username) {
+                    if (thead) thead.innerHTML = '';
+                    if (tbody) tbody.innerHTML = `<tr><td class="text-center" style="padding: 24px;">Không xác định được thông tin người dùng. Vui lòng đăng nhập lại.</td></tr>`;
+                    return;
+                }
+
+                if (thead) thead.innerHTML = '';
+                if (tbody) tbody.innerHTML = `<tr><td class="text-center" style="padding: 24px;">Đang tải kết quả học tập...</td></tr>`;
+
+                callAppsScript({ action: 'getLearningResults', id: userId, username: username })
+                    .then(response => {
+                        if (!response || !response.success) {
+                            throw new Error((response && response.message) || 'Không thể tải kết quả học tập.');
+                        }
+                        learningResultsData = Array.isArray(response.data) ? response.data : [];
+                        learningResultsLoaded = true;
+                        renderLearningResultsTable(learningResultsData);
+                    })
+                    .catch(error => {
+                        console.error('Lỗi tải kết quả học tập:', error);
+                        learningResultsLoaded = false;
+                        if (tbody) {
+                            tbody.innerHTML = `
+                                <tr>
+                                    <td class="text-center" style="padding: 24px;">
+                                        Không thể tải kết quả học tập.
+                                        <br>
+                                        <small>${escapeHtml(error.message || 'Vui lòng thử lại sau.')}</small>
+                                    </td>
+                                </tr>
+                            `;
+                        }
+                        showToast(error.message || 'Không thể tải kết quả học tập.', 'error');
+                    });
+            }
+
+            // Đổi filter chỉ lọc lại dữ liệu đã có trong bộ nhớ, KHÔNG gọi lại Apps Script
+            if (courseFilterSelect) {
+                courseFilterSelect.addEventListener('change', () => renderLearningResultsTable(learningResultsData));
+            }
+
+            /* ==========================================
+               6. CHỨC NĂNG XỬ LÝ MODAL NỘP HỌC PHÍ
+               ========================================== */
+            const tuitionModal = document.getElementById('tuition-modal-overlay');
+
+            window.openTuitionModal = function(period, original, discount, final) {
+                document.getElementById('modal-tuition-period').innerText = period;
+                document.getElementById('modal-tuition-original').innerText = original;
+                document.getElementById('modal-tuition-discount').innerText = discount;
+                document.getElementById('modal-tuition-final').innerText = final;
+
+                if (tuitionModal) {
+                    tuitionModal.classList.add('active');
+                }
+            };
+
+            window.closeTuitionModal = function() {
+                if (tuitionModal) {
+                    tuitionModal.classList.remove('active');
+                }
+            };
+
+            window.submitTuitionPayment = function() {
+                alert('Hệ thống đang kết nối với cổng thanh toán. Vui lòng thử lại sau!');
+                closeTuitionModal();
+            };
+
+            // Đóng Modal khi click ngoài vùng nội dung modal
+            if (tuitionModal) {
+                tuitionModal.addEventListener('click', (e) => {
+                    if (e.target === tuitionModal) {
+                        closeTuitionModal();
+                    }
+                });
+            }
+
+            // Đóng Modal khi nhấn phím Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && tuitionModal && tuitionModal.classList.contains('active')) {
+                    closeTuitionModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

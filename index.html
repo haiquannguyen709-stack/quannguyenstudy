@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Học Sinh</title>
+    <style>
+        /* ==========================================================================
+           GLOBAL & RESET STYLES
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #D1EAFF; /* rgb(209, 234, 255) */
+            color: #2D3748;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 15px;
+            overflow-x: hidden;
+        }
+
+        /* ==========================================================================
+           SECTION CONTAINERS & ANIMATIONS
+           ========================================================================== */
+        .section-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .section-card {
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 51, 102, 0.1), 0 8px 10px -6px rgba(0, 51, 102, 0.05);
+            width: 100%;
+            padding: 35px 30px;
+            transition: opacity 0.35s ease, transform 0.35s ease, display 0.35s ease;
+            display: none;
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        .section-card.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Small & Medium Modal Sizes */
+        .card-sm {
+            max-width: 440px;
+        }
+
+        .card-lg {
+            max-width: 750px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar for Section 3 */
+        .card-lg::-webkit-scrollbar {
+            width: 8px;
+        }
+        .card-lg::-webkit-scrollbar-track {
+            background: #F1F5F9;
+            border-radius: 10px;
+        }
+        .card-lg::-webkit-scrollbar-thumb {
+            background: #94A3B8;
+            border-radius: 10px;
+        }
+        .card-lg::-webkit-scrollbar-thumb:hover {
+            background: #64748B;
+        }
+
+        /* ==========================================================================
+           TYPOGRAPHY & HEADINGS
+           ========================================================================== */
+        .page-logo {
+            display: block;
+            width: 300px;
+            height: auto;
+            margin: 0 auto 16px;
+        }
+
+        .header-box {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .main-title {
+            color: #0F172A;
+            font-size: 22px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .subtitle {
+            color: #64748B;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .group-header {
+            border-bottom: 2px solid #E2E8F0;
+            padding-bottom: 8px;
+            margin-top: 25px;
+            margin-bottom: 18px;
+        }
+
+        .group-title {
+            color: #1E3A8A;
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ==========================================================================
+           FORM ELEMENTS & INPUTS
+           ========================================================================== */
+        .form-group {
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .required-asterisk {
+            color: #EF4444;
+            margin-left: 2px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background-color: #E5F5FF; /* rgb(229, 245, 255) */
+            border: 1.5px solid #BEE3F8;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 15px;
+            color: #1E293B;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: #94A3B8;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            background-color: #FFFFFF;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.15);
+        }
+
+        .form-input.error, .form-select.error, .form-textarea.error {
+            border-color: #EF4444;
+            background-color: #FEF2F2;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%3c475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 85px;
+        }
+
+        /* ==========================================================================
+           BUTTONS & ACTION CONTROLS
+           ========================================================================== */
+        .btn-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: #2563EB;
+            color: #FFFFFF;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: #1D4ED8;
+            box-shadow: 0 6px 12px -2px rgba(37, 99, 235, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            background-color: #1E40AF;
+        }
+
+        .btn-secondary {
+            background-color: #EFF6FF;
+            color: #1D4ED8;
+            border: 1px solid #BFDBFE;
+        }
+
+        .btn-secondary:hover {
+            background-color: #DBEAFE;
+            color: #1E40AF;
+        }
+
+        .btn-secondary:active {
+            background-color: #BFDBFE;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: #64748B;
+            border: 1px solid #CBD5E1;
+        }
+
+        .btn-outline:hover {
+            background-color: #F8FAFC;
+            color: #334155;
+            border-color: #94A3B8;
+        }
+
+        .btn-back-link {
+            background: none;
+            border: none;
+            color: #64748B;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            transition: color 0.2s;
+        }
+
+        .btn-back-link:hover {
+            color: #1E293B;
+            background-color: #F1F5F9;
+        }
+
+        /* ==========================================================================
+           ALERT & NOTIFICATION BOXES
+           ========================================================================== */
+        .alert-box {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .alert-error {
+            background-color: #FEF2F2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+        }
+
+        .alert-success {
+            background-color: #F0FDF4;
+            color: #166534;
+            border: 1px solid #86EFAC;
+        }
+
+        /* ==========================================================================
+           ACCOUNT TYPE SELECTION (HỌC SINH / SINH VIÊN)
+           ========================================================================== */
+        .account-type-wrapper {
+            margin-bottom: 22px;
+            text-align: center;
+            background-color: #F8FAFC;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px dashed #CBD5E1;
+        }
+
+        .account-type-title {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            color: #1E3A8A;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .account-type-options {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .account-type-card {
+            flex: 1;
+            max-width: 200px;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 8px;
+            border: 2px solid #BFDBFE;
+            background-color: #FFFFFF;
+            color: #1D4ED8;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            outline: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .account-type-card:hover {
+            border-color: #2563EB;
+            background-color: #EFF6FF;
+            transform: translateY(-1px);
+        }
+
+        .account-type-card.active {
+            background-color: #2563EB;
+            color: #FFFFFF;
+            border-color: #2563EB;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        }
+
+        /* ==========================================================================
+           RESPONSIVE DESIGN (MOBILE & TABLET)
+           ========================================================================== */
+        @media (max-width: 640px) {
+            body {
+                padding: 12px 8px;
+            }
+
+            .section-card {
+                padding: 24px 18px;
+                border-radius: 16px;
+            }
+
+            .main-title {
+                font-size: 19px;
+            }
+
+            .group-title {
+                font-size: 14px;
+            }
+
+            .form-input, .form-select, .form-textarea {
+                font-size: 14px;
+                padding: 10px 12px;
+            }
+
+            .btn {
+                padding: 11px 16px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="section-wrapper">
+
+        <!-- =================================================================== -->
+        <!-- SECTION 1: TRANG CHỦ (SELECTION PAGE) -->
+        <!-- =================================================================== -->
+        <section id="section-1" class="section-card card-sm active">
+            <div class="header-box">
+                <img src="logo.png" alt="Hệ Thống Quản Lý Học Sinh" class="page-logo">
+                <h1 class="main-title">Hệ Thống Quản Lý Học Sinh</h1>
+                <p class="subtitle">Đăng nhập hoặc đăng ký để tiếp tục</p>
+            </div>
+
+            <div class="btn-stack">
+                <button type="button" class="btn btn-primary" onclick="navigateToSection(2)">
+                    Đăng nhập
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="navigateToSection(3)">
+                    Đăng ký
+                </button>
+            </div>
+        </section>
+
+
+        <!-- =================================================================== -->
+        <!-- SECTION 2: TRANG ĐĂNG NHẬP -->
+        <!-- =================================================================== -->
+        <section id="section-2" class="section-card card-sm">
+            <div class="header-box">
+                <img src="logo.png" alt="Hệ Thống Quản Lý Học Sinh" class="page-logo">
+                <h1 class="main-title">Đăng Nhập</h1>
+                <p class="subtitle">Vui lòng nhập thông tin tài khoản của bạn</p>
+            </div>
+
+            <div id="login-alert" class="alert-box"></div>
+
+            <form id="login-form" onsubmit="handleLoginSubmit(event)">
+                <div class="form-group">
+                    <label for="login-username" class="form-label">Tài khoản</label>
+                    <input 
+                        type="text" 
+                        id="login-username" 
+                        class="form-input" 
+                        placeholder="Nhập tài khoản" 
+                        required
+                        autocomplete="username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password" class="form-label">Mật khẩu</label>
+                    <input 
+                        type="password" 
+                        id="login-password" 
+                        class="form-input" 
+                        placeholder="Nhập mật khẩu" 
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+
+                <div class="btn-stack" style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary">
+                        Đăng nhập
+                    </button>
+                </div>
+            </form>
+
+            <button type="button" class="btn-back-link" onclick="navigateToSection(1)">
+                &#8592; Quay lại
+            </button>
+        </section>
+
+
+        <!-- =================================================================== -->
+        <!-- SECTION 3: TRANG ĐĂNG KÝ TÀI KHOẢN -->
+        <!-- =================================================================== -->
+        <section id="section-3" class="section-card card-lg">
+            <div class="header-box">
+                <img src="logo.png" alt="Hệ Thống Quản Lý Học Sinh" class="page-logo">
+                <h1 class="main-title">Đăng Ký Tài Khoản</h1>
+                <p class="subtitle">Vui lòng điền đầy đủ các thông tin bắt buộc dưới đây</p>
+            </div>
+
+            <div id="reg-alert" class="alert-box"></div>
+
+            <form id="registration-form" novalidate>
+                
+                <!-- BỘ CHỌN LOẠI TÀI KHOẢN -->
+                <div class="account-type-wrapper">
+                    <label class="account-type-title">Bạn đăng ký với tư cách</label>
+                    <div class="account-type-options">
+                        <button type="button" id="btn-type-student" class="account-type-card active" onclick="switchAccountType('student')">
+                            HỌC SINH
+                        </button>
+                        <button type="button" id="btn-type-university" class="account-type-card" onclick="switchAccountType('university')">
+                            SINH VIÊN
+                        </button>
+                    </div>
+                </div>
+
+                <!-- NHÓM 1: THÔNG TIN CÁ NHÂN -->
+                <div class="group-header">
+                    <h2 class="group-title">NHÓM 1 – THÔNG TIN CÁ NHÂN</h2>
+                </div>
+
+                <div class="form-group">
+                    <label for="fullName" class="form-label">
+                        Họ và tên <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="fullName" 
+                        name="fullName" 
+                        class="form-input" 
+                        placeholder="Nhập đầy đủ họ và tên"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="dateOfBirth" class="form-label">
+                        Ngày tháng năm sinh <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="date" 
+                        id="dateOfBirth" 
+                        name="dateOfBirth" 
+                        class="form-input"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="placeOfBirth" class="form-label">
+                        Nơi sinh <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="placeOfBirth" 
+                        name="placeOfBirth" 
+                        class="form-input" 
+                        placeholder="Nhập tỉnh/thành phố nơi sinh"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="gender" class="form-label">
+                        Giới tính <span class="required-asterisk">*</span>
+                    </label>
+                    <select id="gender" name="gender" class="form-select">
+                        <option value="">-- Chọn giới tính --</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+
+
+                <!-- NHÓM 2: THÔNG TIN TÀI KHOẢN & LIÊN LẠC -->
+                <div class="group-header">
+                    <h2 class="group-title">NHÓM 2 – THÔNG TIN TÀI KHOẢN & LIÊN LẠC</h2>
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-username" class="form-label">
+                        Tên đăng nhập (Username) <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="reg-username" 
+                        name="username" 
+                        class="form-input" 
+                        placeholder="Nhập tên đăng nhập"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-password" class="form-label">
+                        Mật khẩu <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="reg-password" 
+                        name="password" 
+                        class="form-input" 
+                        placeholder="Tạo mật khẩu"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        Nhập địa chỉ Email <span style="font-weight: normal; color: #64748B; font-size: 13px;">(nếu có)</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        class="form-input" 
+                        placeholder="Nhập địa chỉ email"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="phone" class="form-label">
+                        Số điện thoại <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        class="form-input" 
+                        placeholder="Nhập số điện thoại"
+                    >
+                </div>
+
+
+                <!-- NHÓM 3: THÔNG TIN HỌC TẬP -->
+                <div class="group-header">
+                    <h2 class="group-title">NHÓM 3 – THÔNG TIN HỌC TẬP</h2>
+                </div>
+
+                <!-- Trường dành riêng cho HỌC SINH -->
+                <div class="form-group student-field">
+                    <label for="educationDepartment" class="form-label">
+                        Sở GD và ĐT <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="educationDepartment" 
+                        name="educationDepartment" 
+                        class="form-input" 
+                        placeholder="Nhập Sở GD và ĐT quản lý"
+                    >
+                </div>
+
+                <!-- Trường chung cho CẢ HAII -->
+                <div class="form-group">
+                    <label for="school" class="form-label">
+                        Ngôi trường đang theo học <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="school" 
+                        name="school" 
+                        class="form-input" 
+                        placeholder="Nhập tên trường đang theo học"
+                    >
+                </div>
+
+                <!-- Trường dành riêng cho HỌC SINH -->
+                <div class="form-group student-field">
+                    <label for="grade" class="form-label">
+                        Khối học <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="grade" 
+                        name="grade" 
+                        class="form-input" 
+                        placeholder="Ví dụ: Khối 10, Khối 11, Khối 12"
+                    >
+                </div>
+
+                <!-- Trường dành riêng cho HỌC SINH -->
+                <div class="form-group student-field">
+                    <label for="className" class="form-label">
+                        Lớp học <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="className" 
+                        name="className" 
+                        class="form-input" 
+                        placeholder="Ví dụ: 10A1, 11B2"
+                    >
+                </div>
+
+                <!-- Trường dành riêng cho SINH VIÊN -->
+                <div class="form-group university-field" style="display: none;">
+                    <label for="major" class="form-label">
+                        Ngành đào tạo <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="major" 
+                        name="major" 
+                        class="form-input" 
+                        placeholder="Nhập ngành đào tạo"
+                    >
+                </div>
+
+                <!-- Trường dành riêng cho SINH VIÊN -->
+                <div class="form-group university-field" style="display: none;">
+                    <label for="faculty" class="form-label">
+                        Khoa đang theo học <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="faculty" 
+                        name="faculty" 
+                        class="form-input" 
+                        placeholder="Nhập khoa đang theo học"
+                    >
+                </div>
+
+
+                <!-- NHÓM 4: XÁC THỰC -->
+                <div class="group-header">
+                    <h2 class="group-title">NHÓM 4 – XÁC THỰC</h2>
+                </div>
+
+                <div class="form-group">
+                    <label for="verification" class="form-label">
+                        Xác thực phản hồi <span style="font-weight: normal; color: #64748B; font-size: 13px;">(nếu có)</span>
+                    </label>
+                    <textarea 
+                        id="verification" 
+                        name="verification" 
+                        class="form-textarea" 
+                        placeholder="Nhập nội dung xác thực hoặc ghi chú thêm (nếu có)"
+                    ></textarea>
+                </div>
+
+
+                <!-- FORM ACTION BUTTONS -->
+                <div class="btn-stack" style="margin-top: 25px;">
+                    <button type="button" class="btn btn-primary" onclick="handleRegistrationSubmit()">
+                        Gửi yêu cầu
+                    </button>
+                    <button type="button" class="btn btn-outline" onclick="navigateToSection(1)">
+                        Tiếp tục
+                    </button>
+                </div>
+
+            </form>
+        </section>
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- JAVASCRIPT LOGIC -->
+    <!-- ======================================================================= -->
+    <script>
+        // ================================
+        // CẤU HÌNH API (GOOGLE APPS SCRIPT WEB APP)
+        // ================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbynFo1tnUGQdPs_6lg0lIeYFnPxT10UxTeJQbZqNozLVXmoLgzDyIeeciRnRm3KSXLw/exec"; // TODO: thay bằng URL Web App Apps Script thực tế
+        // ================================
+        // DATA STRUCTURE & STATE
+        // ================================
+
+        let currentAccountType = 'student'; // Mặc định là học sinh
+
+        /**
+         * Chuyển đổi giao diện giữa Học sinh và Sinh viên ngay lập tức
+         * @param {'student'|'university'} type 
+         */
+        function switchAccountType(type) {
+            currentAccountType = type;
+
+            const btnStudent = document.getElementById('btn-type-student');
+            const btnUniversity = document.getElementById('btn-type-university');
+            const studentFields = document.querySelectorAll('.student-field');
+            const universityFields = document.querySelectorAll('.university-field');
+
+            if (type === 'student') {
+                btnStudent.classList.add('active');
+                btnUniversity.classList.remove('active');
+
+                studentFields.forEach(el => el.style.display = 'flex');
+                universityFields.forEach(el => el.style.display = 'none');
+            } else {
+                btnUniversity.classList.add('active');
+                btnStudent.classList.remove('active');
+
+                studentFields.forEach(el => el.style.display = 'none');
+                universityFields.forEach(el => el.style.display = 'flex');
+            }
+
+            // Reset lỗi trên giao diện khi chuyển tab
+            document.querySelectorAll('#registration-form .form-input, #registration-form .form-select, #registration-form .form-textarea').forEach(elem => {
+                elem.classList.remove('error');
+            });
+            const alertBox = document.getElementById('reg-alert');
+            if (alertBox) alertBox.style.display = 'none';
+        }
+        
+
+        // ================================
+        // SECTION NAVIGATION
+        // ================================
+        /**
+         * Switches active view between Section 1, 2, and 3 with smooth fade transition
+         * @param {number} targetSectionIndex - Section number (1, 2, or 3)
+         */
+        function navigateToSection(targetSectionIndex) {
+            const sections = [
+                document.getElementById('section-1'),
+                document.getElementById('section-2'),
+                document.getElementById('section-3')
+            ];
+
+            const currentActive = sections.find(sec => sec.classList.contains('active'));
+            const targetSection = document.getElementById(`section-${targetSectionIndex}`);
+
+            if (!targetSection) return;
+
+            // Fade out current section
+            if (currentActive) {
+                currentActive.style.opacity = '0';
+                currentActive.style.transform = 'translateY(12px)';
+
+                setTimeout(() => {
+                    currentActive.classList.remove('active');
+                    showTargetSection(targetSection);
+                }, 300);
+            } else {
+                showTargetSection(targetSection);
+            }
+        }
+
+        function showTargetSection(targetSection) {
+            targetSection.classList.add('active');
+            // Force browser reflow to trigger transition
+            void targetSection.offsetWidth;
+            targetSection.style.opacity = '1';
+            targetSection.style.transform = 'translateY(0)';
+            
+            // Scroll to top of section card
+            targetSection.scrollTop = 0;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ================================
+        // LOGIN HANDLING
+        // ================================
+        function handleLoginSubmit(event) {
+            event.preventDefault();
+            const usernameInput = document.getElementById('login-username');
+            const passwordInput = document.getElementById('login-password');
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+            const alertBox = document.getElementById('login-alert');
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+
+            usernameInput.classList.remove('error');
+            passwordInput.classList.remove('error');
+
+            if (!username || !password) {
+                if (!username) usernameInput.classList.add('error');
+                if (!password) passwordInput.classList.add('error');
+                showNotification(alertBox, 'error', 'Vui lòng điền đầy đủ tài khoản và mật khẩu.');
+                return;
+            }
+
+            if (submitBtn) submitBtn.disabled = true;
+            showNotification(alertBox, 'success', 'Đang kiểm tra thông tin đăng nhập...');
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'login', username: username, password: password })
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    showNotification(alertBox, 'success', 'Đăng nhập thành công! Đang chuyển hướng...');
+                    sessionStorage.setItem('loggedInUser', JSON.stringify(result.user));
+                    setTimeout(() => { window.location.href = 'home.html'; }, 800);
+                } else {
+                    usernameInput.classList.add('error');
+                    passwordInput.classList.add('error');
+                    showNotification(alertBox, 'error', result.message || 'Tên đăng nhập hoặc mật khẩu không chính xác.');
+                }
+            })
+            .catch(err => {
+                showNotification(alertBox, 'error', 'Lỗi kết nối tới máy chủ. Vui lòng thử lại sau.');
+                console.error('Login error:', err);
+            })
+            .finally(() => {
+                if (submitBtn) submitBtn.disabled = false;
+            });
+        }
+
+        // ================================
+        // REGISTRATION & VALIDATION
+        // ================================
+        function handleRegistrationSubmit() {
+            const alertBox = document.getElementById('reg-alert');
+            let firstErrorElement = null;
+            let missingFieldLabels = [];
+
+            // Clear previous error styles
+            document.querySelectorAll('#registration-form .form-input, #registration-form .form-select, #registration-form .form-textarea').forEach(elem => {
+                elem.classList.remove('error');
+            });
+
+            // Định nghĩa danh sách các trường bắt buộc chung
+            const commonRequiredFields = [
+                { id: "fullName", label: "Họ và tên" },
+                { id: "dateOfBirth", label: "Ngày tháng năm sinh" },
+                { id: "placeOfBirth", label: "Nơi sinh" },
+                { id: "gender", label: "Giới tính" },
+                { id: "reg-username", label: "Tên đăng nhập (Username)" },
+                { id: "reg-password", label: "Mật khẩu" },
+                { id: "phone", label: "Số điện thoại" },
+                { id: "school", label: "Ngôi trường đang theo học" }
+            ];
+
+            // Định nghĩa các trường bắt buộc riêng theo từng loại tài khoản
+            const studentRequiredFields = [
+                { id: "educationDepartment", label: "Sở GD và ĐT" },
+                { id: "grade", label: "Khối học" },
+                { id: "className", label: "Lớp học" }
+            ];
+
+            const universityRequiredFields = [
+                { id: "major", label: "Ngành đào tạo" },
+                { id: "faculty", label: "Khoa đang theo học" }
+            ];
+
+            // Tổng hợp trường cần kiểm tra theo lựa chọn hiện tại
+            const activeRequiredFields = [
+                ...commonRequiredFields,
+                ...(currentAccountType === 'student' ? studentRequiredFields : universityRequiredFields)
+            ];
+
+            // Kiểm tra từng trường bắt buộc
+            activeRequiredFields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (element) {
+                    const value = element.value.trim();
+                    if (!value) {
+                        element.classList.add('error');
+                        missingFieldLabels.push(field.label);
+                        if (!firstErrorElement) {
+                            firstErrorElement = element;
+                        }
+                    }
+                }
+            });
+
+            if (missingFieldLabels.length > 0) {
+                showNotification(
+                    alertBox, 
+                    'error', 
+                    `Vui lòng nhập đầy đủ các thông tin bắt buộc sau:<br>• ${missingFieldLabels.join('<br>• ')}`
+                );
+
+                if (firstErrorElement) {
+                    firstErrorElement.focus();
+                    firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+
+            // Thu thập và chuẩn hóa dữ liệu chuẩn xác không lẫn lộn giữa 2 loại tài khoản
+            let payloadData = {
+                accountType: currentAccountType,
+                fullName: document.getElementById('fullName').value.trim(),
+                dateOfBirth: document.getElementById('dateOfBirth').value,
+                placeOfBirth: document.getElementById('placeOfBirth').value.trim(),
+                gender: document.getElementById('gender').value,
+                username: document.getElementById('reg-username').value.trim(),
+                password: document.getElementById('reg-password').value,
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                school: document.getElementById('school').value.trim(),
+                verification: document.getElementById('verification').value.trim()
+            };
+
+            if (currentAccountType === 'student') {
+                payloadData.educationDepartment = document.getElementById('educationDepartment').value.trim();
+                payloadData.grade = document.getElementById('grade').value.trim();
+                payloadData.className = document.getElementById('className').value.trim();
+            } else {
+                payloadData.major = document.getElementById('major').value.trim();
+                payloadData.faculty = document.getElementById('faculty').value.trim();
+            }
+
+            console.log("Dữ liệu đăng ký thu thập được:", payloadData);
+
+            // Gửi dữ liệu đăng ký
+            submitRegistration(payloadData, alertBox);
+        }
+
+        // ================================
+        // GOOGLE SHEETS - TODO
+        // ================================
+        /**
+         * Function dedicated to handling data submission.
+         * Ready to be replaced/extended for Google Apps Script Web App API integration.
+         */
+        function submitRegistration(data, alertBox) {
+            const submitBtn = document.querySelector('#registration-form .btn-primary');
+            if (submitBtn) submitBtn.disabled = true;
+
+            showNotification(alertBox, 'success', 'Đang gửi yêu cầu đăng ký...');
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(Object.assign({ action: 'register' }, data))
+            })
+            .then(res => res.json())
+            .then(response => {
+                if (response.success) {
+                    showNotification(
+                        alertBox,
+                        'success',
+                        `<strong>Thành công!</strong> Đăng ký tài khoản thành công. Mã số học sinh của bạn là <strong>${escapeHtml(response.id)}</strong>. Đang chuyển đến trang đăng nhập...`
+                    );
+                    document.getElementById('registration-form').reset();
+                    setTimeout(() => navigateToSection(2), 2000);
+                } else {
+                    showNotification(alertBox, 'error', response.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+                }
+            })
+            .catch(err => {
+                showNotification(alertBox, 'error', 'Lỗi kết nối tới máy chủ. Vui lòng thử lại sau.');
+                console.error('Registration error:', err);
+            })
+            .finally(() => {
+                if (submitBtn) submitBtn.disabled = false;
+                alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        }
+
+        // ================================
+        // UTILITY FUNCTIONS
+        // ================================
+        function showNotification(container, type, message) {
+            container.className = `alert-box alert-${type}`;
+            container.innerHTML = message;
+            container.style.display = 'block';
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+    </script>
+</body>
+</html>
