@@ -966,6 +966,34 @@
             background-color: var(--primary-hover);
             box-shadow: 0 2px 6px rgba(0, 86, 179, 0.3);
         }
+
+        /* Nút Hủy bỏ hình vuông bo tròn có dấu x */
+        .btn-cancel-course {
+            background-color: #dc3545;
+            color: #ffffff;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancel-course:hover {
+            background-color: #bd2130;
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+        }
+a
+        .btn-cancel-course:active {
+            transform: scale(0.95);
+        }
         
         .class-table-row {
             cursor: pointer;
@@ -1300,7 +1328,7 @@
                                     <th style="width: 140px; text-align: left;">Mã học phần</th>
                                     <th style="text-align: left;">Tên học phần</th>
                                     <th style="text-align: left;">Lớp học phần đã đăng ký</th>
-                                    <th style="width: 130px; text-align: center;">Đổi lớp</th>
+                                    <th style="width: 150px; text-align: center;">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-registered-list">
@@ -2550,22 +2578,10 @@
                         ]}
                     ]
                 },
-                {
-                    code: "COMM304",
-                    name: "Thực hành kỹ năng giáo dục (GDĐB)",
-                    category: "mon-chung",
-                    credits: 2,
-                    isGrouped: true,
-                    classes: [
-                        { groupCode: "COMM304-K74,75GDĐB.01", mainClass: "COMM304-K74,75GDĐB.01_LT", credits: 2, session: "", schedule: "", day: 0, startPeriod: 0, endPeriod: 0, room: "", weeks: "1-16", teacher: "", subClasses: [
-                            { classCode: "2611_COMM304_0101", credits: 2, periods: { LT: 10, BT: 0, TH: 20, TL: 0 }, session: "", schedule: "", day: 0, startPeriod: 0, endPeriod: 0, room: "", weeks: "", teacher: "" },
-                            { classCode: "2611_COMM304_0102", credits: 2, periods: { LT: 10, BT: 0, TH: 20, TL: 0 }, session: "", schedule: "", day: 0, startPeriod: 0, endPeriod: 0, room: "", weeks: "", teacher: "" }
-                        ]}
-                    ]
-                },
+                
                 {
                     code: "COMM301",
-                    name: "Thực hành kỹ năng giáo dục (Đợt 1)",
+                    name: "Thực hành kỹ năng giáo dục",
                     category: "mon-chung",
                     credits: 2,
                     isGrouped: true,
@@ -2630,16 +2646,8 @@
                         { groupCode: "COMM301-K74,75(Đợt 1).15", mainClass: "COMM301-K74,75(Đợt 1).15_LT", credits: 2, session: "", schedule: "", day: 0, startPeriod: 0, endPeriod: 0, room: "", weeks: "1-16", teacher: "", subClasses: [
                             { classCode: "2613_COMM301_1501", credits: 2, periods: { LT: 30, BT: 0, TH: 20, TL: 0 }, session: "", schedule: "", day: 0, startPeriod: 0, endPeriod: 0, room: "", weeks: "", teacher: "" },
                             { classCode: "2613_COMM301_1502", credits: 2, periods: { LT: 30, BT: 0, TH: 20, TL: 0 }, session: "", schedule: "", day: 0, startPeriod: 0, endPeriod: 0, room: "", weeks: "", teacher: "" }
-                        ]}
-                    ]
-                },
-                {
-                    code: "COMM301_D2",
-                    name: "Thực hành kỹ năng giáo dục (Đợt 2)",
-                    category: "mon-chung",
-                    credits: 2,
-                    isGrouped: true,
-                    classes: [
+                        ]},
+                
                         { groupCode: "COMM301-K74,75(Đợt 2).01", mainClass: "COMM301-K74,75(Đợt 2).01_LT", credits: 2, session: "", schedule: "", day: 0, startPeriod: 0, endPeriod: 0, room: "", weeks: "1-16", teacher: "", subClasses: [
                             { classCode: "2614_COMM301_0101", credits: 2, periods: { LT: 30, BT: 0, TH: 20, TL: 0 }, session: "", schedule: "", day: 0, startPeriod: 0, endPeriod: 0, room: "", weeks: "", teacher: "" },
                             { classCode: "2614_COMM301_0102", credits: 2, periods: { LT: 30, BT: 0, TH: 20, TL: 0 }, session: "", schedule: "", day: 0, startPeriod: 0, endPeriod: 0, room: "", weeks: "", teacher: "" }
@@ -3523,37 +3531,8 @@
             ];
 
             // Đọc dữ liệu đăng ký và danh sách lớp đã chọn từ localStorage
-            let registeredCodes = JSON.parse(localStorage.getItem('registeredCourses')) || ["POLI204", "COMM201", "COMP105"];
-            let selectedClasses = JSON.parse(localStorage.getItem('selectedClasses')) || {
-                "POLI204": {
-                    classCode: "POLI204-K74.02_LT",
-                    credits: 2,
-                    day: 1,
-                    startPeriod: 1,
-                    endPeriod: 4,
-                    room: "HT1 B",
-                    teacher: "Mai Thị Tuyết"
-                },
-                "COMM201": {
-                    classCode: "COMM201-K75.09_LT",
-                    credits: 3,
-                    day: 4,
-                    startPeriod: 1,
-                    endPeriod: 3,
-                    room: "HT1 B",
-                    teacher: "Hà Thị Lan Hương"
-                },
-                "COMP105": {
-                    classCode: "COMP105-K75.02_LT",
-                    credits: 2,
-                    day: 1,
-                    startPeriod: 9,
-                    endPeriod: 10,
-                    room: "Tầng5 K1",
-                    teacher: "Đỗ Bá Chín"
-                }
-            };
-
+            let registeredCodes = JSON.parse(localStorage.getItem('registeredCourses')) || [];
+            let selectedClasses = JSON.parse(localStorage.getItem('selectedClasses')) || {};
             function saveStateData() {
                 localStorage.setItem('registeredCourses', JSON.stringify(registeredCodes));
                 localStorage.setItem('selectedClasses', JSON.stringify(selectedClasses));
@@ -3714,7 +3693,10 @@
                                 <td>${course.name}</td>
                                 <td><strong>${selectedCls ? selectedCls.classCode : 'N/A'}</strong></td>
                                 <td style="text-align: center;">
-                                    <button class="btn-change-class" onclick="openClassSelection('${course.code}')">Đổi lớp</button>
+                                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                                        <button class="btn-change-class" onclick="openClassSelection('${course.code}')">Đổi lớp</button>
+                                        <button class="btn-cancel-course" onclick="cancelRegistration('${course.code}')" title="Hủy bỏ đăng ký">&times;</button>
+                                    </div>
                                 </td>
                             </tr>
                         `;
