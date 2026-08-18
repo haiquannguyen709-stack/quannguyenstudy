@@ -2590,7 +2590,7 @@ if (user) {
                /* ==========================================
    CONFIG - KẾT NỐI GOOGLE APPS SCRIPT
    ========================================== */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwU0yQYe3mghBvwQkFX8sJE3tvTr5G19lYy8mioyv_UdvwxFcsKDIdK51UHt6aj8wR8/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbysKbabtrPxcYLV26N5wY_XHWhxrOG-Rvb0M73eHBRF5bWwhmoIMmPJPf4V4Hoj2P6l/exec';
 
 const COURSE_STATUS = {
     ALLOWED: 'O',
@@ -2701,7 +2701,7 @@ function loadCoursePermissions() {
                     duration: "4 tuần",
                     students: 1,
                     image: "MATH232.png",
-                    url: "#" 
+                    url: "course-calculus-1.html" 
                 },
                 {
                     id: "course-social-statistics",
@@ -2721,17 +2721,17 @@ function loadCoursePermissions() {
                     duration: "8 tuần",
                     students: 1,
                     image: "MATH12.jpg",
-                    url: "#" // TODO: thay bằng URL thật của khóa học
+                    url: "course-math-12.html" // TODO: thay bằng URL thật của khóa học
                 },
                  {
                     id: "course-chemistry-9",
                     title: "Hóa học 9",
-                    level: "THPT",
+                    level: "THCS",
                     teacher: "Nguyễn Thị Mai Phương",
                     duration: "6 tuần",
                     students: 6,
                     image: "CHEM9.jpg", // TODO: đổi ảnh thật cho khóa học này
-                    url: "#" // TODO: thay bằng URL thật của khóa học
+                    url: "course-chemistry-9.html" // TODO: thay bằng URL thật của khóa học
                 },{
                     id: "course-thptqg-2027",
                     title: "Luyện đề thi THPTQG 2027",
@@ -3145,8 +3145,8 @@ function loadCoursePermissions() {
                     const stt = item.stt || (index + 1);
                     const ngayHocRaw = item.ngayHoc || item.startDate || item.date || '';
                     const ngayHocFormatted = formatDateVN(ngayHocRaw);
-                    const thoiGianBatDau = item.thoiGianBatDau || item.startTime || item.time || '13h30';
-                    const thoiLuong = item.thoiLuong || item.duration || '3 giờ 30 phút';
+                                        const thoiGianBatDau = item.thoiGianBatDau || item.startTime || item.time || '-';
+                    const thoiLuong = item.thoiLuong || item.duration || '-';
                     const khoaHoc = item.khoaHoc || item.courseName || item.courseTitle || '-';
                     const noiDung = item.noiDung || item.noiDungBuoiHoc || item.lessonContent || '-';
                     const chuyenCan = String(item.chuyenCan || item.attendance || 'Chưa học').trim();
