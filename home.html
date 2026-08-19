@@ -2270,7 +2270,7 @@
                     <div class="tuition-modal-body">
                         <div class="tuition-modal-row">
                             <span class="tuition-modal-label">Khoản học phí:</span>
-                            <span class="tuition-modal-value" id="modal-tuition-period">10/08/2026 – 31/08/2026</span>
+                            <span class="tuition-modal-value" id="modal-tuition-period">-</span>
                         </div>
                         <div class="tuition-modal-row">
                             <span class="tuition-modal-label">Học phí gốc:</span>
@@ -2998,7 +2998,7 @@ function loadCoursePermissions() {
                         ? `<span class="tuition-status-paid">Đã nộp</span>`
                         : `
                             <button type="button" class="tuition-btn-pay" onclick="goToTuitionPayment(${index})">
-                                💳 Nộp học phí
+                                 Nộp học phí
                             </button>
                         `;
 
@@ -3070,8 +3070,31 @@ function loadCoursePermissions() {
                     showToast('Khoản học phí này đã được nộp.', 'info');
                     return;
                 }
+
+                // Định dạng lại ngày từ Google Sheets về chuẩn dd/mm/yyyy
+                const formattedStartDate = formatDateVN(item.startDate);
+                const formattedEndDate = formatDateVN(item.endDate);
+
+                const currentUser = {
+                    username: user ? (user.username || user.id || '') : '',
+                    fullName: user ? (user.hoTen || user.fullName || user.name || 'Chưa xác định') : 'Chưa xác định',
+                    studentId: user ? (user.id || user.studentId || 'Chưa xác định') : 'Chưa xác định'
+                };
+
+                const selectedPayment = {
+                    startDate: formattedStartDate,
+                    endDate: formattedEndDate,
+                    original: item.original,
+                    discount: item.discount,
+                    amount: item.amount,
+                    studentId: currentUser.studentId,
+                    fullName: currentUser.fullName
+                };
+
+                sessionStorage.setItem('selectedTuitionPayment', JSON.stringify(selectedPayment));
+
                 openTuitionModal(
-                    `${item.startDate} – ${item.endDate}`,
+                    `${formattedStartDate} - ${formattedEndDate}`,
                     formatCurrency(item.original),
                     formatCurrency(item.discount),
                     formatCurrency(item.amount)
@@ -3149,20 +3172,25 @@ function loadCoursePermissions() {
 
                  scheduleLessonUrls = [];
 
+                const now = new Date();
+
                 tbody.innerHTML = rows.map((item, index) => {
                     // Mapping dữ liệu linh hoạt với nhiều định dạng key từ Backend
                     const stt = item.stt || (index + 1);
                     const ngayHocRaw = item.ngayHoc || item.startDate || item.date || '';
                     const ngayHocFormatted = formatDateVN(ngayHocRaw);
-                                        const thoiGianBatDau = item.thoiGianBatDau || item.startTime || item.time || '-';
+                    const thoiGianBatDau = item.thoiGianBatDau || item.startTime || item.time || '-';
                     const thoiLuong = item.thoiLuong || item.duration || '-';
                     const khoaHoc = item.khoaHoc || item.courseName || item.courseTitle || '-';
                     const noiDung = item.noiDung || item.noiDungBuoiHoc || item.lessonContent || '-';
                     const chuyenCan = String(item.chuyenCan || item.attendance || 'Chưa học').trim();
                     const lessonUrl = item.lessonUrl || item.meetingUrl || item.url || '';
 
+                    // Tính toán thời điểm bắt đầu học để kiểm tra tự động
+                    const lessonStartTime = parseDateTimeVN(ngayHocFormatted, thoiGianBatDau);
+                    const isTimeReached = lessonStartTime ? (now >= lessonStartTime) : false;
+
                     // Trạng thái buổi học lấy TRỰC TIẾP từ cột "Chuyên cần" trong Google Sheets
-                    // (đây là trạng thái điểm danh do giáo viên/hệ thống ghi tay, không suy ra từ ngày/giờ)
                     const chuyenCanLower = chuyenCan.toLowerCase();
                     const isUpcoming = (chuyenCanLower === 'chưa diễn ra');
                     const isAttended = (chuyenCanLower === 'đã học');
@@ -3194,9 +3222,12 @@ function loadCoursePermissions() {
                         if (foundCourse) targetCourseId = foundCourse.id;
                     }
 
-                    // Button Vào học: ưu tiên "Đường dẫn vào học" từ Google Sheets, sau đó mới đến logic khóa học hiện tại
+                    // Tự động cho phép bấm "Vào học" khi đến thời gian bắt đầu (dù trạng thái ghi nhận là Chưa diễn ra)
+                    const canJoin = !isUpcoming || isTimeReached;
+
+                    // Button Vào học
                     let actionBtn = '';
-                    if (isUpcoming) {
+                    if (!canJoin) {
                         actionBtn = `<button type="button" class="schedule-btn-join" disabled title="Chưa đến giờ học">Vào học</button>`;
                     } else if (lessonUrl && isSafeLessonUrl(lessonUrl)) {
                         const urlIndex = scheduleLessonUrls.push(lessonUrl) - 1;
@@ -3438,8 +3469,8 @@ function loadCoursePermissions() {
             };
 
             window.submitTuitionPayment = function() {
-                alert('Hệ thống đang kết nối với cổng thanh toán. Vui lòng thử lại sau!');
                 closeTuitionModal();
+                window.location.href = 'hocphi.html';
             };
 
             // Đóng Modal khi click ngoài vùng nội dung modal
