@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nộp Học Phí Trực Tuyến - Quân Nguyễn Study</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- CSS STYLES -->
+    <style>
+        /* ==========================================================================
+           1. CSS VARIABLES & RESET
+           ========================================================================== */
+        :root {
+    /* Nền xanh nước biển nhạt & Gradient mượt */
+    --bg-navy-dark: #e0f2fe;
+    --bg-navy-mid: #bae6fd;
+    --primary-blue: #0284c7;
+    --primary-blue-hover: #0369a1;
+    --accent-cyan: #0284c7;
+    --accent-glow: rgba(56, 189, 248, 0.35);
+    
+    /* Màu chữ dành cho nền sáng */
+    --text-main: #0f172a;
+    --text-sub: #334155;
+    --text-muted: #64748b;
+    
+    /* Hộp thoại & phần tử nền trắng Glassmorphism */
+    --card-glass-bg: rgba(255, 255, 255, 0.85);
+    --card-glass-border: rgba(255, 255, 255, 0.8);
+    --inner-glass-bg: rgba(241, 245, 249, 0.8);
+    --inner-glass-border: rgba(203, 213, 225, 0.6);
+    
+    --font-family: 'Plus Jakarta Sans', sans-serif;
+    --transition-smooth: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            background-color: var(--bg-navy-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-navy-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* ==========================================================================
+           2. ANIMATED BACKGROUND & CANVAS
+           ========================================================================== */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .background-glows {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: floatGlow 18s infinite alternate ease-in-out;
+        }
+
+        .glow-orb-1 {
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, #1d4ed8 0%, rgba(37,99,235,0) 70%);
+        }
+
+        .glow-orb-2 {
+            bottom: -15%;
+            right: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, #0284c7 0%, rgba(6,182,212,0) 70%);
+            animation-delay: -5s;
+        }
+
+        .glow-orb-3 {
+            top: 40%;
+            left: 30%;
+            width: 35vw;
+            height: 35vw;
+            background: radial-gradient(circle, #4f46e5 0%, rgba(99,102,241,0) 70%);
+            animation-delay: -10s;
+        }
+
+        .light-beam {
+            position: absolute;
+            width: 150%;
+            height: 200px;
+            background: linear-gradient(90deg, transparent, rgba(6, 182, 212, 0.05), transparent);
+            transform: rotate(-35deg);
+            top: -20%;
+            left: -20%;
+            animation: beamMove 12s infinite linear;
+        }
+
+        @keyframes floatGlow {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(40px, 30px) scale(1.08); }
+            100% { transform: translate(-30px, 50px) scale(0.95); }
+        }
+
+        @keyframes beamMove {
+            0% { transform: translateY(-100px) rotate(-35deg); opacity: 0; }
+            20% { opacity: 0.8; }
+            80% { opacity: 0.8; }
+            100% { transform: translateY(1000px) rotate(-35deg); opacity: 0; }
+        }
+
+        /* Layer Overlay */
+        /* Hiệu ứng lớp phủ nền sáng */
+.bg-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(240, 249, 255, 0.5) 0%, rgba(224, 242, 254, 0.9) 100%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Các quầng sáng dịu nhẹ trên nền xanh nhạt */
+.glow-orb-1 {
+    top: -10%;
+    left: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, #38bdf8 0%, rgba(56, 189, 248, 0) 70%);
+}
+
+.glow-orb-2 {
+    bottom: -15%;
+    right: -10%;
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, #818cf8 0%, rgba(129, 140, 248, 0) 70%);
+}
+
+.glow-orb-3 {
+    top: 40%;
+    left: 30%;
+    width: 35vw;
+    height: 35vw;
+    background: radial-gradient(circle, #60a5fa 0%, rgba(96, 165, 250, 0) 70%);
+}
+
+/* Header nền trắng trong suốt */
+header {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 10px 25px -5px rgba(0, 102, 204, 0.08);
+}
+
+.brand-name {
+    background: linear-gradient(135deg, #0f172a 30%, #334155);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Tiêu đề chính màu đậm nổi bật */
+.main-title {
+    background: linear-gradient(135deg, #0369a1 0%, #0284c7 50%, #1d4ed8 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+}
+
+/* Hộp thoại chính màu trắng nổi bật */
+.payment-card {
+    box-shadow: 0 20px 50px -10px rgba(2, 132, 199, 0.15), 
+                0 10px 30px -15px rgba(0, 0, 0, 0.05);
+}
+
+.payment-card:hover {
+    box-shadow: 0 25px 60px -10px rgba(2, 132, 199, 0.22), 
+                0 15px 35px -15px rgba(0, 0, 0, 0.08);
+}
+
+.tuition-amount {
+    color: #0284c7;
+    text-shadow: none;
+}
+
+/* Nút sao chép dành cho nền sáng */
+.btn-copy {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.btn-copy:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+        /* ==========================================================================
+           3. MAIN LAYOUT
+           ========================================================================== */
+        .app-container {
+            position: relative;
+            z-index: 3;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.25rem;
+        }
+
+        main {
+            width: 100%;
+            max-width: 580px;
+            margin: 2rem auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ==========================================================================
+           4. HEADER
+           ========================================================================== */
+        header {
+            width: 100%;
+            max-width: 1100px;
+            margin: 1.25rem auto 0;
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 100px;
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.08);
+            transition: var(--transition-smooth);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .brand-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: #ffffff;
+        }
+
+       .brand-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+        }
+
+        .header-tag {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.1);
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .header-tag svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        /* ==========================================================================
+           5. PAGE TITLE
+           ========================================================================== */
+        .page-title-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+           .main-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+            color: #0369a1;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #334155;
+            font-weight: 500;
+        }
+
+        /* ==========================================================================
+           6. GLASSMORPHISM PAYMENT CARD
+           ========================================================================== */
+        .payment-card {
+            width: 100%;
+            background: var(--card-glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--card-glass-border);
+            border-radius: 28px;
+            padding: 2.25rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+                        0 0 40px rgba(37, 99, 235, 0.1);
+            transition: var(--transition-smooth);
+            will-change: transform;
+        }
+
+        .payment-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 
+                        0 0 50px rgba(37, 99, 235, 0.18);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .card-section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Student Info Block */
+        .info-grid {
+            background: var(--inner-glass-bg);
+            border: 1px solid var(--inner-glass-border);
+            border-radius: 18px;
+            padding: 1.25rem;
+            margin-bottom: 1.75rem;
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.92rem;
+        }
+
+        .info-label {
+            color: var(--text-sub);
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: right;
+        }
+
+        .tuition-highlight-row {
+            padding-top: 0.75rem;
+            margin-top: 0.5rem;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .tuition-amount {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #38bdf8;
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+        }
+
+        /* QR Section */
+        .qr-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.75rem;
+        }
+
+        .qr-instruction-top {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .qr-frame {
+            position: relative;
+            background: #ffffff;
+            padding: 1.5rem;
+            border-radius: 24px;
+            width: 280px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15),
+                        0 0 25px rgba(255, 255, 255, 0.2);
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .qr-frame:hover {
+            transform: scale(1.03);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25),
+                        0 0 35px rgba(56, 189, 248, 0.3);
+        }
+
+        .qr-frame img {
+            width: 100%;
+            max-width: 220px;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .qr-instruction-bottom {
+            font-size: 0.82rem;
+            color: var(--text-sub);
+            margin-top: 1.25rem;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Account Details Section */
+        .account-details {
+            background: var(--inner-glass-bg);
+            border: 1px solid var(--inner-glass-border);
+            border-radius: 18px;
+            padding: 1.25rem;
+            margin-bottom: 1.75rem;
+            display: grid;
+            gap: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-left {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .detail-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-cyan);
+            flex-shrink: 0;
+        }
+
+        .detail-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .detail-text-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .detail-val {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-main);
+            word-break: break-all;
+        }
+
+        /* Copy Button */
+        .btn-copy {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+            padding: 0.4rem 0.85rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            white-space: nowrap;
+        }
+
+        .btn-copy:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-copy:active {
+            transform: translateY(0);
+        }
+
+        .btn-copy.copied {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.4);
+            color: #4ade80;
+        }
+
+        /* Security Badge */
+        .security-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: rgba(37, 99, 235, 0.06);
+            border: 1px solid rgba(37, 99, 235, 0.15);
+            padding: 0.65rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.75rem;
+            text-align: center;
+        }
+
+        .security-note svg {
+            width: 16px;
+            height: 16px;
+            fill: #38bdf8;
+            flex-shrink: 0;
+        }
+
+        .security-text {
+            font-size: 0.78rem;
+            color: var(--text-sub);
+            line-height: 1.3;
+        }
+
+        /* Status Badge */
+        .status-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.25);
+            color: #fde047;
+            padding: 0.45rem 1rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #eab308;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .status-dot::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50%;
+            background-color: #eab308;
+            animation: pulseDot 1.8s infinite ease-in-out;
+        }
+
+        @keyframes pulseDot {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(2.8); opacity: 0; }
+        }
+
+        /* Action Button */
+        .btn-confirm-pay {
+            width: 100%;
+            padding: 1.1rem;
+            background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
+            border: none;
+            border-radius: 16px;
+            color: #ffffff;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-confirm-pay:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #0369a1 100%);
+            box-shadow: 0 14px 30px rgba(37, 99, 235, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-confirm-pay:active {
+            transform: translateY(0);
+        }
+
+        /* Ripple Effect */
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: rippleAnim 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes rippleAnim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* ==========================================================================
+           7. MODAL DIALOG
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(7, 13, 25, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-glass-bg);
+            border: 1px solid var(--card-glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            transform: scale(0.9) translateY(20px);
+            opacity: 0;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 1.25rem;
+            right: 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: var(--text-sub);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .modal-close-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-icon-wrap {
+            width: 56px;
+            height: 56px;
+            background: rgba(37, 99, 235, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: #38bdf8;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .modal-body {
+            font-size: 0.92rem;
+            color: var(--text-sub);
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 1.75rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.85rem;
+        }
+
+        .btn-modal {
+            flex: 1;
+            padding: 0.85rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            border: none;
+        }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-sub);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+        }
+
+        .btn-proceed {
+            background: var(--primary-blue);
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-proceed:hover {
+            background: var(--primary-blue-hover);
+        }
+
+        /* Success state inside modal */
+        .modal-success-state {
+            display: none;
+            text-align: center;
+        }
+
+        .success-icon-wrap {
+            width: 64px;
+            height: 64px;
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        /* ==========================================================================
+           8. TOAST NOTIFICATION
+           ========================================================================== */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 0.75rem 1.25rem;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+
+        .toast-container.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            color: #4ade80;
+            display: flex;
+            align-items: center;
+        }
+
+        .toast-message {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* ==========================================================================
+           9. FOOTER
+           ========================================================================== */
+        footer {
+            margin: 2rem 0 1.5rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+
+        footer strong {
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        /* ==========================================================================
+           10. PAGE INITIAL LOAD ANIMATIONS
+           ========================================================================== */
+        .animate-fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==========================================================================
+           11. RESPONSIVE BREAKPOINTS
+           ========================================================================== */
+        @media (max-width: 640px) {
+            header {
+                padding: 0.75rem 1.25rem;
+                border-radius: 20px;
+            }
+
+            .brand-name {
+                font-size: 1rem;
+            }
+
+            .main-title {
+                font-size: 1.75rem;
+            }
+
+            .payment-card {
+                padding: 1.5rem 1.25rem;
+                border-radius: 24px;
+            }
+
+            .qr-frame img {
+                width: 160px;
+                height: 160px;
+            }
+
+            .detail-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .btn-copy {
+                align-self: flex-end;
+                margin-top: -1.75rem;
+            }
+
+            .info-row {
+                font-size: 0.88rem;
+            }
+
+            .tuition-amount {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .app-container {
+                padding: 0 0.75rem;
+            }
+            .payment-card {
+                padding: 1.25rem 1rem;
+            }
+        }
+        /* ==========================================================================
+   GIAO DIỆN THÔNG TIN THANH TOÁN MỚI
+   ========================================================================== */
+.info-grid-custom {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.info-value-right {
+    font-weight: 700;
+    color: var(--text-main, #2c3e50);
+    text-align: right;
+    font-size: 1.05rem;
+}
+
+/* Khối Học phí căn giữa có hiệu ứng đẹp */
+.tuition-highlight-block {
+    margin-top: 6px;
+    padding: 16px;
+    background: linear-gradient(135deg, rgba(21, 101, 192, 0.06) 0%, rgba(21, 101, 192, 0.12) 100%);
+    border: 1px solid rgba(21, 101, 192, 0.2);
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(21, 101, 192, 0.08);
+    transition: all 0.3s ease;
+}
+
+.tuition-highlight-block:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(21, 101, 192, 0.15);
+}
+
+.tuition-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1565c0;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tuition-amount-display {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0d47a1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    animation: pulseAmount 2s infinite alternate ease-in-out;
+}
+
+@keyframes pulseAmount {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.03);
+    }
+}
+.btn-send-proof {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 54px;
+    margin-bottom: 12px;
+    background: #ffffff;
+    border: 2px solid var(--primary-blue, #1d72b8);
+    border-radius: 12px;
+    color: var(--primary-blue, #1d72b8);
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.btn-send-proof:hover {
+    background: #f0f7ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(29, 114, 184, 0.15);
+}
+
+.btn-send-proof:active {
+    transform: translateY(0);
+}
+    </style>
+</head>
+<body>
+
+    <!-- ================= BACKGROUND & EFFECTS ================= -->
+    <canvas id="particleCanvas"></canvas>
+    <div class="background-glows">
+        <div class="glow-orb glow-orb-1"></div>
+        <div class="glow-orb glow-orb-2"></div>
+        <div class="glow-orb glow-orb-3"></div>
+        <div class="light-beam"></div>
+    </div>
+    <div class="bg-overlay"></div>
+
+    <!-- ================= MAIN CONTAINER ================= -->
+    <div class="app-container">
+
+        <!-- ================= HEADER ================= -->
+        <header class="animate-fade-in delay-1">
+            <a href="#" class="brand-logo">
+                <div class="brand-icon">
+                    <!-- Icon Education/Graduation Cap -->
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z"/>
+                    </svg>
+                </div>
+                <span class="brand-name">Quân Nguyễn Study</span>
+            </a>
+            <div class="header-tag">
+                <!-- Icon Payment Shield -->
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM12 7C13.66 0 15 1.34 15 3C15 4.66 13.66 6 12 6C10.34 6 9 4.66 9 3C9 1.34 10.34 0 12 0ZM11 10H13V16H11V10Z"/>
+                </svg>
+                Nộp học phí
+            </div>
+        </header>
+
+        <!-- ================= MAIN CONTENT ================= -->
+        <main>
+            <!-- ================= PAGE TITLE ================= -->
+            <div class="page-title-section animate-fade-in delay-2">
+                <h1 class="main-title">NỘP HỌC PHÍ</h1>
+                <p class="subtitle">Thanh toán học phí nhanh chóng, thuận tiện và an toàn</p>
+            </div>
+
+            <!-- ================= PAYMENT CARD ================= -->
+            <div class="payment-card animate-fade-in delay-3" id="interactiveCard">
+                
+                <!-- TUITION INFO SECTION -->
+                <div class="card-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M13 12h7v1.5h-7zm0-2.5h7V11h-7zm0 5h7V16h-7zM3 6h18v1.5H3zm0 3h8v9H3z"/>
+                    </svg>
+                    Thông tin thanh toán
+                </div>
+
+                <div class="info-grid-custom">
+    <div class="info-row">
+        <span class="info-label">Họ và tên</span>
+        <span class="info-value-right" id="paymentStudentName">Chưa xác định</span>
+    </div>
+    <div class="info-row">
+        <span class="info-label">Mã học viên</span>
+        <span class="info-value-right" id="paymentStudentId">Chưa xác định</span>
+    </div>
+    <div class="tuition-highlight-block">
+        <div class="tuition-title">Học phí</div>
+        <div class="tuition-amount-display" id="paymentTuitionAmount">Chưa xác định</div>
+    </div>
+</div>
+
+                <!-- QR CODE SECTION -->
+                <div class="qr-wrapper animate-fade-in delay-4">
+                    <div class="qr-instruction-top">Quét mã QR để thanh toán</div>
+                    
+                    <div class="qr-frame" id="qrContainer">
+                        <!-- ==========================================================================
+                             [THAY ẢNH QR THANH TOÁN TẠI ĐÂY]
+                             Bạn có thể đổi src="qr-code.png" thành đường dẫn tới ảnh QR của bạn
+                             ========================================================================== -->
+                        <img src="qr-code.png" alt="QR thanh toán học phí" id="paymentQR">
+                    </div>
+
+                    <div class="qr-instruction-bottom">Sử dụng ứng dụng ngân hàng hoặc ví điện tử để quét mã</div>
+                </div>
+
+                <!-- BANK INFORMATION SECTION -->
+                <div class="card-section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 10h16v2H4zm0 4h16v2H4zm0 4h16v2H4zm0-12h16v2H4z"/>
+                    </svg>
+                    Thông tin nhận thanh toán
+                </div>
+
+                <div class="account-details">
+                    <!-- Ngân hàng -->
+                    <div class="detail-item">
+                        <div class="detail-left">
+                            <div class="detail-icon">
+                                <svg viewBox="0 0 24 24"><path d="M11.5 1L2 6v2h19V6l-9.5-5zm-7 7v9h3V8h-3zm5 0v9h3V8h-3zm5 0v9h3V8h-3zM2 19v3h19v-3H2z"/></svg>
+                            </div>
+                            <div class="detail-text-group">
+                                <span class="detail-label">Ngân hàng</span>
+                                <!-- VI TRÍ BẠN CÓ THỂ THAY ĐỔI: Tên ngân hàng -->
+                                <span class="detail-val">BIDV</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chủ tài khoản -->
+                    <div class="detail-item">
+                        <div class="detail-left">
+                            <div class="detail-icon">
+                                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            </div>
+                            <div class="detail-text-group">
+                                <span class="detail-label">Chủ tài khoản</span>
+                                <!-- VI TRÍ BẠN CÓ THỂ THAY ĐỔI: Tên chủ tài khoản -->
+                                <span class="detail-val">NGUYEN HAI QUAN</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Số tài khoản -->
+                    <div class="detail-item">
+                        <div class="detail-left">
+                            <div class="detail-icon">
+                                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                            </div>
+                            <div class="detail-text-group">
+                                <span class="detail-label">Số tài khoản</span>
+                                <!-- VI TRÍ BẠN CÓ THỂ THAY ĐỔI: Số tài khoản -->
+                                <span class="detail-val" id="accNumberVal">8806318203</span>
+                            </div>
+                        </div>
+                        <button class="btn-copy" onclick="copyText('accNumberVal', 'số tài khoản')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            Sao chép
+                        </button>
+                    </div>
+
+                    <!-- Nội dung chuyển khoản -->
+                    <div class="detail-item">
+                        <div class="detail-left">
+                            <div class="detail-icon">
+                                <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+                            </div>
+                            <div class="detail-text-group">
+                                <span class="detail-label">Nội dung chuyển khoản</span>
+                                <!-- VI TRÍ BẠN CÓ THỂ THAY ĐỔI: Nội dung chuyển khoản -->
+                                <span class="detail-val" id="payContentVal" style="color: #38bdf8;"></span>
+                            </div>
+                        </div>
+                        <button class="btn-copy" onclick="copyText('payContentVal', 'nội dung chuyển khoản')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            Sao chép
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SECURITY NOTE -->
+                <div class="security-note">
+                    <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                    <div class="security-text">
+                        <strong>Thông tin thanh toán được bảo mật.</strong> Vui lòng kiểm tra kỹ thông tin người nhận trước khi thực hiện chuyển khoản.
+                    </div>
+                </div>
+
+                <!-- PAYMENT STATUS BADGE -->
+                <div class="status-container">
+                    <div class="status-badge" id="statusBadge">
+                        <span class="status-dot"></span>
+                        <span id="statusText">Trạng thái: Chờ xác nhận thanh toán</span>
+                    </div>
+                </div>
+
+                <!-- CONFIRM PAYMENT BUTTON -->
+               <a href="https://zalo.me/0355748108" target="_blank" rel="noopener noreferrer" class="btn-send-proof">
+    <span class="btn-icon">📤</span>
+    <span>Gửi minh chứng</span>
+</a>
+
+<button class="btn-confirm-pay" id="btnConfirmPay">
+    <span class="btn-icon">✓</span>
+    <span>Tôi đã thanh toán</span>
+</button>
+
+            </div>
+        </main>
+
+        <!-- ================= FOOTER ================= -->
+        <footer>
+            <p>© 2026 <strong>Quân Nguyễn Study</strong></p>
+            <p>Hệ thống quản lý và thanh toán học phí trực tuyến</p>
+        </footer>
+
+    </div>
+
+    <!-- ================= PAYMENT CONFIRMATION MODAL ================= -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-card">
+            <button class="modal-close-btn" id="btnCloseModal">✕</button>
+            
+            <!-- Default Prompt State -->
+            <div id="modalPromptState">
+                <div class="modal-header">
+                    <div class="modal-icon-wrap">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                    </div>
+                    <h3 class="modal-title">Xác nhận thanh toán</h3>
+                </div>
+                <div class="modal-body">
+                    Bạn xác nhận rằng mình đã hoàn tất chuyển khoản học phí qua ngân hàng hoặc ví điện tử?
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-modal btn-cancel" id="btnModalCancel">Hủy</button>
+                    <button class="btn-modal btn-proceed" id="btnModalSubmit">Đã thanh toán</button>
+                </div>
+            </div>
+
+            <!-- Success State -->
+            <div class="modal-success-state" id="modalSuccessState">
+                <div class="success-icon-wrap">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <h3 class="modal-title" style="margin-bottom: 0.5rem;">Cảm ơn bạn!</h3>
+                <p class="modal-body">
+                    Hệ thống đã ghi nhận thông tin. Chúng tôi sẽ xác nhận giao dịch của bạn trong thời gian sớm nhất.
+                </p>
+                <button class="btn-modal btn-proceed" style="width: 100%;" id="btnSuccessClose">Đóng</button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= TOAST NOTIFICATION ================= -->
+    <div class="toast-container" id="toast">
+        <div class="toast-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
+        <span class="toast-message" id="toastMsg">Đã sao chép vào bộ nhớ tạm!</span>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        /* ==========================================================================
+           1. FLOATING PARTICLES CANVAS ANIMATION
+           ========================================================================== */
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particlesArray = [];
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initParticles();
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = (Math.random() - 0.5) * 0.4;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0 || this.x > width) this.speedX *= -1;
+                if (this.y < 0 || this.y > height) this.speedY *= -1;
+            }
+
+            draw() {
+                ctx.fillStyle = `rgba(56, 189, 248, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            const particleCount = Math.min(Math.floor(width * 0.05), 60);
+            for (let i = 0; i < particleCount; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            particlesArray.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+
+        /* ==========================================================================
+           2. SUBTLE PARALLAX EFFECT ON CARD
+           ========================================================================== */
+        const card = document.getElementById('interactiveCard');
+        
+        document.addEventListener('mousemove', (e) => {
+            if (window.innerWidth < 768) return; // Disallow on mobile
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 45;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 45;
+            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg) translateY(-4px)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            card.style.transform = `rotateY(0deg) rotateX(0deg) translateY(0px)`;
+        });
+
+        /* ==========================================================================
+           3. COPY TO CLIPBOARD FUNCTION
+           ========================================================================== */
+        function copyText(elementId, labelName) {
+            const textToCopy = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast(`Đã sao chép ${labelName}!`);
+                
+                // Temporary button state visual response
+                const btn = event.currentTarget;
+                const originalText = btn.innerHTML;
+                btn.classList.add('copied');
+                btn.innerHTML = `✓ Đã sao chép`;
+
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Không thể sao chép: ', err);
+            });
+        }
+
+        /* ==========================================================================
+           4. TOAST NOTIFICATION CONTROLLER
+           ========================================================================== */
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.innerText = message;
+
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2600);
+        }
+
+        /* ==========================================================================
+           5. BUTTON RIPPLE EFFECT
+           ========================================================================== */
+        const confirmBtn = document.getElementById('btnConfirmPay');
+        confirmBtn.addEventListener('click', function(e) {
+            const circle = document.createElement('span');
+            const diameter = Math.max(this.clientWidth, this.clientHeight);
+            const radius = diameter / 2;
+
+            const rect = this.getBoundingClientRect();
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${e.clientX - rect.left - radius}px`;
+            circle.style.top = `${e.clientY - rect.top - radius}px`;
+            circle.classList.add('ripple');
+
+            const ripple = this.getElementsByClassName('ripple')[0];
+            if (ripple) ripple.remove();
+
+            this.appendChild(circle);
+
+            openModal();
+        });
+
+        /* ==========================================================================
+           6. MODAL CONTROLLER
+           ========================================================================== */
+        const modal = document.getElementById('paymentModal');
+        const btnCloseModal = document.getElementById('btnCloseModal');
+        const btnModalCancel = document.getElementById('btnModalCancel');
+        const btnModalSubmit = document.getElementById('btnModalSubmit');
+        const btnSuccessClose = document.getElementById('btnSuccessClose');
+        const modalPromptState = document.getElementById('modalPromptState');
+        const modalSuccessState = document.getElementById('modalSuccessState');
+
+        function openModal() {
+            modalPromptState.style.display = 'block';
+            modalSuccessState.style.display = 'none';
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        btnCloseModal.addEventListener('click', closeModal);
+        btnModalCancel.addEventListener('click', closeModal);
+        
+        // Close on clicking overlay outside card
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Close on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Submit action inside modal
+        btnModalSubmit.addEventListener('click', () => {
+            modalPromptState.style.display = 'none';
+            modalSuccessState.style.display = 'block';
+
+            // Update page status UI
+            const statusBadge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+            
+            statusBadge.style.background = 'rgba(34, 197, 94, 0.1)';
+            statusBadge.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+            statusBadge.style.color = '#4ade80';
+            
+            const dot = statusBadge.querySelector('.status-dot');
+            dot.style.backgroundColor = '#22c55e';
+            
+            statusText.innerText = 'Trạng thái: Đã xác nhận đã chuyển khoản';
+        });
+
+        btnSuccessClose.addEventListener('click', closeModal);
+
+        /* ==========================================================================
+           LOAD THÔNG TIN HỌC SINH & KHOẢN HỌC PHÍ TỪ HOME.HTML
+           ========================================================================== */
+        (function loadPaymentData() {
+            let currentUser = null;
+            let selectedTuition = null;
+
+            try {
+                const userRaw = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
+                if (userRaw) currentUser = JSON.parse(userRaw);
+            } catch (e) {
+                console.error('Lỗi parse currentUser:', e);
+            }
+
+            try {
+                const tuitionRaw = sessionStorage.getItem('selectedTuitionPayment');
+                if (tuitionRaw) selectedTuition = JSON.parse(tuitionRaw);
+            } catch (e) {
+                console.error('Lỗi parse selectedTuitionPayment:', e);
+            }
+
+            const nameEl = document.getElementById('paymentStudentName');
+            const idEl = document.getElementById('paymentStudentId');
+            const amountEl = document.getElementById('paymentTuitionAmount');
+            const payContentValEl = document.getElementById('payContentVal');
+
+            if (!currentUser) {
+                if (typeof showToast === 'function') {
+                    showToast('Không xác định được thông tin học sinh. Vui lòng đăng nhập lại.', 'error');
+                }
+                if (nameEl) nameEl.textContent = 'Chưa xác định';
+                if (idEl) idEl.textContent = 'Chưa xác định';
+            } else {
+                const fullName = currentUser.fullName || currentUser.hoTen || 'Chưa xác định';
+                const studentId = currentUser.studentId || currentUser.id || 'Chưa xác định';
+
+                if (nameEl) nameEl.textContent = fullName;
+                if (idEl) idEl.textContent = studentId;
+
+                if (payContentValEl) {
+                    payContentValEl.textContent = `${studentId} HOC PHI`;
+                }
+            }
+
+            if (!selectedTuition || selectedTuition.amount === undefined || selectedTuition.amount === null) {
+                if (typeof showToast === 'function') {
+                    showToast('Không tìm thấy khoản học phí được chọn.', 'error');
+                }
+                if (amountEl) amountEl.textContent = 'Chưa xác định';
+            } else {
+                const numericAmount = Number(selectedTuition.amount);
+                if (isNaN(numericAmount)) {
+                    if (amountEl) amountEl.textContent = 'Chưa xác định';
+                } else {
+                    const formattedAmount = new Intl.NumberFormat('vi-VN').format(numericAmount);
+                    if (amountEl) amountEl.textContent = `${formattedAmount} VNĐ`;
+                }
+            }
+        })();
+    </script>
+</body>
+</html>
