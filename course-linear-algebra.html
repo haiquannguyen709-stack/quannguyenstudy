@@ -581,20 +581,58 @@
             }
         }
 
+        /* ==========================================================================
+           MOBILE SIDEBAR & TOGGLE BUTTON STYLES
+           ========================================================================== */
+        .sidebar-toggle-btn {
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .sidebar {
-                position: relative;
-                top: 0;
-                width: 100%;
-                height: auto;
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-                overflow-y: visible;
+                position: fixed;
+                top: var(--status-bar-height);
+                left: 0;
+                width: 280px;
+                height: calc(100vh - var(--status-bar-height));
+                z-index: 200;
+                transition: transform 0.25s ease;
+                box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(-100%);
             }
 
             .main-content {
-                margin-left: 0;
-                width: 100%;
+                margin-left: 0 !important;
+                width: 100% !important;
+                position: relative;
+            }
+
+            .sidebar-toggle-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                bottom: 24px;
+                left: 20px;
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background-color: var(--primary-color);
+                color: #ffffff;
+                border: none;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+                z-index: 210;
+                cursor: pointer;
+                transition: transform 0.2s ease, background-color 0.2s ease;
+            }
+
+            .sidebar-toggle-btn:hover,
+            .sidebar-toggle-btn:active {
+                background-color: var(--primary-hover);
+                transform: scale(1.05);
             }
 
             .lesson-item {
@@ -1041,6 +1079,10 @@
 
         <!-- 3. MAIN CONTENT -->
         <main class="main-content">
+            <!-- Nút đóng/mở Sidebar trên Mobile -->
+            <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" aria-label="Đóng/Mở danh sách bài học" aria-expanded="true">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
             <!-- Header Khóa học / Banner -->
             <section class="course-header-card">
                 <div class="course-banner-container">
@@ -1646,7 +1688,7 @@
             const chapterSections = document.querySelectorAll("main.main-content section.chapter-card[id]");
             let isClickScrolling = false;
 
-            function setActiveNav(targetId) {
+            function setActiveNav(targetId, shouldScrollSidebar = false) {
                 let activeLink = null;
                 courseNavLinks.forEach((link) => {
                     if (link.getAttribute("data-target") === targetId) {
@@ -1657,7 +1699,8 @@
                     }
                 });
 
-                if (activeLink) {
+                // Chỉ cuộn mục trong Sidebar nếu được yêu cầu chủ động (tránh giật/cuộn trang chính)
+                if (activeLink && shouldScrollSidebar) {
                     activeLink.scrollIntoView({
                         behavior: "smooth",
                         block: "nearest"
@@ -1701,12 +1744,25 @@
                             window.toggleChapter(targetSection, false);
                         }
 
-                        setActiveNav(targetId);
+                        setActiveNav(targetId, true);
 
                         targetSection.scrollIntoView({
                             behavior: "smooth",
                             block: "start"
                         });
+
+                        // Đóng Sidebar trên mobile sau khi click chọn bài học
+                        if (window.innerWidth <= 768) {
+                            const sidebarEl = document.querySelector('.sidebar');
+                            const toggleBtn = document.getElementById('sidebar-toggle-btn');
+                            if (sidebarEl && !sidebarEl.classList.contains('collapsed')) {
+                                sidebarEl.classList.add('collapsed');
+                                if (toggleBtn) {
+                                    toggleBtn.setAttribute('aria-expanded', 'false');
+                                    toggleBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+                                }
+                            }
+                        }
 
                         setTimeout(() => {
                             isClickScrolling = false;
@@ -1925,7 +1981,22 @@
                     window.toggleChapter(chapterCard, true);
                 }
             });
+        // Xử lý Nút Đóng/Mở Sidebar trên Mobile
+            const sidebarEl = document.querySelector('.sidebar');
+            const toggleBtn = document.getElementById('sidebar-toggle-btn');
 
+            if (toggleBtn && sidebarEl) {
+                toggleBtn.addEventListener('click', function () {
+                    const isCollapsed = sidebarEl.classList.toggle('collapsed');
+                    this.setAttribute('aria-expanded', !isCollapsed);
+
+                    if (isCollapsed) {
+                        this.innerHTML = '<i class="fa-solid fa-bars"></i>';
+                    } else {
+                        this.innerHTML = '<i class="fa-solid fa-arrow-left"></i>';
+                    }
+                });
+            }
             // Khởi tạo tính toán Tiến độ và Lọc bài học ban đầu khi load trang
             updateCourseProgress();
             applyCourseFilters();
