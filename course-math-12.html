@@ -1432,6 +1432,40 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Subsection Bài 4 -->
+                    <div class="subsection-wrapper" style="margin-bottom: 20px;">
+                        <h3 class="subsection-title" style="font-size: 1.05rem; font-weight: 700; color: var(--primary-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <span>Chủ đề 1 - Bài 4: Khảo sát và vẽ đồ thị hàm số</span>
+                        </h3>
+                        
+                        <div class="lessons-list">
+                            <!-- Phần 1 – Buổi học -->
+                            <div class="lesson-item" data-schedule-id="lesson5" data-type="lesson">
+                                <div class="lesson-icon-wrapper lesson-type-video">
+                                    <i class="fa-solid fa-video"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Buổi học ngày 20/08/2026</h3>
+                                        <span class="status-badge" data-badge-for="lesson3"></span>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <i class="fa-regular fa-clock"></i>
+                                        <span>Mở lúc: 19h15, 27/08/2026</span>
+                                        <span class="countdown-text" data-countdown-for="lesson5"></span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://meet.google.com/xnm-qdss-zyu" class="btn btn-primary btn-action" data-action-for="lesson5" data-default-text="Tham gia" target="_blank" rel="noopener noreferrer">Tham gia</a>
+                                    <button class="btn btn-status btn-complete" data-key="course_cd1_b2_lesson3_completed">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1490,7 +1524,12 @@
             doc7: {
                 open: null,
                 close: null
-            }
+            },
+            // Chủ đề 1 - Bài 4
+            lesson5:{
+                open: "2026-08-27T19:15:00",
+                close: "2026-08-27T20:30:00"
+            },
         };
         // Hàm chuyển đổi chuỗi YYYY-MM-DDTHH:mm:ss thành Date Object chính xác theo múi giờ Việt Nam (+07:00)
         function parseVietnamDate(isoString) {
