@@ -39,7 +39,7 @@
             --bg-body: #121212;
             --bg-card: #1e1e1e;
             --sidebar-bg: #181818;
-            --sidebar-active-bg: rgba(30, 136, 229, 0.2);
+            --sidebar-active-bg: #e0e0e0;
             --sidebar-hover-bg: #2a2a2a;
             --text-main: #e0e0e0;
             --text-sub: #a0a0a0;
@@ -47,6 +47,21 @@
             --input-bg: #252525;
             --table-header-bg: #252525;
             --table-hover-bg: #2c2c2c;
+        }
+
+        html.dark-mode .sidebar-logo {
+            filter: invert(1) grayscale(100%) brightness(200%);
+            mix-blend-mode: screen;
+            transition: filter var(--transition-speed) ease;
+        }
+
+        html.dark-mode .menu-item.active {
+            color: #000000;
+            font-weight: 700;
+        }
+
+        html.dark-mode .menu-item.active svg {
+            stroke: #000000;
         }
 
         body {
@@ -157,6 +172,11 @@
             object-fit: contain;
             display: block;
             margin: 0 auto;
+        }
+
+        html.dark-mode .sidebar-logo {
+            filter: invert(1) hue-rotate(180deg);
+            transition: filter var(--transition-speed) ease;
         }
 
         /* --- NẤC 2: THÔNG TIN THÍ SINH --- */
@@ -798,6 +818,51 @@
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
         }
 
+        /* ==========================================
+           TRẠNG THÁI KHÓA HỌC ĐÃ KẾT THÚC
+           ========================================== */
+
+        .course-card.course-card-ended {
+            background-color: #f1f3f5;
+            border-color: #d1d5db;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.025);
+        }
+
+        .course-card.course-card-ended:hover {
+            transform: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.025);
+        }
+
+        .course-card.course-card-ended .course-image {
+            filter: grayscale(35%);
+            opacity: 0.88;
+        }
+
+        .course-card.course-card-ended .course-body {
+            background-color: #f1f3f5;
+        }
+
+        .course-card.course-card-ended .course-title {
+            color: #64748b;
+        }
+
+        .course-card.course-card-ended .course-level-tag {
+            background-color: #e2e8f0;
+            color: #64748b;
+        }
+
+        .course-card.course-card-ended .course-meta {
+            color: #7b8794;
+        }
+
+        .course-card.course-card-ended .course-footer {
+            border-top-color: #d9dee5;
+        }
+
+        .course-card.course-card-ended .course-students {
+            color: #7b8794;
+        }
+
         .course-image {
             height: 140px;
             background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
@@ -844,6 +909,11 @@
 
         .course-badge-unallowed {
             background-color: #64748b;
+        }
+
+        .course-badge-ended {
+            background-color: #64748b;
+            color: #ffffff;
         }
 
         .course-body {
@@ -939,6 +1009,22 @@
 
         .course-btn-enroll:hover {
             background-color: var(--primary-blue-hover);
+        }
+
+        .course-btn-ended {
+            background-color: #64748b;
+            color: #ffffff;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .course-btn-ended:hover {
+            background-color: #64748b;
+            transform: none;
+        }
+
+        .course-btn-ended:active {
+            transform: none;
         }
         .course-badge-requested {
             background-color: #f9a825;
@@ -2020,6 +2106,29 @@
         html.dark-mode .status-bar-icon-btn:hover {
             background-color: rgba(255, 255, 255, 0.2);
         }
+
+        html.dark-mode .course-card.course-card-ended {
+            background-color: #252525;
+            border-color: #3f3f46;
+        }
+
+        html.dark-mode .course-card.course-card-ended .course-body {
+            background-color: #252525;
+        }
+
+        html.dark-mode .course-card.course-card-ended .course-title {
+            color: #a1a1aa;
+        }
+
+        html.dark-mode .course-card.course-card-ended .course-meta,
+        html.dark-mode .course-card.course-card-ended .course-students {
+            color: #8b8b8b;
+        }
+
+        html.dark-mode .course-card.course-card-ended .course-level-tag {
+            background-color: #3f3f46;
+            color: #a1a1aa;
+        }
     </style>
 </head>
 <body>
@@ -2842,6 +2951,14 @@ if (user) {
                             </tbody>
                         </table>
                     `
+                },
+                {
+                    id: 2,
+                    title: "Thực hiện kì thi kết thúc khóa học Nhập môn Đại số tuyến tính và Nhập môn Giải tích I",
+                    date: "29/08/2026",
+                    content: `
+                        Xem chi tiết tại 
+                    `
                 }
             ];
 
@@ -2896,7 +3013,8 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbysKbabtrPxcYLV
 const COURSE_STATUS = {
     ALLOWED: 'O',
     NOT_REGISTERED: 'Chưa đăng ký',
-    REQUESTED: 'Yêu cầu'
+    REQUESTED: 'Yêu cầu',
+    ENDED: 'Kết thúc'
 };
 
 let coursePermissionMap = {};   // { courseId: 'O' | 'Chưa đăng ký' | 'Yêu cầu' }
@@ -2989,7 +3107,7 @@ function loadCoursePermissions() {
                     title: "Nhập môn Đại số tuyến tính",
                     level: "Đại học",
                     teacher: "Nguyễn Hải Quân",
-                    duration: "3 tuần",
+                    duration: "10/08/2026 - 30/08/2026",
                     students: 1,
                     image: "MATH231.png",
                     url: "course-linear-algebra.html" // TODO: thay bằng URL thật của khóa học
@@ -2999,7 +3117,7 @@ function loadCoursePermissions() {
                     title: "Nhập môn Giải tích I",
                     level: "Đại học",
                     teacher: "Nguyễn Hải Quân",
-                    duration: "4 tuần",
+                    duration: "10/08/2026 - 30/08/2026",
                     students: 1,
                     image: "MATH232.png",
                     url: "course-calculus-1.html" 
@@ -3009,48 +3127,32 @@ function loadCoursePermissions() {
                     title: "Nhập môn Thống kê xã hội học",
                     level: "Đại học",
                     teacher: "Nguyễn Hải Quân",
-                    duration: "2 tuần",
+                    duration: "10/08/2026 - 25/08/2026",
                     students: 1,
                     image: "MATH131.jpg",
-                    url: "#" // TODO: thay bằng URL thật của khóa học
+                    url: "#", // TODO: thay bằng URL thật của khóa học
+                    status: 'ENDED'
                 },
                 {
                     id: "course-math-12",
                     title: "Toán học 12",
                     level: "THPT",
                     teacher: "Nguyễn Hải Quân",
-                    duration: "8 tuần",
+                    duration: "10/08/2026 - 15/02/2027",
                     students: 1,
                     image: "MATH12.jpg",
                     url: "course-math-12.html" // TODO: thay bằng URL thật của khóa học
                 },
                  {
-                    id: "course-chemistry-9",
-                    title: "Hóa học 9",
-                    level: "THCS",
-                    teacher: "Nguyễn Thị Mai Phương",
-                    duration: "6 tuần",
-                    students: 6,
-                    image: "CHEM9.jpg", // TODO: đổi ảnh thật cho khóa học này
-                    url: "course-chemistry-9.html" // TODO: thay bằng URL thật của khóa học
-                },{
-                    id: "course-thptqg-2027",
-                    title: "Luyện đề thi THPTQG 2027",
-                    level: "THPT",
-                    teacher: "Nguyễn Hải Quân",
-                    duration: "6 tuần",
-                    students: 0,
-                    image: "THPTQG2027.png", // TODO: đổi ảnh thật cho khóa học này
-                    url: "#" // TODO: thay bằng URL thật của khóa học
-                }, {
                     id: "course-tinchi-hnue",
                     title: "Lập kế hoạch đăng kí tín chỉ HNUE (HK01 - K76)",
                     level: "Đại học",
                     teacher: "Nguyễn Hải Quân",
-                    duration: "1 tuần",
-                    students: 0,
+                    duration: "20/08/2026 - 28/08/2026",
+                    students: 17,
                     image: "HNUE.png", // TODO: đổi ảnh thật cho khóa học này
-                    url: "course-tinchi-hnue.html" // TODO: thay bằng URL thật của khóa học
+                    url: "course-tinchi-hnue.html" ,// TODO: thay bằng URL thật của khóa học
+                    status: "ENDED"
                 }
             ];  
 
@@ -3059,13 +3161,26 @@ function loadCoursePermissions() {
             }
 
             function getCourseStatus(courseId) {
+                const course = coursesData.find(c => c.id === courseId);
+
+                // Ưu tiên tuyệt đối: nếu trong cấu hình coursesData có khai báo status là ENDED
+                if (course && (course.status === COURSE_STATUS.ENDED || course.status === 'ENDED')) {
+                    return COURSE_STATUS.ENDED;
+                }
+
                 const status = coursePermissionMap[courseId];
-                if (status === COURSE_STATUS.ALLOWED || status === COURSE_STATUS.REQUESTED) {
+
+                if (
+                    status === COURSE_STATUS.ALLOWED ||
+                    status === COURSE_STATUS.REQUESTED
+                ) {
                     return status;
                 }
+
                 if (status === undefined) {
                     console.warn('Không tìm thấy trạng thái quyền cho khóa học:', courseId);
                 }
+
                 return COURSE_STATUS.NOT_REGISTERED;
             }
 
@@ -3073,7 +3188,8 @@ function loadCoursePermissions() {
                 const order = {
                     [COURSE_STATUS.ALLOWED]: 0,
                     [COURSE_STATUS.REQUESTED]: 1,
-                    [COURSE_STATUS.NOT_REGISTERED]: 2
+                    [COURSE_STATUS.NOT_REGISTERED]: 2,
+                    [COURSE_STATUS.ENDED]: 3
                 };
                 return [...courses].sort((a, b) => order[getCourseStatus(a.id)] - order[getCourseStatus(b.id)]);
             }
@@ -3107,6 +3223,9 @@ function loadCoursePermissions() {
 
                 container.innerHTML = sortedCourses.map(course => {
                     const status = getCourseStatus(course.id);
+                    const cardClass = status === COURSE_STATUS.ENDED
+                        ? 'course-card course-card-ended'
+                        : 'course-card';
 
                     let badgeClass = 'course-badge-unallowed';
                     let badgeText = 'Chưa đăng ký';
@@ -3116,7 +3235,15 @@ function loadCoursePermissions() {
                         </button>
                     `;
 
-                    if (status === COURSE_STATUS.ALLOWED) {
+                    if (status === COURSE_STATUS.ENDED) {
+                        badgeClass = 'course-badge-ended';
+                        badgeText = 'Kết thúc';
+                        buttonHtml = `
+                            <button class="course-btn course-btn-ended" disabled>
+                                Kết thúc
+                            </button>
+                        `;
+                    } else if (status === COURSE_STATUS.ALLOWED) {
                         badgeClass = 'course-badge-allowed';
                         badgeText = 'Đã tham gia';
                         buttonHtml = `
@@ -3135,7 +3262,7 @@ function loadCoursePermissions() {
                     }
 
                     return `
-                        <div class="course-card">
+                        <div class="${cardClass}">
                             <div class="course-image">
                                 ${course.image ? `
                                     <img src="${escapeHtml(course.image)}" alt="${escapeHtml(course.title)}" onerror="this.onerror=null; this.classList.add('img-error');">
