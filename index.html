@@ -286,6 +286,25 @@
             background-color: #F1F5F9;
         }
 
+        .forgot-password-link {
+            display: block;
+            width: fit-content;
+            margin: 14px auto 0;
+            padding: 4px 8px;
+            border: none;
+            background: transparent;
+            color: #2563EB;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s ease, opacity 0.2s ease;
+        }
+
+        .forgot-password-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
         /* ==========================================================================
            ALERT & NOTIFICATION BOXES
            ========================================================================== */
@@ -466,11 +485,118 @@
                     <button type="submit" class="btn btn-primary">
                         Đăng nhập
                     </button>
+                    <button type="button" class="forgot-password-link" onclick="navigateToSection(4)">
+                        Quên mật khẩu?
+                    </button>
                 </div>
             </form>
 
             <button type="button" class="btn-back-link" onclick="navigateToSection(1)">
                 &#8592; Quay lại
+            </button>
+        </section>
+
+
+        <!-- =================================================================== -->
+        <!-- SECTION 4: TRANG QUÊN MẬT KHẨU -->
+        <!-- =================================================================== -->
+        <section id="section-4" class="section-card card-lg">
+            <div class="header-box">
+                <img src="logo.png" alt="Hệ Thống Quản Lý Học Sinh" class="page-logo">
+                <h1 class="main-title">QUÊN MẬT KHẨU</h1>
+                <p class="subtitle">Vui lòng điền đầy đủ thông tin để gửi yêu cầu cấp lại mật khẩu</p>
+            </div>
+
+            <div id="forgot-password-alert" class="alert-box"></div>
+
+            <form id="forgot-password-form" onsubmit="handleForgotPasswordSubmit(event)">
+                <div class="form-group">
+                    <label for="forgot-fullName" class="form-label">
+                        Họ và tên <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="forgot-fullName" 
+                        class="form-input" 
+                        placeholder="Nhập đầy đủ họ và tên" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="forgot-username" class="form-label">
+                        Tên tài khoản cần cấp lại mật khẩu <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="forgot-username" 
+                        class="form-input" 
+                        placeholder="Nhập tên tài khoản" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="forgot-email" class="form-label">
+                        Email cần cấp lại mật khẩu <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="email" 
+                        id="forgot-email" 
+                        class="form-input" 
+                        placeholder="Nhập địa chỉ Email" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="forgot-phone" class="form-label">
+                        Số điện thoại <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="forgot-phone" 
+                        class="form-input" 
+                        placeholder="Nhập số điện thoại" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="forgot-new-password" class="form-label">
+                        Mật khẩu mới muốn thay đổi <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="forgot-new-password" 
+                        class="form-input" 
+                        placeholder="Nhập mật khẩu mới" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="forgot-confirm-password" class="form-label">
+                        Xác thực lại mật khẩu <span class="required-asterisk">*</span>
+                    </label>
+                    <input 
+                        type="password" 
+                        id="forgot-confirm-password" 
+                        class="form-input" 
+                        placeholder="Nhập lại mật khẩu mới" 
+                        required
+                    >
+                </div>
+
+                <div class="btn-stack" style="margin-top: 25px;">
+                    <button type="submit" class="btn btn-primary">
+                        Gửi yêu cầu
+                    </button>
+                </div>
+            </form>
+
+            <button type="button" class="btn-back-link" onclick="navigateToSection(2)">
+                &#8592; Quay lại đăng nhập
             </button>
         </section>
 
@@ -792,14 +918,15 @@
         // SECTION NAVIGATION
         // ================================
         /**
-         * Switches active view between Section 1, 2, and 3 with smooth fade transition
-         * @param {number} targetSectionIndex - Section number (1, 2, or 3)
+         * Switches active view between Section 1, 2, 3, or 4 with smooth fade transition
+         * @param {number} targetSectionIndex - Section number (1, 2, 3, or 4)
          */
         function navigateToSection(targetSectionIndex) {
             const sections = [
                 document.getElementById('section-1'),
                 document.getElementById('section-2'),
-                document.getElementById('section-3')
+                document.getElementById('section-3'),
+                document.getElementById('section-4')
             ];
 
             const currentActive = sections.find(sec => sec.classList.contains('active'));
@@ -831,6 +958,186 @@
             // Scroll to top of section card
             targetSection.scrollTop = 0;
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ================================
+        // FORGOT PASSWORD HANDLING
+        // ================================
+        function handleForgotPasswordSubmit(event) {
+            event.preventDefault();
+
+            const fullNameInput = document.getElementById('forgot-fullName');
+            const usernameInput = document.getElementById('forgot-username');
+            const emailInput = document.getElementById('forgot-email');
+            const phoneInput = document.getElementById('forgot-phone');
+            const newPasswordInput = document.getElementById('forgot-new-password');
+            const confirmPasswordInput = document.getElementById('forgot-confirm-password');
+            const alertBox = document.getElementById('forgot-password-alert');
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+
+            const fullName = fullNameInput.value.trim();
+            const username = usernameInput.value.trim();
+            const email = emailInput.value.trim();
+            const phone = phoneInput.value.trim();
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            const inputs = [
+                fullNameInput,
+                usernameInput,
+                emailInput,
+                phoneInput,
+                newPasswordInput,
+                confirmPasswordInput
+            ];
+
+            inputs.forEach(input => {
+                input.classList.remove('error');
+            });
+
+            alertBox.style.display = 'none';
+
+            const firstErrorElement = inputs.find(input => {
+                return !input.value.trim();
+            });
+
+            if (firstErrorElement) {
+                inputs.forEach(input => {
+                    if (!input.value.trim()) {
+                        input.classList.add('error');
+                    }
+                });
+
+                showNotification(
+                    alertBox,
+                    'error',
+                    'Vui lòng điền đầy đủ tất cả các thông tin bắt buộc.'
+                );
+
+                firstErrorElement.focus();
+                firstErrorElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+
+                return;
+            }
+
+            if (!emailInput.checkValidity()) {
+                emailInput.classList.add('error');
+
+                showNotification(
+                    alertBox,
+                    'error',
+                    'Vui lòng nhập địa chỉ Email hợp lệ.'
+                );
+
+                emailInput.focus();
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                newPasswordInput.classList.add('error');
+                confirmPasswordInput.classList.add('error');
+
+                showNotification(
+                    alertBox,
+                    'error',
+                    'Mật khẩu xác thực không khớp với mật khẩu mới.'
+                );
+
+                confirmPasswordInput.focus();
+                return;
+            }
+
+            const requestText = `YÊU CẦU CẤP LẠI MẬT KHẨU
+================================
+Họ và tên: ${fullName}
+Tên tài khoản: ${username}
+Email: ${email}
+Số điện thoại: ${phone}
+Mật khẩu mới: ${newPassword}
+Xác thực lại mật khẩu: ${confirmPassword}
+================================
+Yêu cầu được gửi từ hệ thống Quân Nguyễn Study.`;
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+
+            /*
+             * Mở Zalo ngay trong thao tác click/submit của người dùng
+             * để hạn chế trình duyệt chặn cửa sổ mới.
+             */
+            const zaloWindow = window.open(
+                'https://zalo.me/0355748108',
+                '_blank',
+                'noopener,noreferrer'
+            );
+
+            /*
+             * Copy toàn bộ nội dung yêu cầu vào Clipboard.
+             */
+            navigator.clipboard.writeText(requestText)
+                .then(() => {
+                    showNotification(
+                        alertBox,
+                        'success',
+                        '<strong>Đã chuẩn bị yêu cầu!</strong><br>' +
+                        'Thông tin cấp lại mật khẩu đã được sao chép. ' +
+                        'Vui lòng dán nội dung vào cuộc trò chuyện Zalo để gửi yêu cầu.'
+                    );
+                })
+                .catch(() => {
+                    /*
+                     * Fallback cho trình duyệt không cho phép Clipboard API.
+                     */
+                    const textarea = document.createElement('textarea');
+                    textarea.value = requestText;
+                    textarea.style.position = 'fixed';
+                    textarea.style.left = '-9999px';
+                    textarea.style.top = '0';
+
+                    document.body.appendChild(textarea);
+                    textarea.focus();
+                    textarea.select();
+
+                    let copied = false;
+
+                    try {
+                        copied = document.execCommand('copy');
+                    } catch (error) {
+                        copied = false;
+                    }
+
+                    document.body.removeChild(textarea);
+
+                    if (copied) {
+                        showNotification(
+                            alertBox,
+                            'success',
+                            '<strong>Đã chuẩn bị yêu cầu!</strong><br>' +
+                            'Thông tin cấp lại mật khẩu đã được sao chép. ' +
+                            'Vui lòng dán nội dung vào cuộc trò chuyện Zalo để gửi yêu cầu.'
+                        );
+                    } else {
+                        showNotification(
+                            alertBox,
+                            'error',
+                            'Không thể tự động sao chép thông tin. Vui lòng kiểm tra quyền Clipboard của trình duyệt.'
+                        );
+                    }
+                })
+                .finally(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                    }
+
+                    alertBox.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                });
         }
 
         // ================================
