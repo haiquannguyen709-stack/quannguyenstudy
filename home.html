@@ -3818,7 +3818,7 @@ function loadCoursePermissions() {
             }
 
             /* ==========================================
-               6c. XỬ LÝ CHỌN NGÔN NGỮ & LOCALSTORAGE (VỚI CỜ TỈ LỆ 2:3)
+               6c. XỬ LÝ CHỌN NGÔN NGỮ & ĐỔI NỘI DUNG (i18n)
                ========================================== */
             const btnLangToggle = document.getElementById('btn-lang-toggle');
             const currentFlagIcon = document.getElementById('current-flag-icon');
@@ -3828,20 +3828,60 @@ function loadCoursePermissions() {
             const vietnamFlagSvg = `<rect width="300" height="200" fill="#da251d"/><polygon points="150,55 162,92 201,92 169,115 181,152 150,130 119,152 131,115 99,92 138,92" fill="#ffee00"/>`;
             const ukFlagSvg = `<rect width="600" height="400" fill="#012169"/><path d="M0,0 L600,400 M600,0 L0,400" stroke="#fff" stroke-width="60"/><path d="M0,0 L600,400 M600,0 L0,400" stroke="#C8102E" stroke-width="40"/><path d="M300,0 V400 M0,200 H600" stroke="#fff" stroke-width="100"/><path d="M300,0 V400 M0,200 H600" stroke="#C8102E" stroke-width="60"/>`;
 
-            function updateFlagUI(lang) {
-                if (!currentFlagIcon) return;
-                if (lang === 'en') {
-                    currentFlagIcon.setAttribute('viewBox', '0 0 600 400');
-                    currentFlagIcon.innerHTML = ukFlagSvg;
-                } else {
-                    currentFlagIcon.setAttribute('viewBox', '0 0 300 200');
-                    currentFlagIcon.innerHTML = vietnamFlagSvg;
+            // Từ điển dịch cho các mục menu và tiêu đề trang chính
+            const translations = {
+                vi: {
+                    "Trang cá nhân": "Trang cá nhân",
+                    "Thông tin cá nhân": "Thông tin cá nhân",
+                    "Thông báo": "Thông báo",
+                    "Chức năng trực tuyến": "Chức năng trực tuyến",
+                    "Kết quả học tập": "Kết quả học tập",
+                    "Khóa học": "Khóa học",
+                    "Lịch học": "Lịch học",
+                    "Học phí": "Học phí",
+                    "Đăng xuất": "Đăng xuất"
+                },
+                en: {
+                    "Trang cá nhân": "Personal Profile",
+                    "Thông tin cá nhân": "Personal Information",
+                    "Thông báo": "Notifications",
+                    "Chức năng trực tuyến": "Online Features",
+                    "Kết quả học tập": "Learning Results",
+                    "Khóa học": "Courses",
+                    "Lịch học": "Schedule",
+                    "Học phí": "Tuition",
+                    "Đăng xuất": "Logout"
                 }
+            };
+
+            function changePageLanguage(lang) {
+                // 1. Đổi icon cờ trên status bar
+                if (currentFlagIcon) {
+                    if (lang === 'en') {
+                        currentFlagIcon.setAttribute('viewBox', '0 0 600 400');
+                        currentFlagIcon.innerHTML = ukFlagSvg;
+                    } else {
+                        currentFlagIcon.setAttribute('viewBox', '0 0 300 200');
+                        currentFlagIcon.innerHTML = vietnamFlagSvg;
+                    }
+                }
+
+                // 2. Quét và dịch văn bản trên menu / tiêu đề
+                const dict = translations[lang] || translations['vi'];
+                document.querySelectorAll('.sidebar .menu-item span, .page-title').forEach(el => {
+                    const originalText = el.getAttribute('data-original') || el.textContent.trim();
+                    if (!el.hasAttribute('data-original')) {
+                        el.setAttribute('data-original', originalText);
+                    }
+                    if (dict[originalText]) {
+                        el.textContent = dict[originalText];
+                    }
+                });
             }
 
-            // Khởi tạo ngôn ngữ từ localStorage (mặc định 'vi')
+            // Khởi tạo ngôn ngữ từ localStorage khi tải trang (mặc định 'vi')
             const savedLang = localStorage.getItem('qn-study-language') || 'vi';
-            updateFlagUI(savedLang);
+            changePageLanguage(savedLang);
 
             if (btnLangToggle && langDropdownMenu) {
                 btnLangToggle.addEventListener('click', (e) => {
@@ -3862,11 +3902,11 @@ function loadCoursePermissions() {
                 option.addEventListener('click', () => {
                     const selectedLang = option.getAttribute('data-lang');
                     localStorage.setItem('qn-study-language', selectedLang);
-                    updateFlagUI(selectedLang);
+                    changePageLanguage(selectedLang);
                     if (langDropdownMenu) {
                         langDropdownMenu.style.display = 'none';
                     }
-                    showToast(selectedLang === 'en' ? 'Đã chuyển sang Tiếng Anh' : 'Đã chuyển sang Tiếng Việt', 'success');
+                    showToast(selectedLang === 'en' ? 'Switched to English' : 'Đã chuyển sang Tiếng Việt', 'success');
                 });
             });
 
