@@ -1274,7 +1274,14 @@
     <!-- JAVASCRIPT TRỰC TIẾP TRONG FILE HTML -->
     <!-- JAVASCRIPT TRỰC TIẾP TRONG FILE HTML -->
     <script>
-        const courseSchedule = {};
+        const courseSchedule = {
+            "math221a_tai_lieu_chung_1": { open: null, close: null },
+            "math221a_tai_lieu_chung_2": { open: null, close: null },
+            "math221a_tai_lieu_chung_3": { open: null, close: null },
+            "math221a_tai_lieu_chung_4": { open: null, close: null },
+            "math221a_tai_lieu_rieng_1": { open: null, close: null },
+            "math221a_de_thi_tham_khao_1": { open: null, close: null }
+        };
 
         // Hàm chuyển đổi chuỗi YYYY-MM-DDTHH:mm:ss thành Date Object chính xác theo múi giờ Việt Nam (+07:00)
         function parseVietnamDate(isoString) {
