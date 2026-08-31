@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    
+    <!-- =========================================================
+         NƠI THAY URL TIÊN QUYẾT
+         =========================================================
+         Thay "URL_TIÊN_QUYẾT" bằng URL chính xác của trang
+         được phép dẫn vào trang khóa học này.
+
+         Ví dụ:
+         https://example.com/home.html
+
+         CHỈ THAY URL Ở DÒNG const URL_TIEN_QUYET.
+         ========================================================= -->
+    <script>
+        const URL_TIEN_QUYET = "home.html";
+    </script>   
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giải tích thực một biến (MATH221A) - Quân Nguyễn Study</title>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS TRỰC TIẾP TRONG FILE HTML -->
+    <style>
+        /* ==========================================================================
+           RESET & BASIC STYLES
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #0056b3;
+            --primary-light: #e6f0fa;
+            --primary-hover: #004085;
+            --bg-light: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #2b2d42;
+            --text-muted: #6c757d;
+            --border-color: #e2e8f0;
+            --status-bar-height: 65px;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        /* ==========================================================================
+           1. STATUS BAR (100% WIDE, FIXED ON TOP)
+           ========================================================================== */
+        .status-bar {
+            width: 100%;
+            height: var(--status-bar-height);
+            background-color: var(--primary-color);
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-bar-brand .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .status-bar-system .system-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        /* ==========================================================================
+           LAYOUT STRUCTURE (SIDEBAR + MAIN CONTENT)
+           ========================================================================== */
+        .course-layout {
+            display: block;
+            min-height: calc(100vh - var(--status-bar-height));
+            width: 100%;
+            position: relative;
+        }
+
+        /* ==========================================================================
+           2. SIDEBAR
+           ========================================================================== */
+        .sidebar {
+            position: fixed;
+            top: var(--status-bar-height);
+            left: 0;
+            width: calc(100% / 5.5);
+            height: calc(100vh - var(--status-bar-height));
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-color: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            z-index: 90;
+        }
+       
+
+        /* Logo */
+        .sidebar-logo-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-logo {
+            max-width: 100px;
+            max-height: auto;
+            object-fit: contain;
+        }
+
+        /* Student Info */
+        .student-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .avatar-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            border: 2px solid var(--border-color);
+        }
+
+        .student-icon {
+            font-size: 28px;
+            color: var(--primary-color);
+        }
+
+        .student-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .student-badge {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 3px 12px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Back Button */
+        .btn-back {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 16px;
+            background-color: #f8f9fa;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Divider */
+        .sidebar-divider {
+            width: 100%;
+            border: 0;
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 20px 0;
+        }
+
+        /* Course Content Nav */
+        .course-content-nav {
+            width: 100%;
+        }
+
+        .nav-header {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            padding-left: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            color: var(--text-color);
+            font-size: 0.88rem;
+            font-weight: 500;
+            line-height: 1.4;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            font-size: 1rem;
+            margin-top: 2px;
+            color: var(--primary-color);
+        }
+
+        /* ==========================================================================
+           3. MAIN CONTENT
+           ========================================================================== */
+        .main-content {
+            margin-left: calc(100% / 5.5);
+            width: calc(100% * 4.5 / 5.5);
+            padding: 28px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Header Khóa Học / Card Banner */
+        .course-header-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .course-banner-container {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+    background-color: var(--bg-light);
+}
+
+.course-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+        .course-header-info {
+            padding: 20px 28px;
+        }
+
+        .course-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        .teacher-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Progress Bar Card */
+        .progress-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .progress-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-title i {
+            color: var(--primary-color);
+        }
+
+        .progress-stats {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background-color: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #16a34a;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Section Chương I */
+        .chapter-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary-color);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            scroll-margin-top: calc(var(--status-bar-height) + 20px);
+        }
+
+        .chapter-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+        }
+
+        .chapter-divider {
+            border: 0;
+            height: 1px;
+            background-color: var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        /* Danh sách Bài Học */
+        .lessons-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .lesson-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            background-color: #ffffff;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .lesson-item:hover {
+            border-color: #cbd5e1;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .lesson-icon-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            margin-right: 16px;
+        }
+
+        .lesson-type-video {
+            background-color: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .lesson-type-pdf {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        .lesson-type-quiz {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+
+        .lesson-type-assignment {
+            background-color: #f3e8ff;
+            color: #9333ea;
+        }
+
+        .lesson-type-video-recorded {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+        }
+
+        .lesson-type-link {
+            background-color: #ccfbf1;
+            color: #0d9488;
+        }
+
+        .lesson-type-forum {
+            background-color: #ffe4e6;
+            color: #e11d48;
+        }
+
+        .lesson-type-survey {
+            background-color: #fae8ff;
+            color: #c026d3;
+        }
+        .lesson-type-assignment {
+            background-color: #f3e8ff;
+            color: #9333ea;
+        }
+
+        .lesson-type-video-recorded {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+        }
+
+        .lesson-type-link {
+            background-color: #ccfbf1;
+            color: #0d9488;
+        }
+
+        .lesson-type-forum {
+            background-color: #ffe4e6;
+            color: #e11d48;
+        }
+
+        .lesson-type-survey {
+            background-color: #fae8ff;
+            color: #c026d3;
+        }
+
+        .lesson-details {
+            flex-grow: 1;
+        }
+
+        .lesson-title {
+            font-size: 0.98rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 4px;
+        }
+
+        .lesson-meta {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .lesson-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 16px;
+        }
+
+        /* Nút bấm */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-status {
+    background-color: #e2e8f0;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-status:hover {
+    background-color: #cbd5e1;
+    color: #334155;
+}
+
+.btn-status.completed {
+    background-color: #16a34a;
+    color: #ffffff;
+}
+
+.btn-status.completed:hover {
+    background-color: #15803d;
+    color: #ffffff;
+}
+
+        /* ==========================================================================
+           RESPONSIVE DESIGN
+           ========================================================================== */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 25%;
+            }
+            .main-content {
+                margin-left: 25%;
+                width: 75%;
+            }
+        }
+
+        /* ==========================================================================
+           MOBILE SIDEBAR & TOGGLE BUTTON STYLES
+           ========================================================================== */
+        .sidebar-toggle-btn {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: var(--status-bar-height);
+                left: 0;
+                width: 280px;
+                height: calc(100vh - var(--status-bar-height));
+                z-index: 200;
+                transition: transform 0.25s ease;
+                box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                position: relative;
+            }
+
+            .sidebar-toggle-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                bottom: 24px;
+                left: 20px;
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background-color: var(--primary-color);
+                color: #ffffff;
+                border: none;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+                z-index: 210;
+                cursor: pointer;
+                transition: transform 0.2s ease, background-color 0.2s ease;
+            }
+
+            .sidebar-toggle-btn:hover,
+            .sidebar-toggle-btn:active {
+                background-color: var(--primary-hover);
+                transform: scale(1.05);
+            }
+
+            .lesson-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .lesson-actions {
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .status-bar {
+                padding: 0 16px;
+            }
+            
+            .status-bar-system {
+                display: none;
+            }
+        }
+        /* ==========================================================================
+           BADGES & TIMED ACCESS STYLES
+           ========================================================================== */
+        .lesson-title-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+        }
+
+        .lesson-title-container .lesson-title {
+            margin-bottom: 0;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .status-badge.upcoming {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .status-badge.open {
+            background-color: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-badge.closed {
+            background-color: #f1f5f9;
+            color: #64748b;
+        }
+
+        .countdown-text {
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 8px;
+            padding-left: 8px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .countdown-text.upcoming {
+            color: #d97706;
+        }
+
+        .countdown-text.open {
+            color: #16a34a;
+        }
+
+        .countdown-text.closed {
+            color: #94a3b8;
+        }
+
+        /* Nút bị disable theo thời gian */
+        .btn-action.disabled,
+        .btn-action.disabled:hover {
+            background-color: #cbd5e1 !important;
+            color: #64748b !important;
+            cursor: not-allowed !important;
+            opacity: 0.8;
+            box-shadow: none !important;
+            pointer-events: auto; /* Giữ sự kiện click để e.preventDefault() hoạt động */
+        }
+
+        /* ==========================================================================
+           SEARCH & FILTER STYLES
+           ========================================================================== */
+        .search-filter-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-filter-container {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            color: var(--text-color);
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            background-color: #ffffff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.12);
+        }
+
+        .filter-box {
+            width: 220px;
+            flex-shrink: 0;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            font-weight: 500;
+            color: var(--text-color);
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .filter-select:focus,
+        .filter-select:hover {
+            background-color: #ffffff;
+            border-color: var(--primary-color);
+        }
+
+        /* Card Thông báo khi không tìm thấy bài học */
+        .no-results-card {
+            background-color: var(--card-bg);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 32px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .no-results-icon {
+            font-size: 2rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+
+        .no-results-card p {
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Responsive cho Search & Filter */
+        @media (max-width: 768px) {
+            .search-filter-container {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .filter-box {
+                width: 100%;
+            }
+        }
+
+        /* ==========================================================================
+           ACCORDION / COLLAPSE CHAPTER STYLES
+           ========================================================================== */
+        .chapter-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            padding-bottom: 4px;
+        }
+
+        .chapter-header .chapter-title {
+            margin-bottom: 0;
+            flex-grow: 1;
+        }
+
+        .chapter-toggle {
+            background: transparent;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.25s ease;
+            flex-shrink: 0;
+            margin-left: 12px;
+        }
+
+        .chapter-header:hover .chapter-toggle {
+            background-color: var(--primary-light);
+        }
+
+        .chapter-toggle .toggle-icon {
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Container chứa nội dung bài học trong chương */
+        .chapter-content {
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+            max-height: 2000px; /* Độ cao tối đa khi mở */
+            opacity: 1;
+        }
+
+        /* Trạng thái THU GỌN */
+        .chapter-card.collapsed .chapter-content {
+            max-height: 0 !important;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .chapter-card.collapsed .chapter-divider {
+            margin-bottom: 0;
+        }
+
+        .chapter-card.collapsed .chapter-toggle .toggle-icon {
+            transform: rotate(-90deg);
+        }
+        /* ==========================================================================
+           ACCESS CONTROL & DENIED SCREEN STYLES
+           ========================================================================== */
+        /* Mặc định ẩn toàn bộ giao diện khi đang kiểm tra (Tránh Flash) */
+        body.access-checking {
+            visibility: hidden;
+            background-color: var(--bg-light);
+        }
+
+        /* Ẩn giao diện khóa học khi truy cập bị từ chối */
+        body.access-denied .status-bar,
+        body.access-denied .course-layout {
+            display: none !important;
+        }
+
+        /* Ẩn màn hình từ chối khi đang checking hoặc đã được cấp quyền */
+        body.access-checking #access-denied-screen,
+        body.access-granted #access-denied-screen {
+            display: none !important;
+        }
+
+        /* Hiển thị trang bình thường khi hợp lệ */
+        body.access-granted {
+            visibility: visible !important;
+        }
+
+        /* Cấu hình màn hình Từ chối truy cập */
+        body.access-denied {
+            visibility: visible !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: var(--bg-light);
+            padding: 20px;
+        }
+
+        .access-denied-container {
+            width: 100%;
+            max-width: 480px;
+            margin: auto;
+        }
+
+        .access-denied-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 40px 32px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        .access-denied-icon {
+            width: 72px;
+            height: 72px;
+            background-color: #fee2e2;
+            color: #dc2626;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 20px;
+        }
+
+        .access-denied-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .access-denied-message {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 28px;
+        }
+
+        .btn-access-back {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-access-back:hover {
+            background-color: var(--primary-hover);
+        }
+    </style>
+</head>
+<body class="access-checking">
+
+    <!-- MÀN HÌNH THÔNG BÁO TỪ CHỐI TRUY CẬP (ACCESS DENIED) -->
+    <div id="access-denied-screen" class="access-denied-container">
+        <div class="access-denied-card">
+            <div class="access-denied-icon">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h1 class="access-denied-title">Không thể truy cập trang này</h1>
+            <p class="access-denied-message">Nội dung khóa học chỉ có thể được truy cập từ trang được chỉ định.</p>
+
+            <button id="btn-access-denied-back" class="btn-access-back">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Quay lại</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 1. STATUS BAR -->
+    <header class="status-bar">
+        <div class="status-bar-brand">
+            <span class="brand-title">Quân Nguyễn Study</span>
+        </div>
+        <div class="status-bar-system">
+            <span class="system-title">Hệ thống học tập trực tuyến</span>
+        </div>
+    </header>
+
+    <!-- LAYOUT BÊN DƯỚI STATUS BAR -->
+    <div class="course-layout">
+
+        <!-- 2. SIDEBAR -->
+        <aside class="sidebar">
+            <!-- Logo hệ thống -->
+            <div class="sidebar-logo-container">
+                <img src="logo1.png" alt="Quân Nguyễn Study Logo" class="sidebar-logo">
+            </div>
+
+            
+            <!-- Thông tin học sinh -->
+<div class="student-info">
+    <div class="avatar-wrapper">
+        <i class="fa-solid fa-user student-icon"></i>
+    </div>
+    <h3 class="student-name"><span id="current-user-fullname">Đang tải...</span></h3>
+    <div class="student-badge"><span id="current-user-student-id">Đang tải...</span></div>
+</div>
+
+            <!-- Nút Quay lại -->
+            <a href="home.html" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Quay lại</span>
+            </a>
+
+            <!-- Đường kẻ phân cách -->
+            <hr class="sidebar-divider">
+
+            <!-- Khu vực Nội dung khóa học -->
+            <div class="course-content-nav">
+                <div class="nav-header">NỘI DUNG KHÓA HỌC</div>
+                <a href="#tai-lieu-chung" data-target="tai-lieu-chung" class="nav-item active" id="nav-tai-lieu-chung">
+                    <i class="fa-solid fa-book-bookmark nav-icon"></i>
+                    <span>Tài liệu chung</span>
+                </a>
+                <a href="#tai-lieu-rieng" data-target="tai-lieu-rieng" class="nav-item" id="nav-tai-lieu-rieng">
+                    <i class="fa-solid fa-book-bookmark nav-icon"></i>
+                    <span>Tài liệu riêng</span>
+                </a>
+                <a href="#de-thi-tham-khao" data-target="de-thi-tham-khao" class="nav-item" id="nav-de-thi-tham-khao">
+                    <i class="fa-solid fa-graduation-cap nav-icon"></i>
+                    <span>Đề thi kết thúc học phần tham khảo</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- 3. MAIN CONTENT -->
+        <main class="main-content">
+            <!-- Nút đóng/mở Sidebar trên Mobile -->
+            <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" aria-label="Đóng/Mở danh sách bài học" aria-expanded="true">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <!-- Header Khóa học / Banner -->
+            <section class="course-header-card">
+                <div class="course-banner-container">
+                    <img src="MATH221A.png" alt="Cấu trúc đại số cơ bản (MATH211A)" class="course-banner-img">
+                </div>
+                <div class="course-header-info">
+                    <h1 class="course-title">Giải tích thực một biến (MATH221A)</h1>
+                    <div class="teacher-info">
+                        <i class="fa-solid fa-user-tie"></i>
+                        <span>GV: Nguyễn Hải Quân</span>
+                    </div>
+                </div>
+            </section>
+            <!-- Thanh tiến độ học tập (Progress Bar) -->
+            <section class="progress-card">
+                <div class="progress-header">
+                    <span class="progress-title">
+                        <i class="fa-solid fa-graduation-cap"></i> Tiến độ học tập
+                    </span>
+                    <span class="progress-stats" id="course-progress-text">Chưa có bài học</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="course-progress-bar" style="width: 0%;"></div>
+                </div>
+            </section>
+
+            <!-- Section 1: Tài liệu chung -->
+            <section id="tai-lieu-chung" class="chapter-card">
+                <div class="chapter-header">
+                    <h2 class="chapter-title">Tài liệu chung</h2>
+                    <button type="button" class="chapter-toggle" aria-expanded="true" aria-controls="chapter-content-tai-lieu-chung" aria-label="Thu gọn/Mở rộng Tài liệu chung">
+                        <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                    </button>
+                </div>
+                <div class="chapter-content" id="chapter-content-tai-lieu-chung">
+                    <hr class="chapter-divider">
+                    <div class="lessons-list"></div>
+                </div>
+            </section>
+
+            <!-- Section 2: Tài liệu riêng -->
+            <section id="tai-lieu-rieng" class="chapter-card">
+                <div class="chapter-header">
+                    <h2 class="chapter-title">Tài liệu riêng</h2>
+                    <button type="button" class="chapter-toggle" aria-expanded="true" aria-controls="chapter-content-tai-lieu-rieng" aria-label="Thu gọn/Mở rộng Tài liệu riêng">
+                        <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                    </button>
+                </div>
+                <div class="chapter-content" id="chapter-content-tai-lieu-rieng">
+                    <hr class="chapter-divider">
+                    <div class="lessons-list"></div>
+                </div>
+            </section>
+
+            <!-- Section 3: Đề thi kết thúc học phần tham khảo -->
+            <section id="de-thi-tham-khao" class="chapter-card">
+                <div class="chapter-header">
+                    <h2 class="chapter-title">Đề thi kết thúc học phần tham khảo</h2>
+                    <button type="button" class="chapter-toggle" aria-expanded="true" aria-controls="chapter-content-de-thi-tham-khao" aria-label="Thu gọn/Mở rộng Đề thi kết thúc học phần tham khảo">
+                        <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                    </button>
+                </div>
+                <div class="chapter-content" id="chapter-content-de-thi-tham-khao">
+                    <hr class="chapter-divider">
+                    <div class="lessons-list"></div>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <!-- JAVASCRIPT TRỰC TIẾP TRONG FILE HTML -->
+    <!-- JAVASCRIPT TRỰC TIẾP TRONG FILE HTML -->
+    <script>
+        const courseSchedule = {};
+
+        // Hàm chuyển đổi chuỗi YYYY-MM-DDTHH:mm:ss thành Date Object chính xác theo múi giờ Việt Nam (+07:00)
+        function parseVietnamDate(isoString) {
+            if (!isoString) return null;
+            // Nếu chưa có đuôi múi giờ, tự động thêm +07:00 (Múi giờ Việt Nam)
+            const formattedString = isoString.includes("+") || isoString.endsWith("Z") 
+                ? isoString 
+                : `${isoString}+07:00`;
+            return new Date(formattedString);
+        }
+
+        // Format milliseconds sang HH:MM:SS
+        function formatCountdown(ms) {
+            if (ms <= 0) return "00:00:00";
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const pad = (num) => String(num).padStart(2, '0');
+            return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        }
+
+        // Cập nhật trạng thái hiển thị của toàn bộ khóa học
+        function updateCourseScheduleUI() {
+            // Lấy thời gian thực tế hiện tại của hệ thống
+            const now = new Date();
+
+            Object.keys(courseSchedule).forEach((id) => {
+                const config = courseSchedule[id];
+                const openTime = parseVietnamDate(config.open);
+                const closeTime = parseVietnamDate(config.close);
+
+                const badgeEl = document.querySelector(`[data-badge-for="${id}"]`);
+                const countdownEl = document.querySelector(`[data-countdown-for="${id}"]`);
+                const actionBtn = document.querySelector(`[data-action-for="${id}"]`);
+
+                if (!actionBtn) return;
+
+                const defaultText = actionBtn.getAttribute("data-default-text") || "Tham gia";
+
+                // TRẠNG THÁI 1 — CHƯA MỜ (Thời gian hiện tại < Thời gian mở)
+                if (openTime && now < openTime) {
+                    if (badgeEl) {
+                        badgeEl.textContent = "Chưa mở";
+                        badgeEl.className = "status-badge upcoming";
+                        badgeEl.style.display = "";
+                    }
+                    if (countdownEl) {
+                        const diff = openTime - now;
+                        countdownEl.textContent = `• Mở sau: ${formatCountdown(diff)}`;
+                        countdownEl.className = "countdown-text upcoming";
+                        countdownEl.style.display = "";
+                    }
+                    actionBtn.textContent = "Chưa mở";
+                    actionBtn.classList.add("disabled");
+                    actionBtn.setAttribute("aria-disabled", "true");
+                }
+                // TRẠNG THÁI 3 — ĐÃ ĐÓNG (Thời gian hiện tại >= Thời gian đóng)
+                else if (closeTime && now >= closeTime) {
+                    if (badgeEl) {
+                        badgeEl.textContent = "Đã đóng";
+                        badgeEl.className = "status-badge closed";
+                        badgeEl.style.display = "";
+                    }
+                    if (countdownEl) {
+                        countdownEl.textContent = "• Đã kết thúc";
+                        countdownEl.className = "countdown-text closed";
+                        countdownEl.style.display = "";
+                    }
+                    actionBtn.textContent = "Đã đóng";
+                    actionBtn.classList.add("disabled");
+                    actionBtn.setAttribute("aria-disabled", "true");
+                }
+                // TRẠNG THÁI 2 — ĐANG MỜ (Thời gian mở <= Thời gian hiện tại < Thời gian đóng)
+                else {
+                    if (!openTime && !closeTime) {
+                        if (badgeEl) badgeEl.style.display = "none";
+                        if (countdownEl) countdownEl.style.display = "none";
+                    } else {
+                        if (badgeEl) {
+                            badgeEl.textContent = "Đang mở";
+                            badgeEl.className = "status-badge open";
+                            badgeEl.style.display = "";
+                        }
+                        if (countdownEl) {
+                            if (closeTime) {
+                                const diff = closeTime - now;
+                                countdownEl.textContent = `• Còn lại: ${formatCountdown(diff)}`;
+                                countdownEl.className = "countdown-text open";
+                                countdownEl.style.display = "";
+                            } else {
+                                countdownEl.textContent = "";
+                                countdownEl.style.display = "none";
+                            }
+                        }
+                    }
+
+                    actionBtn.textContent = defaultText;
+                    actionBtn.classList.remove("disabled");
+                    actionBtn.removeAttribute("aria-disabled");
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            // ==========================================================================
+            // LOGIC KIỂM TRA QUYỀN TRUY CẬP THEO URL TIÊN QUYẾT
+            // ==========================================================================
+            function checkAccessPermission() {
+                const referrer = document.referrer;
+
+                function getFileName(urlString) {
+                    if (!urlString) return "";
+                    try {
+                        const parsed = new URL(urlString, window.location.href);
+                        const pathParts = parsed.pathname.split('/');
+                        return pathParts[pathParts.length - 1].toLowerCase();
+                    } catch (e) {
+                        return "";
+                    }
+                }
+
+                const targetFile = getFileName(typeof URL_TIEN_QUYET !== "undefined" ? URL_TIEN_QUYET : "");
+                const referrerFile = getFileName(referrer);
+
+                let isAllowed = false;
+
+                // Kiểm tra xem có cờ cho phép trong sessionStorage hoặc Referrer hợp lệ hay không
+                const hasSessionAccess = sessionStorage.getItem("allowed_course_access") === "true";
+
+                if (!URL_TIEN_QUYET || URL_TIEN_QUYET === "URL_TIÊN_QUYẾT") {
+                    isAllowed = true;
+                } else if (hasSessionAccess || (referrerFile && targetFile && referrerFile === targetFile)) {
+                    isAllowed = true;
+                }
+
+                if (isAllowed) {
+                    // Xóa cờ sau khi mở trang để đảm bảo nếu load trực tiếp lần sau vẫn bảo mật
+                    sessionStorage.removeItem("allowed_course_access");
+                    document.body.classList.remove("access-checking", "access-denied");
+                    document.body.classList.add("access-granted");
+                } else {
+                    document.body.classList.remove("access-checking", "access-granted");
+                    document.body.classList.add("access-denied");
+
+                    const backBtn = document.getElementById("btn-access-denied-back");
+                    if (backBtn) {
+                        backBtn.addEventListener("click", function () {
+                            if (URL_TIEN_QUYET && URL_TIEN_QUYET !== "URL_TIÊN_QUYẾT") {
+                                window.location.href = URL_TIEN_QUYET;
+                            } else {
+                                window.location.href = "home.html";
+                            }
+                        });
+                    }
+                }
+            }
+
+            // Chạy kiểm tra quyền ngay khi DOM sẵn sàng
+            checkAccessPermission();
+
+            // Xử lý sự kiện click vào nút hành động (Tham gia / Lấy tài liệu / Làm bài)
+            document.querySelectorAll(".btn-action").forEach((btn) => {
+                btn.addEventListener("click", function (e) {
+                    // 1. Trường hợp nút đang bị khóa theo thời gian (Chưa mở hoặc Đã đóng)
+                    if (btn.classList.contains("disabled")) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return;
+                    }
+
+                    // 2. Trường hợp nút đang mở nhưng chưa được gắn link thực tế
+                    const href = btn.getAttribute("href");
+                    const hasValidLink = href && href.trim() !== "" && href.trim() !== "#" && href.trim() !== "home.html";
+
+                    if (!hasValidLink) {
+                        e.preventDefault();
+                        alert("Nội dung này hiện chưa được cập nhật liên kết. Vui lòng quay lại sau!");
+                    }
+                });
+            });
+
+            // Chạy kiểm tra UI ngay khi trang load
+            updateCourseScheduleUI();
+
+            // Bộ timer chung duy nhất cập nhật mỗi giây (1000ms)
+            setInterval(updateCourseScheduleUI, 1000);
+
+            // 1. Triển khai ScrollSpy bằng IntersectionObserver & Xử lý Click Sidebar Nav
+            const courseNavLinks = document.querySelectorAll(".course-content-nav .nav-item[data-target]");
+            const chapterSections = document.querySelectorAll("main.main-content section.chapter-card[id]");
+            let isClickScrolling = false;
+
+            function setActiveNav(targetId, shouldScrollSidebar = false) {
+                let activeLink = null;
+                courseNavLinks.forEach((link) => {
+                    if (link.getAttribute("data-target") === targetId) {
+                        link.classList.add("active");
+                        activeLink = link;
+                    } else {
+                        link.classList.remove("active");
+                    }
+                });
+
+                // Chỉ cuộn mục trong Sidebar nếu được yêu cầu chủ động (tránh giật/cuộn trang chính)
+                if (activeLink && shouldScrollSidebar) {
+                    activeLink.scrollIntoView({
+                        behavior: "smooth",
+                        block: "nearest"
+                    });
+                }
+            }
+
+            // Cấu hình vùng kích hoạt ScrollSpy (20% đến 40% từ đỉnh màn hình)
+            const observerOptions = {
+                root: null,
+                rootMargin: "-20% 0px -60% 0px",
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                if (isClickScrolling) return;
+
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setActiveNav(entry.target.id);
+                    }
+                });
+            }, observerOptions);
+
+            chapterSections.forEach((section) => {
+                observer.observe(section);
+            });
+
+            // Xử lý sự kiện click trên các mục Sidebar (mở chương nếu đang bị đóng trước khi scroll)
+            courseNavLinks.forEach((link) => {
+                link.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute("data-target");
+                    const targetSection = document.getElementById(targetId);
+
+                    if (targetSection) {
+                        isClickScrolling = true;
+
+                        // Nếu chương đang đóng, tự động mở ra trước khi scroll
+                        if (targetSection.classList.contains("collapsed") && typeof window.toggleChapter === "function") {
+                            window.toggleChapter(targetSection, false);
+                        }
+
+                        setActiveNav(targetId, true);
+
+                        targetSection.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+
+                        // Đóng Sidebar trên mobile sau khi click chọn bài học
+                        if (window.innerWidth <= 768) {
+                            const sidebarEl = document.querySelector('.sidebar');
+                            const toggleBtn = document.getElementById('sidebar-toggle-btn');
+                            if (sidebarEl && !sidebarEl.classList.contains('collapsed')) {
+                                sidebarEl.classList.add('collapsed');
+                                if (toggleBtn) {
+                                    toggleBtn.setAttribute('aria-expanded', 'false');
+                                    toggleBtn.innerHTML = '<i class="fa-solid fa-bars"></i>';
+                                }
+                            }
+                        }
+
+                        setTimeout(() => {
+                            isClickScrolling = false;
+                        }, 800);
+                    }
+                });
+            });
+
+            // 2. Hàm Chuẩn hóa Chuỗi tiếng Việt (Loại bỏ dấu) dùng cho Tìm kiếm không phân biệt chữ hoa/thường/dấu
+            function normalizeVietnameseString(str) {
+                if (!str) return "";
+                return str
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "d")
+                    .trim();
+            }
+
+            // 3. Hàm Xử lý Tìm kiếm & Lọc bài học tập trung (Search & Filter)
+            function applyCourseFilters() {
+                const searchInput = document.getElementById("course-search-input");
+                const filterSelect = document.getElementById("course-filter-select");
+                const noResultsEl = document.getElementById("no-results-message");
+
+                const query = normalizeVietnameseString(searchInput ? searchInput.value : "");
+                const filterValue = filterSelect ? filterSelect.value : "all";
+
+                const chapterSections = document.querySelectorAll("main.main-content section.chapter-card");
+                let totalVisibleLessons = 0;
+
+                chapterSections.forEach((chapter) => {
+                    const lessons = chapter.querySelectorAll(".lesson-item");
+                    let chapterVisibleCount = 0;
+
+                    lessons.forEach((lesson) => {
+                        // Lấy tiêu đề và nội dung bài học để so sánh từ khóa
+                        const titleEl = lesson.querySelector(".lesson-title");
+                        const metaEl = lesson.querySelector(".lesson-meta");
+                        const rawText = (titleEl ? titleEl.textContent : "") + " " + (metaEl ? metaEl.textContent : "");
+                        const normalizedText = normalizeVietnameseString(rawText);
+
+                        const matchesSearch = query === "" || normalizedText.includes(query);
+
+                        // Lấy thông tin loại bài học và trạng thái hoàn thành
+                        const type = lesson.getAttribute("data-type") || "";
+                        const completeBtn = lesson.querySelector(".btn-complete");
+                        const isCompleted = completeBtn && completeBtn.classList.contains("completed");
+
+                        let matchesFilter = true;
+                        if (filterValue === "incomplete") {
+                            matchesFilter = !isCompleted;
+                        } else if (filterValue === "pdf") {
+                            matchesFilter = type === "pdf";
+                        } else if (filterValue === "test") {
+                            matchesFilter = type === "test";
+                        } else if (filterValue === "assignment") {
+                            matchesFilter = type === "assignment";
+                        } else if (filterValue === "video") {
+                            matchesFilter = type === "video";
+                        } else if (filterValue === "survey") {
+                            matchesFilter = type === "survey";
+                        } else if (filterValue === "link") {
+                            matchesFilter = type === "link";
+                        } else if (filterValue === "forum") {
+                            matchesFilter = type === "forum";
+                        }
+
+                        // Hiển thị bài học thỏa mãn đồng thời Search AND Filter
+                        if (matchesSearch && matchesFilter) {
+                            lesson.style.display = "";
+                            chapterVisibleCount++;
+                            totalVisibleLessons++;
+                        } else {
+                            lesson.style.display = "none";
+                        }
+                    });
+
+                    // Ẩn/Hiện Chương dựa trên việc có bài học thỏa mãn hay không
+                    if (chapterVisibleCount > 0) {
+                        chapter.style.display = "";
+                        // Nếu đang có từ khóa tìm kiếm hoặc lọc loại bài học, tự động mở chương để hiển thị kết quả
+                        if ((query !== "" || filterValue !== "all") && chapter.classList.contains("collapsed")) {
+                            if (typeof window.toggleChapter === "function") {
+                                window.toggleChapter(chapter, false);
+                            }
+                        }
+                    } else {
+                        chapter.style.display = "none";
+                    }
+                });
+
+                // Hiển thị thông báo khi không có bài học nào khớp
+                if (noResultsEl) {
+                    noResultsEl.style.display = totalVisibleLessons === 0 ? "block" : "none";
+                }
+            }
+
+            // Gắn sự kiện lắng nghe thao tác tìm kiếm và thay đổi bộ lọc
+            const searchInput = document.getElementById("course-search-input");
+            const filterSelect = document.getElementById("course-filter-select");
+
+            if (searchInput) {
+                searchInput.addEventListener("input", applyCourseFilters);
+            }
+
+            if (filterSelect) {
+                filterSelect.addEventListener("change", applyCourseFilters);
+            }
+
+            // 4. Xử lý tính toán & Cập nhật Tiến độ học tập (Progress Bar)
+            function updateCourseProgress() {
+                const completeButtons = document.querySelectorAll(".btn-complete");
+                const total = completeButtons.length;
+                const completed = document.querySelectorAll(".btn-complete.completed").length;
+                
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+                
+                const progressTextEl = document.getElementById("course-progress-text");
+                const progressBarEl = document.getElementById("course-progress-bar");
+                
+                if (progressTextEl) {
+                    progressTextEl.textContent = `Đã hoàn thành ${completed}/${total} bài học (${percentage}%)`;
+                }
+                
+                if (progressBarEl) {
+                    progressBarEl.style.width = `${percentage}%`;
+                }
+            }
+
+            // 5. Xử lý trạng thái nút Hoàn thành & LocalStorage
+            const completeButtons = document.querySelectorAll(".btn-complete");
+
+            completeButtons.forEach(function (btn) {
+                const storageKey = btn.getAttribute("data-key");
+                const textSpan = btn.querySelector(".btn-complete-text");
+
+                function updateButtonState(isCompleted) {
+                    if (isCompleted) {
+                        btn.classList.add("completed");
+                        textSpan.textContent = "✓ Hoàn thành";
+                    } else {
+                        btn.classList.remove("completed");
+                        textSpan.textContent = "Hoàn thành";
+                    }
+                }
+
+                const savedState = localStorage.getItem(storageKey);
+                if (savedState === "true") {
+                    updateButtonState(true);
+                } else {
+                    updateButtonState(false);
+                }
+
+                btn.addEventListener("click", function () {
+                    const isCurrentlyCompleted = btn.classList.contains("completed");
+                    const newState = !isCurrentlyCompleted;
+
+                    updateButtonState(newState);
+                    localStorage.setItem(storageKey, newState ? "true" : "false");
+                    
+                    // Cập nhật ngay Progress Bar và chạy lại bộ lọc Search & Filter
+                    updateCourseProgress();
+                    applyCourseFilters();
+                });
+            });
+
+            // 6. Xử lý Accordion / Thu gọn - Mở rộng Chương
+            window.toggleChapter = function(chapterCard, forceState) {
+                if (!chapterCard) return;
+
+                const toggleBtn = chapterCard.querySelector(".chapter-toggle");
+                const chapterId = chapterCard.getAttribute("id");
+                const storageKey = `course_${chapterId}_collapsed`;
+
+                let isCollapsed;
+                if (typeof forceState === "boolean") {
+                    isCollapsed = forceState;
+                } else {
+                    isCollapsed = !chapterCard.classList.contains("collapsed");
+                }
+
+                if (isCollapsed) {
+                    chapterCard.classList.add("collapsed");
+                    if (toggleBtn) toggleBtn.setAttribute("aria-expanded", "false");
+                    if (chapterId) localStorage.setItem(storageKey, "true");
+                } else {
+                    chapterCard.classList.remove("collapsed");
+                    if (toggleBtn) toggleBtn.setAttribute("aria-expanded", "true");
+                    if (chapterId) localStorage.setItem(storageKey, "false");
+                }
+            };
+
+            // Gắn sự kiện Click cho Header của từng Chương
+            const chapterHeaders = document.querySelectorAll(".chapter-card .chapter-header");
+            chapterHeaders.forEach((header) => {
+                header.addEventListener("click", function(e) {
+                    // Ngăn sự kiện nếu bấm vào các nút bấm hoặc liên kết khác trong header
+                    if (e.target.closest("a, button:not(.chapter-toggle)")) return;
+
+                    const chapterCard = this.closest(".chapter-card");
+                    if (chapterCard) {
+                        window.toggleChapter(chapterCard);
+                    }
+                });
+            });
+
+            // Khôi phục trạng thái Đóng/Mở từng Chương từ LocalStorage
+            document.querySelectorAll(".chapter-card[id]").forEach((chapterCard) => {
+                const chapterId = chapterCard.getAttribute("id");
+                const storageKey = `course_${chapterId}_collapsed`;
+                const savedState = localStorage.getItem(storageKey);
+
+                if (savedState === "true") {
+                    window.toggleChapter(chapterCard, true);
+                }
+            });
+        // Xử lý Nút Đóng/Mở Sidebar trên Mobile
+            const sidebarEl = document.querySelector('.sidebar');
+            const toggleBtn = document.getElementById('sidebar-toggle-btn');
+
+            if (toggleBtn && sidebarEl) {
+                toggleBtn.addEventListener('click', function () {
+                    const isCollapsed = sidebarEl.classList.toggle('collapsed');
+                    this.setAttribute('aria-expanded', !isCollapsed);
+
+                    if (isCollapsed) {
+                        this.innerHTML = '<i class="fa-solid fa-bars"></i>';
+                    } else {
+                        this.innerHTML = '<i class="fa-solid fa-arrow-left"></i>';
+                    }
+                });
+            }
+            // Khởi tạo tính toán Tiến độ và Lọc bài học ban đầu khi load trang
+            updateCourseProgress();
+            applyCourseFilters();
+        });
+    </script>
+    <script>
+(function () {
+    'use strict';
+
+    // ============================================================
+    // LẤY TÀI KHOẢN ĐANG ĐĂNG NHẬP (Ưu tiên sessionStorage, fallback localStorage)
+    // ============================================================
+    let currentUserRaw = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
+
+    // Nếu hệ thống trước đó dùng loggedInUser từ home.html
+    if (!currentUserRaw) {
+        currentUserRaw = sessionStorage.getItem('loggedInUser') || localStorage.getItem('loggedInUser');
+    }
+
+    if (!currentUserRaw) {
+        console.warn('Không tìm thấy tài khoản đang đăng nhập.');
+        return;
+    }
+
+    let currentUser;
+
+    try {
+        currentUser = JSON.parse(currentUserRaw);
+    } catch (error) {
+        console.error('Dữ liệu currentUser không hợp lệ:', error);
+        return;
+    }
+
+    if (!currentUser || typeof currentUser !== 'object') {
+        console.warn('currentUser không hợp lệ.');
+        return;
+    }
+
+    // ============================================================
+    // CẬP NHẬT TÊN THÍ SINH
+    // ============================================================
+    const fullnameElement = document.getElementById('current-user-fullname');
+
+    if (fullnameElement) {
+        fullnameElement.textContent =
+            currentUser.fullName ||
+            currentUser.hoTen ||
+            currentUser.name ||
+            'Chưa xác định';
+    }
+
+    // ============================================================
+    // CẬP NHẬT MÃ HỌC SINH
+    // ============================================================
+    const studentIdElement = document.getElementById('current-user-student-id');
+
+    if (studentIdElement) {
+        studentIdElement.textContent =
+            currentUser.studentId ||
+            currentUser.id ||
+            'Chưa xác định';
+    }
+
+})();
+</script>
+</body>
+</html>
