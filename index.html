@@ -26,8 +26,10 @@
 
         html, body {
             width: 100%;
-            height: 100%;
-            overflow: hidden;
+            min-height: 100%;
+            height: auto;
+            overflow-y: auto !important;
+            overflow-x: hidden;
             font-family: 'Be Vietnam Pro', "Segoe UI", Arial, sans-serif;
             background: #D1EAFF;
             background-image: 
@@ -104,15 +106,40 @@
             overflow: hidden;
         }
 
-        /* Small & Medium Modal Sizes for Section 3 & 4 */
-        .section-card.card-sm:not(#section-1):not(#section-2) {
-            max-width: 440px;
+        @media (max-width: 768px) {
+            #section-1.section-card,
+            #section-2.section-card {
+                position: relative !important;
+                height: auto !important;
+                min-height: auto !important;
+                overflow: visible !important;
+            }
+
+            #section-1.section-card.active,
+            #section-2.section-card.active {
+                display: block !important;
+                overflow: visible !important;
+                height: auto !important;
+                min-height: auto !important;
+            }
         }
 
-        .card-lg {
+        /* Khắc phục lỗi không cuộn được nội dung form đăng ký */
+        .section-wrapper {
+            height: auto !important;
+            min-height: 100vh;
+            overflow-y: auto !important;
+            display: block !important;
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .section-card.card-lg {
             max-width: 750px;
-            max-height: 90vh;
-            overflow-y: auto;
+            max-height: none !important;
+            height: auto !important;
+            overflow-y: visible !important;
+            margin: 40px auto !important;
         }
 
         /* Custom Scrollbar for Section 3 */
@@ -182,31 +209,30 @@
             100% { transform: translate(60px, 70px) scale(1.18); }
         }
 
-        /* Hiệu ứng Ngôi sao 4 cánh lung linh nâng cấp: rực rỡ hơn, phát sáng đa tầng và hiệu ứng nhấp nháy thu hút */
+        /* Hiệu ứng Ngôi sao 4 cánh màu xanh nước biển sáng nhỏ đậm (chỉ bay ở nền xung quanh, tránh xa ô đăng ký) */
         .sparkle-particle {
             position: absolute;
-            background: linear-gradient(135deg, #FFFFFF 0%, #E0F2FE 100%);
+            background: linear-gradient(135deg, #60A5FA 0%, #1D4ED8 100%);
             clip-path: polygon(50% 0%, 61% 35%, 100% 50%, 61% 65%, 50% 100%, 39% 65%, 0% 50%, 39% 35%);
             pointer-events: none;
-            opacity: 0.9;
-            box-shadow: 0 0 20px #FFFFFF, 0 0 35px rgba(96, 165, 250, 0.9), 0 0 55px rgba(37, 99, 235, 0.7);
-            animation: starPulseAndFloat 6s ease-in-out infinite alternate;
-            z-index: 3;
+            opacity: 0.85;
+            box-shadow: 0 0 12px #2563EB, 0 0 20px rgba(37, 99, 235, 0.8);
+            animation: blueStarFloat 7s ease-in-out infinite alternate;
+            z-index: 1;
         }
 
-        .sparkle-1 { width: 24px; height: 24px; top: 10%; left: 6%; animation-duration: 6s; }
-        .sparkle-2 { width: 30px; height: 30px; top: 72%; left: 12%; animation-duration: 9s; animation-delay: 0.8s; }
-        .sparkle-3 { width: 22px; height: 22px; top: 18%; left: 92%; animation-duration: 7s; animation-delay: 0.4s; }
-        .sparkle-4 { width: 28px; height: 28px; top: 80%; left: 88%; animation-duration: 8.5s; animation-delay: 1.5s; }
-        .sparkle-5 { width: 20px; height: 20px; top: 6%; left: 48%; animation-duration: 7.5s; animation-delay: 1.2s; }
-        .sparkle-6 { width: 26px; height: 26px; top: 42%; left: 2%; animation-duration: 10s; animation-delay: 2s; }
-        .sparkle-7 { width: 25px; height: 25px; top: 65%; left: 46%; animation-duration: 8s; animation-delay: 0.6s; }
-        .sparkle-8 { width: 18px; height: 18px; top: 32%; left: 42%; animation-duration: 9.5s; animation-delay: 1.4s; }
+        /* Phân bố số lượng vừa phải ở các vùng rìa xung quanh (không chồng lên card đăng ký chính giữa) */
+        .sparkle-1 { width: 14px; height: 14px; top: 12%; left: 8%; animation-duration: 6s; }
+        .sparkle-2 { width: 16px; height: 16px; top: 82%; left: 14%; animation-duration: 8s; animation-delay: 1s; }
+        .sparkle-3 { width: 12px; height: 12px; top: 15%; left: 88%; animation-duration: 7.5s; animation-delay: 0.5s; }
+        .sparkle-4 { width: 15px; height: 15px; top: 78%; left: 90%; animation-duration: 9s; animation-delay: 1.8s; }
+        .sparkle-5 { width: 11px; height: 11px; top: 8%; left: 35%; animation-duration: 6.5s; animation-delay: 1.2s; }
+        .sparkle-6 { width: 13px; height: 13px; top: 88%; left: 45%; animation-duration: 8.5s; animation-delay: 0.8s; }
 
-        @keyframes starPulseAndFloat {
-            0% { transform: translateY(0px) translateX(0px) rotate(0deg) scale(0.7); opacity: 0.3; filter: brightness(0.9); }
-            50% { transform: translateY(-45px) translateX(35px) rotate(60deg) scale(1.45); opacity: 1; filter: brightness(1.8) drop-shadow(0 0 10px #FFFFFF); }
-            100% { transform: translateY(-90px) translateX(-30px) rotate(120deg) scale(0.8); opacity: 0.4; filter: brightness(1.1); }
+        @keyframes blueStarFloat {
+            0% { transform: translateY(0px) translateX(0px) rotate(0deg) scale(0.8); opacity: 0.4; }
+            50% { transform: translateY(-30px) translateX(20px) rotate(45deg) scale(1.2); opacity: 0.95; filter: drop-shadow(0 0 8px #3B82F6); }
+            100% { transform: translateY(-60px) translateX(-20px) rotate(90deg) scale(0.9); opacity: 0.5; }
         }
 
         /* Thêm hiệu ứng viền sáng chạy quanh khung hình ảnh (Glowing Border Tracer) */
@@ -348,8 +374,8 @@
 
         /* Hiệu ứng cung tròn viền đậm di chuyển (xoay vòng) với tông màu xanh chủ đạo, tạo chiều sâu hiện đại và năng động */
         .logo-visual-stage::before {
-            width: 130%;
-            height: 130%;
+            width: 110.5%;
+            height: 110.5%;
             border: 3px solid transparent;
             border-top-color: #2563EB;
             border-right-color: #3B82F6;
@@ -359,8 +385,8 @@
         }
 
         .logo-visual-stage::after {
-            width: 155%;
-            height: 155%;
+            width: 131.75%;
+            height: 131.75%;
             border: 4px solid transparent;
             border-bottom-color: #60A5FA;
             border-left-color: #93C5FD;
@@ -758,6 +784,19 @@
                 grid-template-columns: 1fr;
                 overflow-y: auto;
             }
+            @media (max-width: 768px) {
+            .section-wrapper {
+                height: auto !important;
+                min-height: auto !important;
+                overflow: visible !important;
+                display: block !important;
+            }
+            .platform-fullscreen-layout {
+                height: auto !important;
+                min-height: auto !important;
+                overflow: visible !important;
+            }
+        }
             .platform-right-pane {
                 padding: 20px 40px 60px 40px;
             }
@@ -766,6 +805,68 @@
             }
             .logo-glass-frame {
                 padding: 40px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            html, body {
+                height: auto;
+                min-height: 100dvh;
+                overflow-y: auto;
+                overflow-x: hidden;
+                display: block;
+            }
+
+            .section-wrapper {
+                height: auto;
+                min-height: 100dvh;
+                overflow: visible;
+                display: block;
+            }
+
+            #section-1.section-card,
+            #section-2.section-card {
+                position: relative;
+                height: auto;
+                min-height: auto;
+                overflow: visible;
+            }
+
+            #section-1.section-card.active,
+            #section-2.section-card.active {
+                display: block;
+                overflow: visible;
+                height: auto;
+                min-height: auto;
+            }
+
+            .section-wrapper {
+                height: auto !important;
+                min-height: auto !important;
+                overflow: visible !important;
+                display: block !important;
+            }
+
+            .platform-left-pane {
+                order: 1;
+                height: auto;
+                min-height: auto;
+                overflow: visible;
+                padding: 24px 16px;
+            }
+
+            .platform-right-pane {
+                order: 2;
+                height: auto;
+                min-height: auto;
+                overflow: visible;
+                padding: 10px 16px 40px 16px;
+            }
+
+            .brand-eyebrow {
+                white-space: normal;
+                font-size: clamp(24px, 7vw, 36px);
+                line-height: 1.2;
             }
         }
 
@@ -993,7 +1094,7 @@
         }
 
         /* ==========================================================================
-           FORM ELEMENTS & INPUTS
+           FORM ELEMENTS & INPUTS (ĐÃ NÂNG CẤP CAO CẤP - QUÂN NGUYỄN STUDY)
            ========================================================================== */
         .form-group {
             margin-bottom: 18px;
@@ -1004,8 +1105,9 @@
 
         .form-label {
             font-size: 14px;
-            font-weight: 600;
-            color: #334155;
+            font-weight: 700;
+            color: #1E3A8A;
+            letter-spacing: 0.3px;
         }
 
         .required-asterisk {
@@ -1013,17 +1115,144 @@
             margin-left: 2px;
         }
 
-        .form-input, .form-select, .form-textarea {
+        /* ==========================================================================
+           HIỆU ỨNG Ô NHẬP LIỆU & CUSTOM SELECT CAO CẤP (QUÂN NGUYỄN STUDY)
+           ========================================================================== */
+        .form-input, .form-select, .form-textarea, .custom-select-trigger {
             width: 100%;
-            background-color: #E5F5FF; /* rgb(229, 245, 255) */
-            border: 1.5px solid #BEE3F8;
-            border-radius: 8px;
-            padding: 12px 14px;
+            background: linear-gradient(135deg, #F8FAFC 0%, #F0F8FF 100%);
+            border: 2px solid #BAE6FD;
+            border-radius: 14px;
+            padding: 14px 18px;
             font-size: 15px;
-            color: #1E293B;
+            color: #0F172A;
             font-family: inherit;
             outline: none;
-            transition: all 0.2s ease-in-out;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.03), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            position: relative;
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: #94A3B8;
+            font-weight: 400;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .form-input:hover, .form-textarea:hover, .custom-select-trigger:hover {
+            border-color: #60A5FA;
+            background: #FFFFFF;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.08), 0 0 0 3px rgba(96, 165, 250, 0.15);
+            transform: translateY(-1.5px);
+        }
+
+        .form-input:focus, .form-textarea:focus, .custom-searchable-select.active .custom-select-trigger {
+            background: #FFFFFF !important;
+            border-color: #2563EB !important;
+            box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.2), 0 8px 25px rgba(37, 99, 235, 0.15) !important;
+            transform: translateY(-2px) scale(1.005);
+        }
+
+        .form-input:focus::placeholder {
+            color: #CBD5E1;
+            transform: translateX(4px);
+        }
+
+        /* Hiệu ứng lan tỏa ánh sáng viền khi tương tác thành công (Glow Pulse) */
+        @keyframes inputGlowPulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+
+        .form-input:valid:not(:placeholder-shown):not(.error) {
+            border-color: #3B82F6;
+            animation: inputGlowPulse 1.5s ease-out;
+        }
+
+        .form-input.error, .form-select.error, .form-textarea.error {
+            border-color: #EF4444 !important;
+            background-color: #FEF2F2 !important;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232563EB' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 85px;
+        }
+
+        /* Giao diện nút chọn Giới tính Nam/Nữ nằm ngang */
+        .gender-options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .gender-btn {
+            height: 48px;
+            background-color: #F0F8FF;
+            border: 1.5px solid #93C5FD;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1E3A8A;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+        }
+
+        .gender-btn:hover {
+            border-color: #2563EB;
+            background-color: #E0F2FE;
+        }
+
+        .gender-btn.selected-nam {
+            background-color: #2563EB !important;
+            color: #FFFFFF !important;
+            border-color: #2563EB !important;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+        }
+
+        .gender-btn.selected-nu {
+            background-color: #EC4899 !important;
+            color: #FFFFFF !important;
+            border-color: #EC4899 !important;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.35);
+        }
+
+        /* Layout 2 cột Responsive cho các trường đi kèm */
+        .form-row-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 640px) {
+            .form-row-2col {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+
+        /* Giữ nguyên nền card đăng ký bắt buộc màu trắng */
+        #section-3.section-card {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 20px 40px -15px rgba(37, 99, 235, 0.2), 0 0 30px rgba(147, 197, 253, 0.3);
+            border: 1px solid rgba(191, 219, 254, 0.8);
+            border-radius: 24px;
         }
 
         .form-input::placeholder, .form-textarea::placeholder {
@@ -1310,6 +1539,220 @@
                 font-size: 14px;
             }
         }
+        /* ==========================================================================
+           CUSTOM SEARCHABLE SELECT STYLES (QUÂN NGUYỄN STUDY)
+           ========================================================================== */
+        .custom-searchable-select {
+            position: relative;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .custom-select-trigger {
+            width: 100%;
+            background-color: #F0F8FF;
+            border: 1.5px solid #93C5FD;
+            border-radius: 12px;
+            padding: 13px 16px;
+            font-size: 15px;
+            color: #1E293B;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.02);
+        }
+
+        .custom-select-trigger:hover {
+            border-color: #2563EB;
+            background-color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+        }
+
+        .custom-searchable-select.active .custom-select-trigger {
+            background-color: #FFFFFF;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15), 0 4px 12px rgba(37, 99, 235, 0.1);
+        }
+
+        .custom-select-value {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 10px;
+            color: #0F172A;
+        }
+
+        .custom-select-arrow {
+            font-size: 12px;
+            color: #2563EB;
+            transition: transform 0.3s ease;
+        }
+
+        .custom-searchable-select.active .custom-select-arrow {
+            transform: rotate(180deg);
+        }
+
+        .custom-select-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            width: 100%;
+            background: #FFFFFF;
+            border: 1.5px solid #93C5FD;
+            border-radius: 14px;
+            box-shadow: 0 15px 35px -5px rgba(37, 99, 235, 0.2), 0 5px 15px rgba(0, 0, 0, 0.05);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            animation: dropdownFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes dropdownFadeIn {
+            0% { opacity: 0; transform: translateY(-8px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .custom-select-search-box {
+            padding: 12px;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #F8FAFC;
+        }
+
+        .search-icon {
+            font-size: 14px;
+            color: #64748B;
+        }
+
+        .custom-select-search-input {
+            width: 100%;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            outline: none;
+            background: #FFFFFF;
+            color: #1E293B;
+            transition: all 0.2s ease;
+        }
+
+        .custom-select-search-input:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .custom-select-options-list {
+            max-height: 260px;
+            overflow-y: auto;
+            padding: 6px;
+        }
+
+        .custom-select-options-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-select-options-list::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+
+        .custom-select-options-list::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+
+        .custom-select-options-list::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        .custom-select-option {
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #334155;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .custom-select-option:hover {
+            background-color: #EFF6FF;
+            color: #2563EB;
+        }
+
+        .custom-select-option.selected {
+            background-color: #DBEAFE;
+            color: #1D4ED8;
+            font-weight: 600;
+        }
+
+        .custom-select-option.selected::after {
+            content: '✓';
+            color: #2563EB;
+            font-weight: bold;
+        }
+
+        .custom-select-no-result {
+            padding: 16px;
+            text-align: center;
+            font-size: 14px;
+            color: #64748B;
+        }
+        /* Hiệu ứng nâng cấp cho Custom Select Dropdown & Search Input */
+        .custom-select-dropdown {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.98);
+            border: 2px solid #93C5FD;
+            box-shadow: 0 20px 40px -10px rgba(21, 101, 192, 0.22), 0 0 20px rgba(147, 197, 253, 0.3);
+            border-radius: 16px;
+            animation: dropdownSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes dropdownSlideIn {
+            0% { opacity: 0; transform: translateY(-10px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(4px) scale(1); }
+        }
+
+        .custom-select-search-input {
+            background: #F8FAFC;
+            border: 1.5px solid #CBD5E1;
+            border-radius: 10px;
+            padding: 10px 14px 10px 36px;
+            font-size: 14.5px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3ccircle cx='11' cy='11' r='8'%3e%3c/circle%3e%3cline x1='21' y1='21' x2='16.65' y2='16.65'%3e%3c/line%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: left 12px center;
+            background-size: 16px;
+        }
+
+        .custom-select-search-input:focus {
+            background-color: #FFFFFF;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232563EB' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3ccircle cx='11' cy='11' r='8'%3e%3c/circle%3e%3cline x1='21' y1='21' x2='16.65' y2='16.65'%3e%3c/line%3e%3c/svg%3e");
+        }
+
+        .custom-select-option {
+            padding: 11px 16px;
+            border-radius: 10px;
+            margin: 2px 4px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .custom-select-option:hover {
+            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+            color: #1D4ED8;
+            transform: translateX(4px);
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -1552,7 +1995,15 @@
         <!-- =================================================================== -->
         <!-- SECTION 3: TRANG ĐĂNG KÝ TÀI KHOẢN -->
         <!-- =================================================================== -->
-        <section id="section-3" class="section-card card-lg">
+        <section id="section-3" class="section-card card-lg" style="position: relative; overflow: hidden;">
+            <!-- Các ngôi sao 4 cánh xanh nước biển bay xung quanh nền (ngoài card đăng ký) -->
+            <div class="sparkle-particle sparkle-1"></div>
+            <div class="sparkle-particle sparkle-2"></div>
+            <div class="sparkle-particle sparkle-3"></div>
+            <div class="sparkle-particle sparkle-4"></div>
+            <div class="sparkle-particle sparkle-5"></div>
+            <div class="sparkle-particle sparkle-6"></div>
+
             <div class="header-box">
                 <img src="logo.png" alt="Hệ Thống Quản Lý Học Sinh" class="page-logo">
                 <h1 class="main-title">Đăng Ký Tài Khoản</h1>
@@ -1590,7 +2041,7 @@
                         id="fullName" 
                         name="fullName" 
                         class="form-input" 
-                        placeholder="Nhập đầy đủ họ và tên"
+                        placeholder="Nhập đầy đủ họ và tên (Ví dụ: Nguyễn Hải Quân)"
                     >
                 </div>
 
@@ -1610,25 +2061,67 @@
                     <label for="placeOfBirth" class="form-label">
                         Nơi sinh <span class="required-asterisk">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        id="placeOfBirth" 
-                        name="placeOfBirth" 
-                        class="form-input" 
-                        placeholder="Nhập tỉnh/thành phố nơi sinh"
-                    >
+                    <div class="custom-searchable-select" id="custom-select-placeOfBirth">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('placeOfBirth')">
+                            <span class="custom-select-value" id="value-placeOfBirth">Chọn nơi sinh</span>
+                            <span class="custom-select-arrow">&#9662;</span>
+                        </div>
+                        <div class="custom-select-dropdown" id="dropdown-placeOfBirth">
+                            <div class="custom-select-search-box">
+                                <span class="search-icon">&#128269;</span>
+                                <input type="text" class="custom-select-search-input" placeholder="Tìm kiếm nơi sinh..." oninput="filterCustomOptions('placeOfBirth', this.value)">
+                            </div>
+                            <div class="custom-select-options-list" id="options-list-placeOfBirth"></div>
+                        </div>
+                    </div>
+                    <select id="placeOfBirth" name="placeOfBirth" class="form-select" style="display: none;">
+                        <option value="">Chọn nơi sinh</option>
+                        <option value="Thành phố Hà Nội">Thành phố Hà Nội</option>
+                        <option value="Thành phố Hồ Chí Minh">Thành phố Hồ Chí Minh</option>
+                        <option value="Thành phố Đà Nẵng">Thành phố Đà Nẵng</option>
+                        <option value="Thành phố Hải Phòng">Thành phố Hải Phòng</option>
+                        <option value="Thành phố Cần Thơ">Thành phố Cần Thơ</option>
+                        <option value="Thành phố Huế">Thành phố Huế</option>
+                        <option value="Tỉnh An Giang">Tỉnh An Giang</option>
+                        <option value="Tỉnh Bắc Ninh">Tỉnh Bắc Ninh</option>
+                        <option value="Tỉnh Cà Mau">Tỉnh Cà Mau</option>
+                        <option value="Tỉnh Cao Bằng">Tỉnh Cao Bằng</option>
+                        <option value="Tỉnh Đắk Lắk">Tỉnh Đắk Lắk</option>
+                        <option value="Tỉnh Điện Biên">Tỉnh Điện Biên</option>
+                        <option value="Tỉnh Đồng Nai">Tỉnh Đồng Nai</option>
+                        <option value="Tỉnh Đồng Tháp">Tỉnh Đồng Tháp</option>
+                        <option value="Tỉnh Gia Lai">Tỉnh Gia Lai</option>
+                        <option value="Tỉnh Hà Tĩnh">Tỉnh Hà Tĩnh</option>
+                        <option value="Tỉnh Hưng Yên">Tỉnh Hưng Yên</option>
+                        <option value="Tỉnh Khánh Hòa">Tỉnh Khánh Hòa</option>
+                        <option value="Tỉnh Lai Châu">Tỉnh Lai Châu</option>
+                        <option value="Tỉnh Lâm Đồng">Tỉnh Lâm Đồng</option>
+                        <option value="Tỉnh Lạng Sơn">Tỉnh Lạng Sơn</option>
+                        <option value="Tỉnh Lào Cai">Tỉnh Lào Cai</option>
+                        <option value="Tỉnh Nghệ An">Tỉnh Nghệ An</option>
+                        <option value="Tỉnh Ninh Bình">Tỉnh Ninh Bình</option>
+                        <option value="Tỉnh Phú Thọ">Tỉnh Phú Thọ</option>
+                        <option value="Tỉnh Quảng Ngãi">Tỉnh Quảng Ngãi</option>
+                        <option value="Tỉnh Quảng Ninh">Tỉnh Quảng Ninh</option>
+                        <option value="Tỉnh Quảng Trị">Tỉnh Quảng Trị</option>
+                        <option value="Tỉnh Sơn La">Tỉnh Sơn La</option>
+                        <option value="Tỉnh Tây Ninh">Tỉnh Tây Ninh</option>
+                        <option value="Tỉnh Thái Nguyên">Tỉnh Thái Nguyên</option>
+                        <option value="Tỉnh Thanh Hóa">Tỉnh Thanh Hóa</option>
+                        <option value="Tỉnh Tuyên Quang">Tỉnh Tuyên Quang</option>
+                        <option value="Tỉnh Vĩnh Long">Tỉnh Vĩnh Long</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="gender" class="form-label">
+                    <label class="form-label">
                         Giới tính <span class="required-asterisk">*</span>
                     </label>
-                    <select id="gender" name="gender" class="form-select">
-                        <option value="">-- Chọn giới tính --</option>
-                        <option value="Nam">Nam</option>
-                        <option value="Nữ">Nữ</option>
-                        <option value="Khác">Khác</option>
-                    </select>
+                    <div class="gender-options-container">
+                        <button type="button" id="gender-btn-nam" class="gender-btn" onclick="selectGender('Nam')">NAM</button>
+                        <button type="button" id="gender-btn-nu" class="gender-btn" onclick="selectGender('Nữ')">NỮ</button>
+                    </div>
+                    <input type="hidden" id="gender" name="gender" value="">
                 </div>
 
 
@@ -1646,7 +2139,7 @@
                         id="reg-username" 
                         name="username" 
                         class="form-input" 
-                        placeholder="Nhập tên đăng nhập"
+                        placeholder="Viết liền không dấu (Ví dụ: nguyenhaiquan)"
                     >
                 </div>
 
@@ -1659,20 +2152,20 @@
                         id="reg-password" 
                         name="password" 
                         class="form-input" 
-                        placeholder="Tạo mật khẩu"
+                        placeholder="Tối thiểu 8 ký tự"
                     >
                 </div>
 
                 <div class="form-group">
                     <label for="email" class="form-label">
-                        Nhập địa chỉ Email <span style="font-weight: normal; color: #64748B; font-size: 13px;">(nếu có)</span>
+                        Nhập địa chỉ Email <span class="required-asterisk">*</span>
                     </label>
                     <input 
                         type="email" 
                         id="email" 
                         name="email" 
                         class="form-input" 
-                        placeholder="Nhập địa chỉ email"
+                        placeholder="example@gmail.com"
                     >
                 </div>
 
@@ -1685,7 +2178,7 @@
                         id="phone" 
                         name="phone" 
                         class="form-input" 
-                        placeholder="Nhập số điện thoại"
+                        placeholder="Chỉ nhập số (Ví dụ: 0987654321)"
                     >
                 </div>
 
@@ -1700,16 +2193,59 @@
                     <label for="educationDepartment" class="form-label">
                         Sở GD và ĐT <span class="required-asterisk">*</span>
                     </label>
-                    <input 
-                        type="text" 
-                        id="educationDepartment" 
-                        name="educationDepartment" 
-                        class="form-input" 
-                        placeholder="Nhập Sở GD và ĐT quản lý"
-                    >
+                    <div class="custom-searchable-select" id="custom-select-educationDepartment">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('educationDepartment')">
+                            <span class="custom-select-value" id="value-educationDepartment">Chọn Sở giáo dục và Đào tạo</span>
+                            <span class="custom-select-arrow">&#9662;</span>
+                        </div>
+                        <div class="custom-select-dropdown" id="dropdown-educationDepartment">
+                            <div class="custom-select-search-box">
+                                <span class="search-icon">&#128269;</span>
+                                <input type="text" class="custom-select-search-input" placeholder="Tìm kiếm Sở GD&ĐT..." oninput="filterCustomOptions('educationDepartment', this.value)">
+                            </div>
+                            <div class="custom-select-options-list" id="options-list-educationDepartment"></div>
+                        </div>
+                    </div>
+                    <select id="educationDepartment" name="educationDepartment" class="form-select" style="display: none;">
+                        <option value="">Chọn Sở giáo dục và Đào tạo</option>
+                        <option value="01 - Sở GD&ĐT Hà Nội">01 - Sở GD&ĐT Hà Nội</option>
+                        <option value="02 - Sở GD&ĐT TP. Hồ Chí Minh">02 - Sở GD&ĐT TP. Hồ Chí Minh</option>
+                        <option value="03 - Sở GD&ĐT Hải Phòng">03 - Sở GD&ĐT Hải Phòng</option>
+                        <option value="04 - Sở GD&ĐT Đà Nẵng">04 - Sở GD&ĐT Đà Nẵng</option>
+                        <option value="05 - Sở GD&ĐT Tuyên Quang">05 - Sở GD&ĐT Tuyên Quang</option>
+                        <option value="06 - Sở GD&ĐT Cao Bằng">06 - Sở GD&ĐT Cao Bằng</option>
+                        <option value="07 - Sở GD&ĐT Lai Châu">07 - Sở GD&ĐT Lai Châu</option>
+                        <option value="08 - Sở GD&ĐT Lào Cai">08 - Sở GD&ĐT Lào Cai</option>
+                        <option value="10 - Sở GD&ĐT Lạng Sơn">10 - Sở GD&ĐT Lạng Sơn</option>
+                        <option value="12 - Sở GD&ĐT Thái Nguyên">12 - Sở GD&ĐT Thái Nguyên</option>
+                        <option value="14 - Sở GD&ĐT Sơn La">14 - Sở GD&ĐT Sơn La</option>
+                        <option value="15 - Sở GD&ĐT Phú Thọ">15 - Sở GD&ĐT Phú Thọ</option>
+                        <option value="17 - Sở GD&ĐT Quảng Ninh">17 - Sở GD&ĐT Quảng Ninh</option>
+                        <option value="18 - Sở GD&ĐT Bắc Ninh">18 - Sở GD&ĐT Bắc Ninh</option>
+                        <option value="22 - Sở GD&ĐT Hưng Yên">22 - Sở GD&ĐT Hưng Yên</option>
+                        <option value="27 - Sở GD&ĐT Ninh Bình">27 - Sở GD&ĐT Ninh Bình</option>
+                        <option value="28 - Sở GD&ĐT Thanh Hoá">28 - Sở GD&ĐT Thanh Hoá</option>
+                        <option value="29 - Sở GD&ĐT Nghệ An">29 - Sở GD&ĐT Nghệ An</option>
+                        <option value="30 - Sở GD&ĐT Hà Tĩnh">30 - Sở GD&ĐT Hà Tĩnh</option>
+                        <option value="32 - Sở GD&ĐT Quảng Trị">32 - Sở GD&ĐT Quảng Trị</option>
+                        <option value="33 - Sở GD&ĐT Thừa Thiên Huế">33 - Sở GD&ĐT Thừa Thiên Huế</option>
+                        <option value="35 - Sở GD&ĐT Quảng Ngãi">35 - Sở GD&ĐT Quảng Ngãi</option>
+                        <option value="37 - Sở GD&ĐT Bình Định">37 - Sở GD&ĐT Bình Định</option>
+                        <option value="40 - Sở GD&ĐT Đắk Lắk">40 - Sở GD&ĐT Đắk Lắk</option>
+                        <option value="41 - Sở GD&ĐT Khánh Hoà">41 - Sở GD&ĐT Khánh Hoà</option>
+                        <option value="42 - Sở GD&ĐT Lâm Đồng">42 - Sở GD&ĐT Lâm Đồng</option>
+                        <option value="46 - Sở GD&ĐT Tây Ninh">46 - Sở GD&ĐT Tây Ninh</option>
+                        <option value="48 - Sở GD&ĐT Đồng Nai">48 - Sở GD&ĐT Đồng Nai</option>
+                        <option value="50 - Sở GD&ĐT Đồng Tháp">50 - Sở GD&ĐT Đồng Tháp</option>
+                        <option value="51 - Sở GD&ĐT An Giang">51 - Sở GD&ĐT An Giang</option>
+                        <option value="57 - Sở GD&ĐT Vĩnh Long">57 - Sở GD&ĐT Vĩnh Long</option>
+                        <option value="55 - Sở GD&ĐT Cần Thơ">55 - Sở GD&ĐT Cần Thơ</option>
+                        <option value="61 - Sở GD&ĐT Cà Mau">61 - Sở GD&ĐT Cà Mau</option>
+                        <option value="62 - Sở GD&ĐT Điện Biên">62 - Sở GD&ĐT Điện Biên</option>
+                    </select>
                 </div>
 
-                <!-- Trường chung cho CẢ HAII -->
+                <!-- Trường chung cho CẢ HAI -->
                 <div class="form-group">
                     <label for="school" class="form-label">
                         Ngôi trường đang theo học <span class="required-asterisk">*</span>
@@ -1723,18 +2259,27 @@
                     >
                 </div>
 
-                <!-- Trường dành riêng cho HỌC SINH -->
-                <div class="form-group student-field">
-                    <label for="grade" class="form-label">
-                        Khối học <span class="required-asterisk">*</span>
-                    </label>
-                    <input 
-                        type="text" 
-                        id="grade" 
-                        name="grade" 
-                        class="form-input" 
-                        placeholder="Ví dụ: Khối 10, Khối 11, Khối 12"
-                    >
+                <!-- Cấp học và Khối học nằm cùng một hàng (2 cột) -->
+                <div class="form-row-2col student-field">
+                    <div class="form-group">
+                        <label for="educationLevel" class="form-label">
+                            Cấp học <span class="required-asterisk">*</span>
+                        </label>
+                        <select id="educationLevel" name="educationLevel" class="form-select" onchange="handleEducationLevelChange()">
+                            <option value="">Chọn cấp học</option>
+                            <option value="Trung học Cơ sở">Trung học Cơ sở</option>
+                            <option value="Trung học phổ thông">Trung học phổ thông</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grade" class="form-label">
+                            Khối học <span class="required-asterisk">*</span>
+                        </label>
+                        <select id="grade" name="grade" class="form-select">
+                            <option value="">Chọn khối học</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Trường dành riêng cho HỌC SINH -->
@@ -1777,6 +2322,32 @@
                         class="form-input" 
                         placeholder="Nhập khoa đang theo học"
                     >
+                </div>
+
+                <!-- Trường Đại học dành riêng cho SINH VIÊN (Custom Searchable Select) -->
+                <div class="form-group university-field" style="display: none;">
+                    <label for="university" class="form-label">
+                        Trường đại học <span class="required-asterisk">*</span>
+                    </label>
+                    <div class="custom-searchable-select" id="custom-select-university">
+                        <div class="custom-select-trigger" onclick="toggleCustomSelect('university')">
+                            <span class="custom-select-value" id="value-university">Chọn trường đại học</span>
+                            <span class="custom-select-arrow">&#9662;</span>
+                        </div>
+                        <div class="custom-select-dropdown" id="dropdown-university">
+                            <div class="custom-select-search-box">
+                                <span class="search-icon">&#128269;</span>
+                                <input type="text" class="custom-select-search-input" placeholder="Tìm kiếm trường đại học..." oninput="filterCustomOptions('university', this.value)">
+                            </div>
+                            <div class="custom-select-options-list" id="options-list-university">
+                                <!-- Options sẽ được render tự động qua JS -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Select ẩn để giữ nguyên cơ chế gửi dữ liệu hiện tại -->
+                    <select id="university" name="university" class="form-select" style="display: none;">
+                        <option value="">Chọn trường đại học</option>
+                    </select>
                 </div>
 
 
@@ -2139,105 +2710,264 @@ Yêu cầu được gửi từ hệ thống Quân Nguyễn Study.`;
             });
         }
 
+        
+            // ================================
+        // REGISTRATION & VALIDATION & INTERACTIVE LOGIC
         // ================================
-        // REGISTRATION & VALIDATION
-        // ================================
+        
+        // Xử lý chọn giới tính Nam/Nữ tương tác trực quan
+        function selectGender(genderValue) {
+            const hiddenGenderInput = document.getElementById('gender');
+            const btnNam = document.getElementById('gender-btn-nam');
+            const btnNu = document.getElementById('gender-btn-nu');
+
+            hiddenGenderInput.value = genderValue;
+            hiddenGenderInput.classList.remove('error');
+
+            if (genderValue === 'Nam') {
+                btnNam.className = 'gender-btn selected-nam';
+                btnNu.className = 'gender-btn';
+            } else {
+                btnNu.className = 'gender-btn selected-nu';
+                btnNam.className = 'gender-btn';
+            }
+        }
+
+        // Xử lý phụ thuộc Cấp học -> Khối học động
+        function handleEducationLevelChange() {
+            const levelSelect = document.getElementById('educationLevel');
+            const gradeSelect = document.getElementById('grade');
+            const selectedLevel = levelSelect.value;
+
+            gradeSelect.innerHTML = '<option value="">Chọn khối học</option>';
+
+            if (selectedLevel === 'Trung học Cơ sở') {
+                const options = ['Khối 6', 'Khối 7', 'Khối 8', 'Khối 9'];
+                options.forEach(opt => {
+                    const el = document.createElement('option');
+                    el.value = opt;
+                    el.textContent = opt;
+                    gradeSelect.appendChild(el);
+                });
+            } else if (selectedLevel === 'Trung học phổ thông') {
+                const options = ['Khối 10', 'Khối 11', 'Khối 12'];
+                options.forEach(opt => {
+                    const el = document.createElement('option');
+                    el.value = opt;
+                    el.textContent = opt;
+                    gradeSelect.appendChild(el);
+                });
+            }
+        }
+
+        // Tự động chuẩn hóa Username (viết thường, không dấu, liền nhau)
+        document.addEventListener('DOMContentLoaded', () => {
+            const usernameInput = document.getElementById('reg-username');
+            if (usernameInput) {
+                usernameInput.addEventListener('input', function() {
+                    let val = this.value.toLowerCase();
+                    // Loại bỏ dấu tiếng Việt và ký tự đặc biệt, chỉ giữ lại a-z và 0-9
+                    val = val.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+                    this.value = val;
+                });
+            }
+
+            // Tự động chuẩn hóa Số điện thoại (chỉ chứa ký tự số)
+            const phoneInput = document.getElementById('phone');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', function() {
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            }
+        });
+
         function handleRegistrationSubmit() {
             const alertBox = document.getElementById('reg-alert');
             let firstErrorElement = null;
-            let missingFieldLabels = [];
+            let errorMessage = "";
 
-            // Clear previous error styles
+            // Reset trạng thái lỗi
             document.querySelectorAll('#registration-form .form-input, #registration-form .form-select, #registration-form .form-textarea').forEach(elem => {
                 elem.classList.remove('error');
             });
+            document.getElementById('gender-btn-nam').style.borderColor = '#93C5FD';
+            document.getElementById('gender-btn-nu').style.borderColor = '#93C5FD';
 
-            // Định nghĩa danh sách các trường bắt buộc chung
-            const commonRequiredFields = [
-                { id: "fullName", label: "Họ và tên" },
-                { id: "dateOfBirth", label: "Ngày tháng năm sinh" },
-                { id: "placeOfBirth", label: "Nơi sinh" },
-                { id: "gender", label: "Giới tính" },
-                { id: "reg-username", label: "Tên đăng nhập (Username)" },
-                { id: "reg-password", label: "Mật khẩu" },
-                { id: "phone", label: "Số điện thoại" },
-                { id: "school", label: "Ngôi trường đang theo học" }
-            ];
+            // 1. Họ và tên: Bắt buộc, chỉ chữ cái và khoảng trắng, không số/ký tự đặc biệt
+            const fullNameInput = document.getElementById('fullName');
+            const fullNameVal = fullNameInput.value.trim().replace(/\s+/g, ' '); // gom khoảng trắng thừa
+            fullNameInput.value = fullNameVal;
+            const nameRegex = /^[a-zA-ZÀ-ỹ\s]+$/;
 
-            // Định nghĩa các trường bắt buộc riêng theo từng loại tài khoản
-            const studentRequiredFields = [
-                { id: "educationDepartment", label: "Sở GD và ĐT" },
-                { id: "grade", label: "Khối học" },
-                { id: "className", label: "Lớp học" }
-            ];
+            if (!fullNameVal) {
+                fullNameInput.classList.add('error');
+                errorMessage = "Vui lòng nhập họ và tên đầy đủ.";
+                firstErrorElement = fullNameInput;
+            } else if (!nameRegex.test(fullNameVal)) {
+                fullNameInput.classList.add('error');
+                errorMessage = "Họ và tên chỉ được phép chứa chữ cái và khoảng trắng (không chứa số, ký tự đặc biệt).";
+                firstErrorElement = fullNameInput;
+            }
 
-            const universityRequiredFields = [
-                { id: "major", label: "Ngành đào tạo" },
-                { id: "faculty", label: "Khoa đang theo học" }
-            ];
+            // 2. Ngày sinh
+            const dobInput = document.getElementById('dateOfBirth');
+            if (!dobInput.value && !firstErrorElement) {
+                dobInput.classList.add('error');
+                errorMessage = "Vui lòng chọn ngày tháng năm sinh.";
+                firstErrorElement = dobInput;
+            }
 
-            // Tổng hợp trường cần kiểm tra theo lựa chọn hiện tại
-            const activeRequiredFields = [
-                ...commonRequiredFields,
-                ...(currentAccountType === 'student' ? studentRequiredFields : universityRequiredFields)
-            ];
+            // 3. Nơi sinh (Select bắt buộc)
+            const pobSelect = document.getElementById('placeOfBirth');
+            if (!pobSelect.value && !firstErrorElement) {
+                pobSelect.classList.add('error');
+                errorMessage = "Vui lòng chọn nơi sinh.";
+                firstErrorElement = pobSelect;
+            }
 
-            // Kiểm tra từng trường bắt buộc
-            activeRequiredFields.forEach(field => {
-                const element = document.getElementById(field.id);
-                if (element) {
-                    const value = element.value.trim();
-                    if (!value) {
-                        element.classList.add('error');
-                        missingFieldLabels.push(field.label);
-                        if (!firstErrorElement) {
-                            firstErrorElement = element;
-                        }
-                    }
+            // 4. Giới tính
+            const genderVal = document.getElementById('gender').value;
+            if (!genderVal && !firstErrorElement) {
+                document.getElementById('gender-btn-nam').style.borderColor = '#EF4444';
+                document.getElementById('gender-btn-nu').style.borderColor = '#EF4444';
+                errorMessage = "Vui lòng chọn giới tính (Nam hoặc Nữ).";
+                firstErrorElement = document.getElementById('gender-btn-nam');
+            }
+
+            // 5. Username
+            const usernameInput = document.getElementById('reg-username');
+            const usernameVal = usernameInput.value.trim();
+            const usernameRegex = /^[a-z0-9]+$/;
+            if (!usernameVal && !firstErrorElement) {
+                usernameInput.classList.add('error');
+                errorMessage = "Tên đăng nhập không được để trống.";
+                firstErrorElement = usernameInput;
+            } else if (!usernameRegex.test(usernameVal) && !firstErrorElement) {
+                usernameInput.classList.add('error');
+                errorMessage = "Tên đăng nhập chỉ được chứa chữ cái viết thường không dấu và số, không khoảng trắng.";
+                firstErrorElement = usernameInput;
+            }
+
+            // 6. Mật khẩu (Tối thiểu 8 ký tự)
+            const passwordInput = document.getElementById('reg-password');
+            if (passwordInput.value.length < 8 && !firstErrorElement) {
+                passwordInput.classList.add('error');
+                errorMessage = "Mật khẩu bảo mật phải có tối thiểu 8 ký tự.";
+                firstErrorElement = passwordInput;
+            }
+
+            // 7. Email hợp lệ
+            const emailInput = document.getElementById('email');
+            const emailVal = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailVal && !firstErrorElement) {
+                emailInput.classList.add('error');
+                errorMessage = "Địa chỉ email không được để trống.";
+                firstErrorElement = emailInput;
+            } else if (!emailRegex.test(emailVal) && !firstErrorElement) {
+                emailInput.classList.add('error');
+                errorMessage = "Địa chỉ email không hợp lệ (ví dụ đúng: example@gmail.com).";
+                firstErrorElement = emailInput;
+            }
+
+            // 8. Số điện thoại (Chỉ chứa số 0-9)
+            const phoneInput = document.getElementById('phone');
+            const phoneVal = phoneInput.value.trim();
+            const phoneRegex = /^[0-9]+$/;
+            if (!phoneVal && !firstErrorElement) {
+                phoneInput.classList.add('error');
+                errorMessage = "Số điện thoại không được để trống.";
+                firstErrorElement = phoneInput;
+            } else if (!phoneRegex.test(phoneVal) && !firstErrorElement) {
+                phoneInput.classList.add('error');
+                errorMessage = "Số điện thoại chỉ được chứa các chữ số từ 0 đến 9.";
+                firstErrorElement = phoneInput;
+            }
+
+            // 9. Trường học
+            const schoolInput = document.getElementById('school');
+            if (!schoolInput.value.trim() && !firstErrorElement) {
+                schoolInput.classList.add('error');
+                errorMessage = "Vui lòng nhập tên ngôi trường đang theo học.";
+                firstErrorElement = schoolInput;
+            }
+
+            // Kiểm tra các trường riêng khi chọn HỌC SINH
+            if (currentAccountType === 'student' && !firstErrorElement) {
+                const edDept = document.getElementById('educationDepartment');
+                const edLevel = document.getElementById('educationLevel');
+                const grade = document.getElementById('grade');
+                const className = document.getElementById('className');
+
+                if (!edDept.value) {
+                    edDept.classList.add('error');
+                    errorMessage = "Vui lòng chọn Sở Giáo dục và Đào tạo quản lý.";
+                    firstErrorElement = edDept;
+                } else if (!edLevel.value) {
+                    edLevel.classList.add('error');
+                    errorMessage = "Vui lòng chọn cấp học.";
+                    firstErrorElement = edLevel;
+                } else if (!grade.value) {
+                    grade.classList.add('error');
+                    errorMessage = "Vui lòng chọn khối học phù hợp.";
+                    firstErrorElement = grade;
+                } else if (!className.value.trim()) {
+                    className.classList.add('error');
+                    errorMessage = "Vui lòng nhập tên lớp học.";
+                    firstErrorElement = className;
                 }
-            });
+            }
 
-            if (missingFieldLabels.length > 0) {
-                showNotification(
-                    alertBox, 
-                    'error', 
-                    `Vui lòng nhập đầy đủ các thông tin bắt buộc sau:<br>• ${missingFieldLabels.join('<br>• ')}`
-                );
+            // Kiểm tra các trường riêng khi chọn SINH VIÊN
+            if (currentAccountType === 'university' && !firstErrorElement) {
+                const major = document.getElementById('major');
+                const faculty = document.getElementById('faculty');
 
-                if (firstErrorElement) {
-                    firstErrorElement.focus();
-                    firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (!major.value.trim()) {
+                    major.classList.add('error');
+                    errorMessage = "Vui lòng nhập ngành đào tạo.";
+                    firstErrorElement = major;
+                } else if (!faculty.value.trim()) {
+                    faculty.classList.add('error');
+                    errorMessage = "Vui lòng nhập khoa đang theo học.";
+                    firstErrorElement = faculty;
                 }
+            }
+
+            // Nếu có lỗi, hiển thị thông báo inline và dừng quá trình submit
+            if (firstErrorElement) {
+                showNotification(alertBox, 'error', `<strong>Lỗi nhập liệu:</strong><br>${errorMessage}`);
+                firstErrorElement.focus();
+                firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
 
-            // Thu thập và chuẩn hóa dữ liệu chuẩn xác không lẫn lộn giữa 2 loại tài khoản
+            // Thu thập đầy đủ payload dữ liệu gửi đi (giữ nguyên cấu trúc API)
             let payloadData = {
                 accountType: currentAccountType,
-                fullName: document.getElementById('fullName').value.trim(),
-                dateOfBirth: document.getElementById('dateOfBirth').value,
-                placeOfBirth: document.getElementById('placeOfBirth').value.trim(),
-                gender: document.getElementById('gender').value,
-                username: document.getElementById('reg-username').value.trim(),
-                password: document.getElementById('reg-password').value,
-                email: document.getElementById('email').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                school: document.getElementById('school').value.trim(),
+                fullName: fullNameVal,
+                dateOfBirth: dobInput.value,
+                placeOfBirth: pobSelect.value,
+                gender: genderVal,
+                username: usernameVal,
+                password: passwordInput.value,
+                email: emailVal,
+                phone: phoneVal,
+                school: schoolInput.value.trim(),
                 verification: document.getElementById('verification').value.trim()
             };
 
             if (currentAccountType === 'student') {
-                payloadData.educationDepartment = document.getElementById('educationDepartment').value.trim();
-                payloadData.grade = document.getElementById('grade').value.trim();
+                payloadData.educationDepartment = document.getElementById('educationDepartment').value;
+                payloadData.educationLevel = document.getElementById('educationLevel').value;
+                payloadData.grade = document.getElementById('grade').value;
                 payloadData.className = document.getElementById('className').value.trim();
             } else {
                 payloadData.major = document.getElementById('major').value.trim();
                 payloadData.faculty = document.getElementById('faculty').value.trim();
             }
 
-            console.log("Dữ liệu đăng ký thu thập được:", payloadData);
-
-            // Gửi dữ liệu đăng ký
+            console.log("Dữ liệu đăng ký hợp lệ gửi đi:", payloadData);
             submitRegistration(payloadData, alertBox);
         }
 
@@ -2347,6 +3077,268 @@ Yêu cầu được gửi từ hệ thống Quân Nguyễn Study.`;
                     spotlight.style.top = `${e.clientY}px`;
                 });
             }
+        });
+        // ================================
+        // CUSTOM SEARCHABLE SELECT LOGIC
+        // ================================
+        const universityList = [
+            "QHS - Đại học Quốc gia Hà Nội (VNU)",
+            "1. QSK - Trường Đại học Khoa học Tự nhiên, ĐHQGHN (HUS)",
+            "2. QHX - Trường Đại học Công nghệ, ĐHQGHN (UET)",
+            "3. QXH - Trường Đại học Kinh tế, ĐHQGHN (UEB)",
+            "4. QXQ - Trường Đại học Ngoại ngữ, ĐHQGHN (ULIS)",
+            "5. QXH - Trường Đại học Khoa học Xã hội và Nhân văn, ĐHQGHN (USSH)",
+            "6. QHY - Trường Đại học Y Dược, ĐHQGHN (UMP-VNU)",
+            "7. QHL - Trường Đại học Luật, ĐHQGHN (VNU-UL)",
+            "8. QSE - Trường Đại học Giáo dục, ĐHQGHN (VNU-ED)",
+            "9. QSB - Trường Đại học Việt Nhật, ĐHQGHN (VJU)",
+            "10. QSF - Trường Khoa học Liên ngành và Nghệ thuật, ĐHQGHN (VNU-SIS)",
+            "11. VQ_HCM - Đại học Quốc gia Thành phố Hồ Chí Minh (VNU-HCM)",
+            "12. QSK - Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM (HCMUS)",
+            "13. KHX - Trường Đại học Khoa học Xã hội và Nhân văn, ĐHQG-HCM (USSH)",
+            "14. QSB - Trường Đại học Bách khoa, ĐHQG-HCM (HCMUT)",
+            "15. QST - Trường Đại học Công nghệ Thông tin, ĐHQG-HCM (UIT)",
+            "16. QSK - Trường Đại học Kinh tế - Luật, ĐHQG-HCM (UEL)",
+            "17. QSK - Trường Đại học Quốc tế, ĐHQG-HCM (IU)",
+            "18. QSY - Khoa Y, ĐHQG-HCM (MED-VNUHCM)",
+            "19. BKA - Đại học Bách khoa Hà Nội (HUST)",
+            "20. KHA - Trường Đại học Kinh tế Quốc dân (NEU)",
+            "21. NTH - Trường Đại học Ngoại thương (FTU)",
+            "22. SPH - Trường Đại học Sư phạm Hà Nội (HNUE)",
+            "23. YHN - Trường Đại học Y Hà Nội (HMU)",
+            "24. XDH - Trường Đại học Xây dựng Hà Nội (HUCE)",
+            "25. GTV - Trường Đại học Giao thông Vận tải (UTC)",
+            "26. DTL - Trường Đại học Thủy lợi (TLU)",
+            "27. MĐC - Trường Đại học Mỏ - Địa chất (HUMG)",
+            "28. DCN - Trường Đại học Công nghiệp Hà Nội (HAUI)",
+            "29. DDP - Trường Đại học Điện lực (EPU)",
+            "30. UTT - Trường Đại học Công nghệ Giao thông Vận tải (UTT)",
+            "31. KCN - Trường Đại học Khoa học và Công nghệ Hà Nội (USTH)",
+            "32. KTH - Trường Đại học Kiến trúc Hà Nội (HAU)",
+            "33. MTA - Học viện Kỹ thuật Quân sự (MTA)",
+            "34. QYI - Học viện Quân y (VMU)",
+            "35. ANN - Học viện Nông nghiệp Việt Nam (VNUA)",
+            "36. NHH - Học viện Ngân hàng (BA)",
+            "37. TCH - Học viện Tài chính (AOF)",
+            "38. BVT - Học viện Công nghệ Bưu chính Viễn thông (PTIT)",
+            "39. HVC - Học viện Báo chí và Tuyên truyền (AJC)",
+            "40. DAV - Học viện Ngoại giao (DAV)",
+            "41. HVH - Học viện Hành chính Quốc gia (NAPA)",
+            "42. LHA - Trường Đại học Luật Hà Nội (HLU)",
+            "43. MTH - Trường Đại học Thương mại (TMU)",
+            "44. TNH - Trường Đại học Lâm nghiệp (VFU)",
+            "45. MUA - Trường Đại học Mỹ thuật Việt Nam (VUA)",
+            "46. NHA - Trường Đại học Sân khấu - Điện ảnh Hà Nội (SKĐA)",
+            "47. NNH - Viện Đại học Mở Hà Nội (HOU)",
+            "48. DTS - Trường Đại học Thăng Long (TLU)",
+            "49. FPT - Trường Đại học FPT (FPT)",
+            "50. DPU - Trường Đại học Phenikaa (PKA)",
+            "51. DDU - Trường Đại học Đại Nam (DNU)",
+            "52. DTH - Trường Đại học Thành Đô (TDD)",
+            "53. DDL - Trường Đại học Đông Đô (DDH)",
+            "54. BUV - Trường Đại học Anh Quốc Việt Nam (BUV)",
+            "55. RMU - Trường Đại học Quốc tế RMIT Việt Nam (RMU)",
+            "56. VIN - Trường Đại học VinUni (VinUni)",
+            "57. MCA - Trường Đại học CMC (CMC)",
+            "58. FUV - Trường Đại học Fulbright Việt Nam (FUV)",
+            "59. THU - Trường Đại học Y khoa Tokyo Việt Nam (THU)",
+            "60. VGU - Trường Đại học Việt Đức (VGU)",
+            "61. DDA - Đại học Thái Nguyên (TNU)",
+            "62. QST - Trường Đại học Sư phạm, ĐH Thái Nguyên (TNUE)",
+            "63. ICTU - Trường Đại học Công nghệ Thông tin và Truyền thông, ĐH Thái Nguyên (ICTU)",
+            "64. DHY - Trường Đại học Y Dược, ĐH Thái Nguyên (TNUMP)",
+            "65. DKT - Trường Đại học Kinh tế và Quản trị Kinh doanh, ĐH Thái Nguyên (TUEBA)",
+            "66. KHA - Trường Đại học Khoa học, ĐH Thái Nguyên (TNUS)",
+            "67. TNUT - Trường Đại học Kỹ thuật Công nghiệp, ĐH Thái Nguyên (TNUT)",
+            "68. DVN - Trường Đại học Nông Lâm, ĐH Thái Nguyên (TUAF)",
+            "69. DHD - Đại học Huế (HUE)",
+            "70. HUE-DHS - Trường Đại học Sư phạm, ĐH Huế",
+            "71. YDH - Trường Đại học Y Dược, ĐH Huế (HUE-UMP)",
+            "72. HUE-SCS - Trường Đại học Khoa học, ĐH Huế",
+            "73. HUE-COE - Trường Đại học Kinh tế, ĐH Huế",
+            "74. HUAF - Trường Đại học Nông Lâm, ĐH Huế",
+            "75. HUE-T - Trường Đại học Du lịch, ĐH Huế",
+            "76. HUE-FL - Trường Đại học Ngoại ngữ, ĐH Huế",
+            "77. DHN - Trường Đại học Nghệ thuật, ĐH Huế",
+            "78. DDN - Đại học Đà Nẵng (UD)",
+            "79. DDC - Trường Đại học Sư phạm Kỹ thuật, ĐH Đà Nẵng",
+            "80. VKU - Trường Đại học Công nghệ Thông tin và Truyền thông Việt - Hàn, ĐH Đà Nẵng (VKU)",
+            "81. KTT - Trường Đại học Kinh tế Thành phố Hồ Chí Minh (UEH)",
+            "82. SPK - Trường Đại học Sư phạm Kỹ thuật TP.HCM (HCMUTE)",
+            "83. NLT - Trường Đại học Nông Lâm TP.HCM (NLU)",
+            "84. YDS - Trường Đại học Y Dược TP.HCM (UMP)",
+            "85. YKP - Trường Đại học Y khoa Phạm Ngọc Thạch (PNT)",
+            "86. NTT - Trường Đại học Tôn Đức Thắng (TDTU)",
+            "87. SGU - Trường Đại học Sài Gòn (SGU)",
+            "88. DTT - Trường Đại học Tài chính - Marketing (UFM)",
+            "89. BUH - Trường Đại học Ngân hàng TP.HCM (BUH)",
+            "90. HCMOU - Trường Đại học Mở Thành phố Hồ Chí Minh (HCMOU)",
+            "91. DVL - Trường Đại học Văn Lang (VLU)",
+            "92. DQT - Trường Đại học Quốc tế Sài Gòn (SIU)",
+            "93. UMT - Trường Đại học Quản lý và Công nghệ TP.HCM (UMT)",
+            "94. DNV - Trường Đại học Nguyễn Tất Thành (NTTU)",
+            "95. DHO - Trường Đại học Hoa Sen (HSU)",
+            "96. DTD - Trường Đại học Thái Bình Dương (TBD)",
+            "97. DPC - Trường Đại học Phan Châu Trinh (PCT)",
+            "98. DTQ - Trường Đại học Duy Tân (DTU)",
+            "99. DQK - Trường Đại học Quy Nhơn (QNU)",
+            "100. DNT - Trường Đại học Nha Trang (NTU)",
+            "101. DDL - Trường Đại học Đà Lạt (DLU)",
+            "102. DKV - Trường Đại học Kiên Giang (KGU)",
+            "103. DTV - Trường Đại học Trà Vinh (TVU)",
+            "104. CTU - Trường Đại học Cần Thơ (CTU)",
+            "105. AGU - Trường Đại học An Giang, ĐHQG-HCM (AGU)",
+            "106. DVG - Trường Đại học Vinh (VinhUni)",
+            "107. DHP - Trường Đại học Hải Phòng (HPDU)",
+            "108. DHV - Trường Đại học Hùng Vương (HVU)",
+            "109. DHH - Trường Đại học Hà Nội (HANU)",
+            "110. SPH2 - Trường Đại học Sư phạm Hà Nội 2 (HNUE2)",
+            "111. SPKHY - Trường Đại học Sư phạm Kỹ thuật Hưng Yên (UTEHY)",
+            "112. DTD - Trường Đại học Đồng Tháp (DTPU)",
+            "113. DHP - Trường Đại học Phạm Văn Đồng (PVD)",
+            "114. DQB - Trường Đại học Quảng Bình (QBU)",
+            "115. DVA - Trường Đại học Văn Hiến (VHU)",
+            "116. DTT - Trường Đại học Tân Tạo (TTU)",
+            "117. DDP - Trường Đại học Đồng Nai (DNU)",
+            "118. DLA - Trường Đại học Lạc Hồng (LHU)"
+        ];
+
+        // Hàm chuẩn hóa tiếng Việt không dấu để tìm kiếm thông minh
+        function normalizeVietnameseText(str) {
+            if (!str) return "";
+            return str.toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+        }
+
+        // Khởi tạo dữ liệu vào các custom select và đồng bộ select ẩn
+        function initCustomSelects() {
+            // 1. Khởi tạo danh sách Trường Đại học
+            const uniSelect = document.getElementById('university');
+            if (uniSelect) {
+                uniSelect.innerHTML = '<option value="">Chọn trường đại học</option>';
+                universityList.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item;
+                    opt.textContent = item;
+                    uniSelect.appendChild(opt);
+                });
+            }
+
+            // 2. Render options cho các Custom Select (university, placeOfBirth, educationDepartment)
+            ['university', 'placeOfBirth', 'educationDepartment'].forEach(fieldId => {
+                renderCustomOptions(fieldId);
+            });
+        }
+
+        function renderCustomOptions(fieldId, filterText = "") {
+            const originalSelect = document.getElementById(fieldId);
+            const optionsList = document.getElementById(`options-list-${fieldId}`);
+            if (!originalSelect || !optionsList) return;
+
+            optionsList.innerHTML = "";
+            const normalizedFilter = normalizeVietnameseText(filterText);
+            let matchCount = 0;
+
+            Array.from(originalSelect.options).forEach((option, index) => {
+                if (index === 0 && option.value === "") return; // Bỏ qua option mặc định đầu tiên nếu muốn hiển thị riêng hoặc lọc
+
+                const text = option.textContent;
+                const val = option.value;
+                if (!val) return;
+
+                if (normalizedFilter === "" || normalizeVietnameseText(text).includes(normalizedFilter)) {
+                    matchCount++;
+                    const optDiv = document.createElement('div');
+                    optDiv.className = `custom-select-option ${originalSelect.value === val ? 'selected' : ''}`;
+                    optDiv.textContent = text;
+                    optDiv.onclick = () => selectCustomOption(fieldId, val, text);
+                    optionsList.appendChild(optDiv);
+                }
+            });
+
+            // Thêm option mặc định "Chọn..." lên đầu tiên nếu không có filter hoặc filter khớp
+            if (normalizedFilter === "") {
+                const defaultOpt = document.createElement('div');
+                const defaultText = originalSelect.options[0] ? originalSelect.options[0].textContent : "Chọn...";
+                defaultOpt.className = `custom-select-option ${originalSelect.value === "" ? 'selected' : ''}`;
+                defaultOpt.textContent = defaultText;
+                defaultOpt.onclick = () => selectCustomOption(fieldId, "", defaultText);
+                optionsList.insertBefore(defaultOpt, optionsList.firstChild);
+            } else if (matchCount === 0) {
+                const noRes = document.createElement('div');
+                noRes.className = 'custom-select-no-result';
+                noRes.textContent = 'Không tìm thấy kết quả phù hợp';
+                optionsList.appendChild(noRes);
+            }
+        }
+
+        function toggleCustomSelect(fieldId) {
+            const container = document.getElementById(`custom-select-${fieldId}`);
+            const isOpen = container.classList.contains('active');
+
+            // Đóng tất cả các custom select khác đang mở
+            document.querySelectorAll('.custom-searchable-select').forEach(el => {
+                el.classList.remove('active');
+                const drop = el.querySelector('.custom-select-dropdown');
+                if (drop) drop.style.display = 'none';
+            });
+
+            if (!isOpen) {
+                container.classList.add('active');
+                const dropdown = document.getElementById(`dropdown-${fieldId}`);
+                if (dropdown) {
+                    dropdown.style.display = 'flex';
+                    const input = dropdown.querySelector('.custom-select-search-input');
+                    if (input) {
+                        input.value = "";
+                        input.focus();
+                        renderCustomOptions(fieldId, "");
+                    }
+                }
+            }
+        }
+
+        function filterCustomOptions(fieldId, query) {
+            renderCustomOptions(fieldId, query);
+        }
+
+        function selectCustomOption(fieldId, value, text) {
+            const originalSelect = document.getElementById(fieldId);
+            if (originalSelect) {
+                originalSelect.value = value;
+                // Kích hoạt sự kiện change nếu có listener cũ gắn vào select gốc
+                originalSelect.dispatchEvent(new Event('change'));
+            }
+
+            const valueSpan = document.getElementById(`value-${fieldId}`);
+            if (valueSpan) {
+                valueSpan.textContent = text;
+                valueSpan.style.color = value ? '#0F172A' : '#94A3B8';
+            }
+
+            // Đóng dropdown
+            const container = document.getElementById(`custom-select-${fieldId}`);
+            if (container) container.classList.remove('active');
+            const dropdown = document.getElementById(`dropdown-${fieldId}`);
+            if (dropdown) dropdown.style.display = 'none';
+        }
+
+        // Đóng dropdown khi click ra ngoài
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.custom-searchable-select')) {
+                document.querySelectorAll('.custom-searchable-select').forEach(el => {
+                    el.classList.remove('active');
+                    const drop = el.querySelector('.custom-select-dropdown');
+                    if (drop) drop.style.display = 'none';
+                });
+            }
+        });
+
+        // Tự động gọi khởi tạo custom select khi load trang
+        document.addEventListener('DOMContentLoaded', () => {
+            initCustomSelects();
         });
     </script>
 </body>
