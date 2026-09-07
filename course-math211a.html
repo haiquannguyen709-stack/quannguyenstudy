@@ -442,6 +442,15 @@
             color: #dc2626;
         }
 
+        .lesson-type-pptx {
+            background-color: #ffedd5;
+            color: #c2410c;
+        }
+
+        .lesson-type-link {
+            background-color: #ccfbf1;
+            color: #0d9488;
+        }
         .lesson-type-quiz {
             background-color: #fef3c7;
             color: #d97706;
@@ -883,7 +892,7 @@
         .chapter-content {
             overflow: hidden;
             transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
-            max-height: 2000px; /* Độ cao tối đa khi mở */
+            max-height: 5000px; /* Tăng độ cao tối đa lên để chứa đủ toàn bộ các bài học */
             opacity: 1;
         }
 
@@ -1096,6 +1105,33 @@
                     </div>
                 </div>
             </section>
+            <!-- Thanh tìm kiếm bài học/tài liệu hiện đại -->
+            <section class="search-filter-card">
+                <div class="search-filter-container">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="course-search-input" class="search-input" placeholder="Tìm kiếm tài liệu..." autocomplete="off">
+                    </div>
+                    <div class="filter-box">
+                        <select id="course-filter-select" class="filter-select">
+                            <option value="all">Tất cả tài liệu</option>
+                            <option value="pdf">Tài liệu PDF</option>
+                            <option value="pptx">Tài liệu PPTX</option>
+                            <option value="link">Liên kết</option>
+                            <option value="incomplete">Chưa hoàn thành</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Card Thông báo khi không tìm thấy kết quả -->
+            <div id="no-results-message" class="no-results-card" style="display: none;">
+                <div class="no-results-icon">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <p>Không tìm thấy tài liệu phù hợp.</p>
+            </div>
+
             <!-- Thanh tiến độ học tập (Progress Bar) -->
             <section class="progress-card">
                 <div class="progress-header">
@@ -1119,7 +1155,103 @@
                 </div>
                 <div class="chapter-content" id="chapter-content-tai-lieu-chung">
                     <hr class="chapter-divider">
-                    <div class="lessons-list"></div>
+                    <div class="lessons-list">
+                        <div class="lesson-item" data-type="pdf">
+                            <div class="lesson-icon-wrapper lesson-type-pdf">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Cơ sở đại số hiện đại (Tập hợp, Logic, Quan hệ, Ánh xạ, Nhóm, Vành, Trường, Đa thức, Module, Đại số, Dàn, Đại số Boole, Phạm trù và Hàm tử) - PGS Dương Quốc Việt, TS Trương Thị Hồng Thanh, NXB ĐHSP 2016.</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Tài liệu PDF</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/file/d/1wTkVBPKoM4wBwAGV82iqgZrk1IcrDcH0/view?usp=sharing" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_chung_1" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_chung_1">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lesson-item" data-type="pptx">
+                            <div class="lesson-icon-wrapper lesson-type-pptx">
+                                <i class="fa-solid fa-file-powerpoint"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Toàn văn lý thuyết Cấu trúc đại số cô Lê Thị Hà</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Tài liệu PPTX</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/file/d/1j405wrGl1MfiyduWZpN8opa0EzsCGlKm/view?usp=sharing" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_chung_2" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_chung_2">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lesson-item" data-type="pptx">
+                            <div class="lesson-icon-wrapper lesson-type-pptx">
+                                <i class="fa-solid fa-file-powerpoint"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Toàn văn lý thuyết Cấu trúc đại số cô Phan Thị Thủy</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Tài liệu PPTX</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/file/d/1dIK-81y_iZMqaUGTFlVN0v55-3tGqp4u/view?usp=sharing" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_chung_3" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_chung_3">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lesson-item" data-type="pdf">
+                            <div class="lesson-icon-wrapper lesson-type-pdf">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Cấu trúc đại số - GS. Hoàng Xuân Sính</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Tài liệu PDF</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/file/d/1dr_cfHq7wZ4ai4D5Az2b091_KSLU0bVZ/view?usp=sharing" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_chung_4" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_chung_4">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lesson-item" data-type="pdf">
+                            <div class="lesson-icon-wrapper lesson-type-pdf">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Joseph Gallian - Contemporary Abstract Algebra - Cengage Learning 2012</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Tài liệu PDF</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/file/d/1udFrJZC7LSL51Y5OdIo1w0PXQ16hPWcW/view?usp=sharing" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_chung_5" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_chung_5">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -1133,10 +1265,145 @@
                 </div>
                 <div class="chapter-content" id="chapter-content-tai-lieu-rieng">
                     <hr class="chapter-divider">
-                    <div class="lessons-list"></div>
+                    <div class="lessons-list">
+                        <div class="lesson-item" data-type="link">
+                            <div class="lesson-icon-wrapper lesson-type-link">
+                                <i class="fa-solid fa-link"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Bài tập lớn Cấu trúc đại số lớp Thạc sĩ Nguyễn Quang Lộc</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Liên kết</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/drive/folders/14s_UNUSABD9-XAZkQ95RRrO4eqDWJfyt" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_rieng_1" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_rieng_1">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lesson-item" data-type="pdf">
+                            <div class="lesson-icon-wrapper lesson-type-pdf">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">BÀI TẬP CẤU TRÚC ĐẠI SỐ TỪ BÀI GIẢNG CỦA THẦY LƯU BÁ THẮNG</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Tài liệu PDF</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/file/d/15Agp4RUS4kcjfxxoDVPhOYyNwivKFVVQ/view?usp=sharing" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_rieng_2" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_rieng_2">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lesson-item" data-type="pdf">
+                            <div class="lesson-icon-wrapper lesson-type-pdf">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Toàn văn lí thuyết Cấu trúc đại số giảng viên Trương Thị Hồng Thanh</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Tài liệu PDF</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/file/d/1rb7er33K3C3lYcDlrTGtzPlqwLRBzAOj/view?usp=sharing" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_rieng_3" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_rieng_3">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lesson-item" data-type="pdf">
+                            <div class="lesson-icon-wrapper lesson-type-pdf">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Bài tập Đại số đại cương - TS Bùi Huy Hiền</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Tài liệu PDF</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/file/d/1y6P3XANs9ZhZ53brqzsHf0QzsoJyQbLq/view?usp=sharing" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_rieng_4" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_rieng_4">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lesson-item" data-type="pdf">
+                            <div class="lesson-icon-wrapper lesson-type-pdf">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Hướng dẫn giải bài tập Đại số đại cương (Nguyễn Tiến Quang chủ biên)</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Tài liệu PDF</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/file/d/1XzdlamOPp1v1JRvHQDsSR-IS7sUX_k4_/view?usp=sharing" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_rieng_5" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_rieng_5">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lesson-item" data-type="pdf">
+                            <div class="lesson-icon-wrapper lesson-type-pdf">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Introduction to Abstract Algebra - W. Keith Nicholson</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Tài liệu PDF</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/file/d/1wm9pN15rdNMFyG5S1NQbkvkcIDTMpAxd/view?usp=sharing" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_rieng_6" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_rieng_6">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="lesson-item" data-type="pdf">
+                            <div class="lesson-icon-wrapper lesson-type-pdf">
+                                <i class="fa-solid fa-file-pdf"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Introduction to Abstract Algebra - Solutions Manual to Accompany - W. Keith Nichols</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <span>Tài liệu PDF</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://drive.google.com/file/d/1G2DNWZYdL5SrawWPgrtiXJOwa-y2zJMD/view?usp=sharing" target="_blank" class="btn btn-primary btn-action" data-action-for="math211a_tai_lieu_rieng_7" data-default-text="Truy cập">Truy cập</a>
+                                <button type="button" class="btn btn-status btn-complete" data-key="math211a_tai_lieu_rieng_7">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
+            <!-- Section 3: Đề thi kết thúc học phần tham khảo -->
             <!-- Section 3: Đề thi kết thúc học phần tham khảo -->
             <section id="de-thi-tham-khao" class="chapter-card">
                 <div class="chapter-header">
@@ -1147,7 +1414,971 @@
                 </div>
                 <div class="chapter-content" id="chapter-content-de-thi-tham-khao">
                     <hr class="chapter-divider">
-                    <div class="lessons-list"></div>
+                    
+                    <!-- Subsection Đề thi kết thúc học phần -->
+                    <div class="subsection-wrapper" style="margin-bottom: 20px;">
+                        <h3 class="subsection-title" style="font-size: 1.05rem; font-weight: 700; color: var(--primary-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <span>Đề thi kết thúc học phần</span>
+                        </h3>
+
+                        <div class="lessons-list">
+                            <!-- 1. Đề thi kết thúc học phần lớp K75A (HK03 - K75) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K75A (HK03 - K75)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1BMp5tyZHbrzCkMHU3TYQ78rl-2ZqSP3K/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_01" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_01">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 2. Đề thi kết thúc học phần lớp K75E (HK03 - K75) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K75E (HK03 - K75)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1ITGJCb_WGZSZXd17cMW5YUz3419fDR-H/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_02" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_02">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 3. Đề thi kết thúc học phần lớp K74 và K74E (HK01 - K75) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K74 và K74E (HK01 - K75)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1r2VeXtL2DyiTlWCcB5YWs1J6oHN31ia/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_03" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_03">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 4. Đề thi kết thúc học phần lớp K74CLC và K74A -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K74CLC và K74A</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1RCyZOWPBp-IvaiJGDxUDEDzMaxVrJz-q/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_04" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_04">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 5. Đề thi kết thúc học phần lớp K74CLC -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K74CLC</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1GxvftPUZayCdHnPzgUJ8LI8nmE3dKfwu/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_05" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_05">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 6. Đề thi kết thúc học phần lớp K74K -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K74K</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1EiZRd_iX95DSwCLj3O3I66zciMZPIWIV/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_06" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_06">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 7. Đề thi kết thúc học phần lớp K74A và K74E (Ca 2) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K74A và K74E (Ca 2)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1sY4grQVdZ4lfs9JPMZ5vd8kKcIfVWpJq/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_07" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_07">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 8. Đề thi kết thúc học phần lớp K74A (Ca 1) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K74A (Ca 1)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1Umea7urJ_HcSBS5KZ7BgM5goEG1OIrwS/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_08" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_08">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 9. Đề thi kết thúc học phần lớp K73CLC -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K73CLC</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1MaD8TyvvUDEDm9fXWJ_UuJZeuby0ng25/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_09" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_09">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 10. Đề thi kết thúc học phần lớp K73K -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K73K</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/19ju5snmvn6LdknPDMy8K8SiXe2waQ3r9/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_10" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_10">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 11. Đề thi kết thúc học phần lớp K73A và K73E (HK03 - K74) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K73A và K73E (HK03 - K74)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1B1N-oMjGeS6tqMS2c85DzgW__3dV83KV/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_11" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_11">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 12. Đề thi kết thúc học phần lớp K73A (Ca 2) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K73A (Ca 2)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/18Z-xif-jdMeONRiDxBaBjtl6dUTGX9jd/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_12" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_12">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 13. Đề thi kết thúc học phần lớp K73A (Ca 1) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K73A (Ca 1)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1A6cAsVwHxqHzmqRgFG0DhA33kNaW9BCd/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_13" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_13">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 14. Đề thi kết thúc học phần lớp K72CLC -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K72CLC</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1LHefTxf3mjCFfcnR2dO5UP1KYvGoJPpt4/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_14" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_14">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 15. Đề thi kết thúc học phần lớp K72K -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K72K</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1QTuQJj5PUEQ0UxwjrP98ay1LcsSN6bgu/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_15" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_15">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 16. Đề thi kết thúc học phần lớp K72A (Ca 3) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K72A (Ca 3)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/158cVFzKprhSLEFu4ELVBvqDByS73p3yB/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_16" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_16">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 17. Đề thi kết thúc học phần lớp K72A (Ca 4) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K72A (Ca 4)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1GSpKBq_U0VJOEVed-TEA1FnN8M9rVUYw/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_17" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_17">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 18. Đề thi kết thúc học phần lớp K72A (Ca 2) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K72A (Ca 2)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1S-03dWksyl2GmzylbpYUR-dbCZHFQwyu/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_18" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_18">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 19. Đề thi kết thúc học phần lớp K71CLC -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K71CLC</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1k4ZAYetVZliysgsRLESNWP6U8aa5o62rE/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_19" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_19">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 20. Đề thi kết thúc học phần lớp K71K -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K71K</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1JPwHVJ0ZO5K1YmhcLrTtp8msJXvw6mPJ/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_20" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_20">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 21. Đề thi kết thúc học phần lớp K71A (Ca 2) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K71A (Ca 2)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1BPr2PKdiro04K7zrfLes8hm1YBo_PVrr/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_21" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_21">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 22. Đề thi kết thúc học phần lớp K71A (Ca 1) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K71A (Ca 1)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1j1yygsCCvQ0FRQiXBJPWCslovhvpxQhZ/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_22" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_22">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 23. Đề thi kết thúc học phần lớp K71K -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K71K</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1JpWHVJ0ZO5K1YmhcLrTtp8msJXvw6mPJ/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_23" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_23">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 24. Đề thi kết thúc học phần lớp K70CLC -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K70CLC</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1ww-c3YOHL14s5HR3CDpf-IHeg_uhijlg/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_24" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_24">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 25. Đề thi kết thúc học phần lớp K70K -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K70K</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1oymEDv2BDyO5gskqAo8LWBhes9DcmHNC/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_25" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_25">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 26. Đề thi kết thúc học phần lớp K70A (HK03 - K70) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K70A (HK03 - K70)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1tBJeLXXbZ5IC4E658WL1IDYN_TXcvHyB/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_26" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_26">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 27. Đề thi kết thúc học phần lớp K70A (Ca 1) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K70A (Ca 1)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1Rqg60VZzZgSwLChIP-IrCOl4Q3XCS8Cn/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_27" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_27">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 28. Đề thi kết thúc học phần lớp K70A (Ca 2) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K70A (Ca 2)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1jTxKfHK13OKrfHgY_CuyQ8FmjuVMyJW5/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_28" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_28">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 29. Đề thi kết thúc học phần lớp K69K -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K69K</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1LXADZA93ELacJJVceOiyf3evyYdrsgx6/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_29" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_29">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 30. Đề thi kết thúc học phần lớp K69A -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi kết thúc học phần lớp K69A</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1vCJitGi_BoWBYb2uYLLASK2vDQ6Ww2o-/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_kthp_30" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_kthp_30">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Subsection Đề thi điều kiện học phần -->
+                    <div class="subsection-wrapper" style="margin-bottom: 20px;">
+                        <h3 class="subsection-title" style="font-size: 1.05rem; font-weight: 700; color: var(--primary-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <span>Đề thi điều kiện học phần</span>
+                        </h3>
+
+                        <div class="lessons-list">
+                            <!-- 1. Đề thi điều kiện học phần lớp K75A - Đáp án (HK03 - K75) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K75A - Đáp án (HK03 - K75)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/16S9sqaC25Xkj4KI4K7-IWJveBQVDLBPT/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_01" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_01">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 2. Đề thi điều kiện học phần lớp K75A (HK03 - K75) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K75A (HK03 - K75)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/140aLvmXt_BiphajzrmL7GVPqTyb4YW1w/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_02" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_02">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 3. Đề thi điều kiện học phần lớp K74E (HK02 - K75) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K74E (HK02 - K75)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1AS_m9qajal5u-8pcvnNLjP1yXpaw7y8Dl/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_03" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_03">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 4. Đề thi điều kiện học phần lớp K69CLC -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K69CLC</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1BG-KQhE5HmE47gJquu3fCsQ_aH2DWVx7/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_04" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_04">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 5. Đề thi điều kiện học phần lớp K73A - Bài chữa (Lớp thầy Đăng) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K73A - Bài chữa (Lớp thầy Đăng)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1p3674wPED6J1fMJCPxhdQbj0lPfZmLoY/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_05" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_05">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 6. Đề thi điều kiện học phần lớp K74A (Lớp cô Hà) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K74A (Lớp cô Hà)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1gtwmDQ4FztX01-OZzCmxgleZrv4TPlUG/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_06" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_06">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 7. Đề thi điều kiện học phần lớp K74A (Lớp thầy Bá Thắng) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K74A (Lớp thầy Bá Thắng)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1Z9-6T3ToMZPTWKB0UViWcrf2023IJLip/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_07" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_07">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 8. Đề thi điều kiện học phần lớp K74K và K74A (Lớp thầy Lộc) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K74K và K74A (Lớp thầy Lộc)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/13XCFRCOnojyzFzM3ZundXtc9SR6K9bez/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_08" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_08">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 9. Đề thi điều kiện học phần lớp K72CLC (Lớp thầy Lộc) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K72CLC (Lớp thầy Lộc)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1MnQUs6m1UnVt3SQMndkpM9RMSOKNYOAQ/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_09" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_09">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 10. Đề thi điều kiện học phần lớp K72CLC (Lớp thầy Lộc) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K72CLC (Lớp thầy Lộc)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/12_Zov3tNwtXTb_6H8PUpZb0LUREmS5nV/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_10" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_10">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 11. Đề thi điều kiện học phần lớp K73A (Lớp cô Phan Thủy) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K73A (Lớp cô Phan Thủy)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/103-KEVe_cbmRFe1kretQVTwqpJYnscP/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_11" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_11">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 12. Đề thi điều kiện học phần lớp K73A (Lớp thầy Đăng) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K73A (Lớp thầy Đăng)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/14stIndaTstMT2AFJLGtKhyUOAhoKfOGO/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_12" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_12">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 13. Đề thi điều kiện học phần lớp K73A (Lớp thầy Tiễn) -->
+                            <div class="lesson-item" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K73A (Lớp thầy Tiễn)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu PDF</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1ImecJ_gAEQI-QGEIVSNUkV03Ov2zjqjB/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_13" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_13">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 14. Đề thi điều kiện học phần lớp K69K (Đề 1) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K69K (Đề 1)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1acdFKz8vDUYoblhGnUduMPi7aP2hPMeZ/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_14" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_14">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 15. Đề thi điều kiện học phần lớp K69K (Đề 2) -->
+                            <div class="lesson-item" data-type="image">
+                                <div class="lesson-icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                                    <i class="fa-solid fa-file-image"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Đề thi điều kiện học phần lớp K69K (Đề 2)</h3>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <span>Tài liệu hình ảnh</span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1zqACcduY-MzdElXntkv9r2sbONCuL0fz/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-action" data-action-for="math211a_dtdk_15" data-default-text="Truy cập">Truy cập</a>
+                                    <button type="button" class="btn btn-status btn-complete" data-key="math211a_dtdk_15">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
@@ -1482,18 +2713,10 @@
                             matchesFilter = !isCompleted;
                         } else if (filterValue === "pdf") {
                             matchesFilter = type === "pdf";
-                        } else if (filterValue === "test") {
-                            matchesFilter = type === "test";
-                        } else if (filterValue === "assignment") {
-                            matchesFilter = type === "assignment";
-                        } else if (filterValue === "video") {
-                            matchesFilter = type === "video";
-                        } else if (filterValue === "survey") {
-                            matchesFilter = type === "survey";
+                        } else if (filterValue === "pptx") {
+                            matchesFilter = type === "pptx";
                         } else if (filterValue === "link") {
                             matchesFilter = type === "link";
-                        } else if (filterValue === "forum") {
-                            matchesFilter = type === "forum";
                         }
 
                         // Hiển thị bài học thỏa mãn đồng thời Search AND Filter
