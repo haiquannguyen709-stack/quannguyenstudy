@@ -26,8 +26,9 @@
 
         html, body {
             width: 100%;
-            height: 100%;
-            overflow: hidden;
+            min-height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
             font-family: 'Be Vietnam Pro', "Segoe UI", Arial, sans-serif;
             background: #D1EAFF;
             background-image: 
@@ -35,8 +36,26 @@
                 radial-gradient(circle at 85% 80%, rgba(191, 227, 255, 0.8) 0%, transparent 50%),
                 radial-gradient(circle at 50% 50%, rgba(234, 246, 255, 0.6) 0%, #D1EAFF 100%);
             color: #1E293B;
-            display: flex;
+            display: block;
             position: relative;
+        }
+
+        /* Quản lý hiển thị và cuộn riêng biệt cho từng Section */
+        #section-1.section-card,
+        #section-2.section-card {
+            height: 100vh !important;
+            max-height: 100vh !important;
+            overflow: hidden !important;
+            position: relative !important;
+        }
+
+        #section-3.section-card,
+        #section-4.section-card {
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            position: relative !important;
+            margin: 40px auto !important;
         }
 
         /* ==========================================================================
@@ -44,10 +63,11 @@
            ========================================================================== */
         .section-wrapper {
             width: 100%;
-            height: 100vh;
-            display: flex;
+            min-height: 100vh;
+            height: auto;
+            display: block;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             margin: 0;
             padding: 0;
         }
@@ -96,6 +116,15 @@
             overflow: hidden;
         }
 
+        #section-3.section-card,
+        #section-4.section-card {
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            position: relative !important;
+            margin: 40px auto !important;
+        }
+
         #section-1.section-card.active,
         #section-2.section-card.active {
             display: flex;
@@ -139,11 +168,18 @@
         @media (min-width: 1025px) {
             .section-wrapper {
                 width: 100%;
-                height: 100vh;
-                overflow: hidden !important;
-                display: flex !important;
+                min-height: 100vh;
+                height: auto;
+                overflow: visible !important;
+                display: block !important;
                 position: relative;
                 padding: 0 !important;
+            }
+            #section-1.section-card,
+            #section-2.section-card {
+                height: 100vh !important;
+                max-height: 100vh !important;
+                overflow: hidden !important;
             }
         }
 
@@ -151,25 +187,11 @@
             max-width: 750px;
             max-height: none !important;
             height: auto !important;
-            overflow-y: visible !important;
+            overflow: visible !important;
             margin: 40px auto !important;
         }
 
-        /* Custom Scrollbar for Section 3 */
-        .card-lg::-webkit-scrollbar {
-            width: 8px;
-        }
-        .card-lg::-webkit-scrollbar-track {
-            background: #F1F5F9;
-            border-radius: 10px;
-        }
-        .card-lg::-webkit-scrollbar-thumb {
-            background: #94A3B8;
-            border-radius: 10px;
-        }
-        .card-lg::-webkit-scrollbar-thumb:hover {
-            background: #64748B;
-        }
+        
 
         /* Full-Screen Academic Platform Layout (Section 1 & 2) */
         .platform-fullscreen-layout {
@@ -311,8 +333,8 @@
             }
             #login-alert {
                 margin-bottom: 12px;
-                max-height: 90px;
-                overflow-y: auto;
+                max-height: none;
+                overflow-y: visible;
             }
             #section-2 .form-group {
                 margin-bottom: 12px;
@@ -1463,6 +1485,8 @@
             margin-bottom: 20px;
             display: none;
             line-height: 1.5;
+            overflow-y: visible !important;
+            max-height: none !important;
             font-family: 'Be Vietnam Pro', "Segoe UI", Arial, sans-serif;
             animation: alertSlideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
@@ -1809,6 +1833,51 @@
             transform: translateX(4px);
             font-weight: 500;
         }
+        #section-2 .form-group, #section-4 .form-group {
+            position: relative;
+        }
+        /* ==========================================================================
+           PASSWORD TOGGLE EYE ICON STYLES
+           ========================================================================== */
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .password-container .form-input {
+            padding-right: 48px !important;
+        }
+
+        .toggle-password-btn {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748B;
+            transition: color 0.2s ease, transform 0.2s ease;
+            z-index: 10;
+            outline: none;
+        }
+
+        .toggle-password-btn:hover {
+            color: #2563EB;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .toggle-password-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+            transition: opacity 0.2s ease;
+        }
     </style>
 </head>
 <body>
@@ -1909,14 +1978,19 @@
 
                             <div class="form-group" style="margin-bottom: 24px;">
                                 <label for="login-password" class="form-label">Mật khẩu</label>
-                                <input 
-                                    type="password" 
-                                    id="login-password" 
-                                    class="form-input" 
-                                    placeholder="Nhập mật khẩu" 
-                                    required
-                                    autocomplete="current-password"
-                                >
+                                <div class="password-container">
+                                    <input 
+                                        type="password" 
+                                        id="login-password" 
+                                        class="form-input" 
+                                        placeholder="Nhập mật khẩu" 
+                                        required
+                                        autocomplete="current-password"
+                                    >
+                                    <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('login-password', this)" title="Hiện/Ẩn mật khẩu">
+                                        <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="btn-stack" style="gap: 16px; margin-top: 10px;">
@@ -2020,26 +2094,36 @@
                     <label for="forgot-new-password" class="form-label">
                         Mật khẩu mới muốn thay đổi <span class="required-asterisk">*</span>
                     </label>
-                    <input 
-                        type="password" 
-                        id="forgot-new-password" 
-                        class="form-input" 
-                        placeholder="Nhập mật khẩu mới" 
-                        required
-                    >
+                    <div class="password-container">
+                        <input 
+                            type="password" 
+                            id="forgot-new-password" 
+                            class="form-input" 
+                            placeholder="Nhập mật khẩu mới" 
+                            required
+                        >
+                        <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('forgot-new-password', this)" title="Hiện/Ẩn mật khẩu">
+                            <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="forgot-confirm-password" class="form-label">
                         Xác thực lại mật khẩu <span class="required-asterisk">*</span>
                     </label>
-                    <input 
-                        type="password" 
-                        id="forgot-confirm-password" 
-                        class="form-input" 
-                        placeholder="Nhập lại mật khẩu mới" 
-                        required
-                    >
+                    <div class="password-container">
+                        <input 
+                            type="password" 
+                            id="forgot-confirm-password" 
+                            class="form-input" 
+                            placeholder="Nhập lại mật khẩu mới" 
+                            required
+                        >
+                        <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('forgot-confirm-password', this)" title="Hiện/Ẩn mật khẩu">
+                            <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="btn-stack" style="margin-top: 25px;">
@@ -2058,7 +2142,7 @@
         <!-- =================================================================== -->
         <!-- SECTION 3: TRANG ĐĂNG KÝ TÀI KHOẢN -->
         <!-- =================================================================== -->
-        <section id="section-3" class="section-card card-lg" style="position: relative; overflow: hidden;">
+        <section id="section-3" class="section-card card-lg">
             <!-- Các ngôi sao 4 cánh xanh nước biển bay xung quanh nền (ngoài card đăng ký) -->
             <div class="sparkle-particle sparkle-1"></div>
             <div class="sparkle-particle sparkle-2"></div>
@@ -2210,13 +2294,18 @@
                     <label for="reg-password" class="form-label">
                         Mật khẩu <span class="required-asterisk">*</span>
                     </label>
-                    <input 
-                        type="password" 
-                        id="reg-password" 
-                        name="password" 
-                        class="form-input" 
-                        placeholder="Tối thiểu 8 ký tự"
-                    >
+                    <div class="password-container">
+                        <input 
+                            type="password" 
+                            id="reg-password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="Tối thiểu 8 ký tự"
+                        >
+                        <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('reg-password', this)" title="Hiện/Ẩn mật khẩu">
+                            <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -3403,6 +3492,37 @@ Yêu cầu được gửi từ hệ thống Quân Nguyễn Study.`;
         document.addEventListener('DOMContentLoaded', () => {
             initCustomSelects();
         });
+        /**
+         * Chuyển đổi trạng thái ẩn/hiện mật khẩu kèm hiệu ứng icon con mắt mượt mà
+         * @param {string} inputId - ID của ô input password
+         * @param {HTMLElement} btnElement - Nút bấm chứa icon
+         */
+        function togglePasswordVisibility(inputId, btnElement) {
+            const inputField = document.getElementById(inputId);
+            if (!inputField) return;
+
+            if (inputField.type === 'password') {
+                inputField.type = 'text';
+                // Đổi icon sang dạng con mắt bị gạch chéo (Mật khẩu đang hiện)
+                btnElement.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                `;
+                btnElement.style.color = '#2563EB';
+            } else {
+                inputField.type = 'password';
+                // Đổi icon về dạng con mắt bình thường (Mật khẩu đang ẩn)
+                btnElement.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                `;
+                btnElement.style.color = '#64748B';
+            }
+        }
     </script>
 </body>
 </html>
