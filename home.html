@@ -119,11 +119,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background-color var(--transition-speed) ease;
+            transition: background-color var(--transition-speed) ease, transform 0.15s ease;
         }
 
         .status-bar-icon-btn:hover {
             background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .status-bar-icon-btn:active {
+            transform: scale(0.94);
         }
 
         /* ==========================================
@@ -150,6 +154,36 @@
             overflow-x: hidden;
             white-space: nowrap;
             height: 100%;
+        }
+
+        /* Custom Scrollbar cho Sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: #1565C0;
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background-color: #0d47a1;
+        }
+
+        .sidebar::-webkit-scrollbar-button {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Firefox */
+        .sidebar {
+            scrollbar-width: thin;
+            scrollbar-color: #1565C0 transparent;
         }
 
         /* --- NẤC 1: LOGO --- */
@@ -201,6 +235,17 @@
             justify-content: center;
             margin-bottom: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .user-avatar img,
+        .profile-hero-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
         }
 
         .user-name {
@@ -317,8 +362,12 @@
         .page-title {
             font-size: 1.6rem;
             font-weight: 700;
-            color: var(--text-main);
+            color: #1565C0;
             margin-bottom: 6px;
+        }
+
+        html.dark-mode .page-title {
+            color: #64b5f6;
         }
 
         .page-breadcrumb {
@@ -1619,6 +1668,57 @@
             color: #475569;
         }
 
+        .profile-action-btn {
+            background-color: #1565C0;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.2);
+        }
+
+        .profile-action-btn:hover {
+            background-color: #0d47a1;
+            transform: translateY(-1px);
+        }
+
+        .profile-action-btn:active {
+            transform: translateY(0);
+        }
+
+        .profile-btn-password {
+            background-color: #ffffff;
+            color: #1565C0;
+            border: 1px solid #1565C0;
+            box-shadow: none;
+        }
+
+        .profile-btn-password:hover {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            #edit-profile-modal-overlay .tuition-modal-body {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
         /* Lưới các thẻ chi tiết */
         .profile-grid {
             display: grid;
@@ -2006,7 +2106,7 @@
         </div>
         <div class="status-bar-actions">
             <!-- 1. Theme Sáng/Tối -->
-            <button class="status-bar-icon-btn" id="btn-theme-toggle" aria-label="Chuyển đổi giao diện Sáng/Tối" title="Chuyển giao diện Sáng/Tối">
+            <button class="status-bar-icon-btn" id="btn-theme-toggle" aria-label="Chuyển đổi giao diện Sáng/Tối" title="Chuyển giao diện Sáng/Tối" data-i18n-title="themeToggleTitle" data-i18n-aria-label="themeToggleTitle">
                 <!-- Icon Mặt trời (Light Mode) -->
                 <svg class="theme-icon-sun" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"></circle>
@@ -2026,7 +2126,7 @@
             </button>
 
             <!-- 2. Liên hệ (Zalo: 0355748108) -->
-            <button class="status-bar-icon-btn" id="btn-contact" aria-label="Liên hệ" title="Liên hệ">
+            <button class="status-bar-icon-btn" id="btn-contact" aria-label="Liên hệ" title="Liên hệ" data-i18n-title="contactTitle" data-i18n-aria-label="contactTitle">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                 </svg>
@@ -2034,7 +2134,7 @@
 
             <!-- 3. Biểu tượng Cờ (Tỉ lệ 2:3) & Ngôn ngữ -->
             <div class="lang-dropdown-container" style="position: relative; display: inline-flex; align-items: center;">
-                <button class="status-bar-icon-btn" id="btn-lang-toggle" aria-label="Chọn ngôn ngữ" title="Chọn ngôn ngữ" style="padding: 6px; display: flex; align-items: center; justify-content: center;">
+                <button class="status-bar-icon-btn" id="btn-lang-toggle" aria-label="Chọn ngôn ngữ" title="Chọn ngôn ngữ" data-i18n-title="selectLangTitle" data-i18n-aria-label="selectLangTitle" style="padding: 6px; display: flex; align-items: center; justify-content: center;">
                     <!-- SVG Cờ Việt Nam (Tỉ lệ 2:3) -->
                     <svg id="current-flag-icon" width="24" height="16" viewBox="0 0 300 200" style="border-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.2); object-fit: cover;">
                         <rect width="300" height="200" fill="#da251d"/>
@@ -2054,7 +2154,7 @@
             </div>
 
             <!-- 4. Thông báo -->
-            <button class="status-bar-icon-btn" id="btn-notification-bell" aria-label="Thông báo" title="Thông báo">
+            <button class="status-bar-icon-btn" id="btn-notification-bell" aria-label="Thông báo" title="Thông báo" data-i18n-title="notificationTitle" data-i18n-aria-label="notificationTitle">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -2081,7 +2181,7 @@
 
             <!-- NẤC 2: THÔNG TIN THÍ SINH -->
             <div class="sidebar-section-user">
-                <div class="user-avatar">
+                <div class="user-avatar" id="sidebarUserAvatarContainer">
                     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                         <circle cx="12" cy="7" r="4"></circle>
@@ -2093,7 +2193,7 @@
 
             <!-- NẤC 3: TRANG CÁ NHÂN -->
             <div class="menu-group">
-                <div class="menu-group-title">Trang cá nhân</div>
+                <div class="menu-group-title" data-i18n="personalGroup">Trang cá nhân</div>
                 <ul class="menu-list">
                     <li>
                         <a class="menu-item" data-page="profile-page">
@@ -2103,7 +2203,7 @@
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
                             </span>
-                            <span>Thông tin cá nhân</span>
+                            <span data-i18n="profile">Thông tin cá nhân</span>
                         </a>
                     </li>
                     <li>
@@ -2114,7 +2214,7 @@
                                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                                 </svg>
                             </span>
-                            <span>Thông báo</span>
+                            <span data-i18n="notifications">Thông báo</span>
                         </a>
                     </li>
                 </ul>
@@ -2122,7 +2222,7 @@
 
             <!-- NẤC 4: CHỨC NĂNG TRỰC TUYẾN -->
             <div class="menu-group">
-                <div class="menu-group-title">Chức năng trực tuyến</div>
+                <div class="menu-group-title" data-i18n="onlineFeaturesGroup">Chức năng trực tuyến</div>
                 <ul class="menu-list">
                     <li>
                         <a class="menu-item" data-page="study-result-page">
@@ -2133,7 +2233,7 @@
                                     <line x1="6" y1="20" x2="6" y2="14"></line>
                                 </svg>
                             </span>
-                            <span>Kết quả học tập</span>
+                            <span data-i18n="studyResults">Kết quả học tập</span>
                         </a>
                     </li>
                     <li>
@@ -2145,7 +2245,7 @@
                                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
                                 </svg>
                             </span>
-                            <span>Khóa học</span>
+                            <span data-i18n="courses">Khóa học</span>
                         </a>
                     </li>
                     
@@ -2159,7 +2259,7 @@
                                     <line x1="3" y1="10" x2="21" y2="10"></line>
                                 </svg>
                             </span>
-                            <span>Lịch học</span>
+                            <span data-i18n="schedule">Lịch học</span>
                         </a>
                     </li>
                     <li>
@@ -2170,7 +2270,7 @@
                                     <line x1="1" y1="10" x2="23" y2="10"></line>
                                 </svg>
                             </span>
-                            <span>Học phí</span>
+                            <span data-i18n="tuition">Học phí</span>
                         </a>
                     </li>
                 </ul>
@@ -2187,7 +2287,7 @@
                                     <line x1="21" y1="12" x2="9" y2="12"></line>
                                 </svg>
                             </span>
-                            <span>Đăng xuất</span>
+                            <span data-i18n="logout">Đăng xuất</span>
                         </a>
                     </li>
                 </ul>
@@ -2201,8 +2301,8 @@
             <!-- 1. TRANG KHÓA HỌC (MẶC ĐỊNH) -->
             <section class="page-section active" id="course-page">
                 <div class="page-header">
-                    <h1 class="page-title">KHÓA HỌC</h1>
-                    <div class="page-breadcrumb">Trang chủ / Chức năng trực tuyến / Khóa học</div>
+                    <h1 class="page-title" data-i18n="coursesTitle">KHÓA HỌC</h1>
+                    <div class="page-breadcrumb" data-i18n="coursesBreadcrumb">Trang chủ / Chức năng trực tuyến / Khóa học</div>
                 </div>
                 
                 <!-- Thanh tìm kiếm khóa học -->
@@ -2212,7 +2312,7 @@
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                        <input type="text" id="course-search-input" class="course-search-input" placeholder="Tìm kiếm khóa học theo tên hoặc giảng viên...">
+                        <input type="text" id="course-search-input" class="course-search-input" placeholder="Tìm kiếm khóa học theo tên hoặc giảng viên..." data-i18n-placeholder="courseSearchPlaceholder">
                     </div>
                 </div>
 
@@ -2224,25 +2324,133 @@
             <!-- 2. TRANG THÔNG TIN CÁ NHÂN -->
             <section class="page-section" id="profile-page">
                 <div class="page-header">
-                    <h1 class="page-title">THÔNG TIN CÁ NHÂN</h1>
-                    <div class="page-breadcrumb">Trang chủ / Trang cá nhân / Thông tin cá nhân</div>
+                    <h1 class="page-title" data-i18n="profileTitle">THÔNG TIN CÁ NHÂN</h1>
+                    <div class="page-breadcrumb" data-i18n="profileBreadcrumb">Trang chủ / Trang cá nhân / Thông tin cá nhân</div>
                 </div>
 
                 <div class="profile-container">
                     <!-- Thẻ tổng quan người dùng -->
                     <div class="profile-hero-card">
-                        <div class="profile-hero-avatar">
+                        <div class="profile-hero-avatar" id="profileHeroAvatarContainer">
                             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                         </div>
-                        <div class="profile-hero-info">
-                            <h2 class="profile-hero-name" id="hero-hoTen">--</h2>
-                            <div class="profile-hero-tags">
-                                <span class="profile-hero-badge" id="hero-id">--</span>
-                                <span class="profile-hero-badge badge-role">Thí sinh / Học sinh</span>
+                        <div class="profile-hero-info" style="flex: 1; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                            <div>
+                                <h2 class="profile-hero-name" id="hero-hoTen">--</h2>
+                                <div class="profile-hero-tags">
+                                    <span class="profile-hero-badge" id="hero-id">--</span>
+                                    <span class="profile-hero-badge badge-role" data-i18n="studentRole">Thí sinh / Học sinh</span>
+                                </div>
                             </div>
+                            <div class="profile-hero-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button type="button" class="profile-action-btn profile-btn-edit" id="btn-open-edit-profile">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    <span data-i18n="editProfile">Chỉnh sửa thông tin</span>
+                                </button>
+                                <button type="button" class="profile-action-btn profile-btn-password" id="btn-open-change-password">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    <span data-i18n="changePassword">Đổi mật khẩu</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODAL CHỈNH SỬA THÔNG TIN CÁ NHÂN -->
+                    <div id="edit-profile-modal-overlay" class="tuition-modal-overlay" role="dialog" aria-labelledby="edit-profile-modal-title" aria-modal="true">
+                        <div class="tuition-modal" style="max-width: 560px;">
+                            <div class="tuition-modal-header">
+                                <h3 class="tuition-modal-title" id="edit-profile-modal-title" data-i18n="editProfileModalTitle">Chỉnh sửa thông tin cá nhân</h3>
+                                <button type="button" class="tuition-modal-close" id="btn-close-edit-profile" aria-label="Đóng">&times;</button>
+                            </div>
+                            <form id="edit-profile-form">
+                                <div class="tuition-modal-body" style="max-height: 70vh; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                                    <div class="form-group" style="grid-column: 1 / -1;">
+                                        <label class="form-label" data-i18n="fullName">Họ và tên *</label>
+                                        <input type="text" id="edit-hoTen" class="course-search-input" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="dob">Ngày sinh</label>
+                                        <input type="text" id="edit-ngaySinh" class="course-search-input" placeholder="DD/MM/YYYY">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="pob">Nơi sinh</label>
+                                        <input type="text" id="edit-noiSinh" class="course-search-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="gender">Giới tính</label>
+                                        <input type="text" id="edit-gioiTinh" class="course-search-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="email">Email *</label>
+                                        <input type="email" id="edit-email" class="course-search-input" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="phone">Số điện thoại</label>
+                                        <input type="text" id="edit-soDienThoai" class="course-search-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="educationDept">Sở GD&ĐT</label>
+                                        <input type="text" id="edit-soGD" class="course-search-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="school">Trường</label>
+                                        <input type="text" id="edit-truong" class="course-search-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="grade">Khối</label>
+                                        <input type="text" id="edit-khoi" class="course-search-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="className">Lớp</label>
+                                        <input type="text" id="edit-lop" class="course-search-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="major">Ngành đào tạo</label>
+                                        <input type="text" id="edit-nganhDaoTao" class="course-search-input">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" data-i18n="faculty">Khoa</label>
+                                        <input type="text" id="edit-khoa" class="course-search-input">
+                                    </div>
+                                </div>
+                                <div class="tuition-modal-footer">
+                                    <button type="button" class="tuition-btn-cancel" id="btn-cancel-edit-profile" data-i18n="cancel">Hủy</button>
+                                    <button type="submit" class="tuition-btn-confirm" id="btn-submit-edit-profile" data-i18n="saveChanges">Lưu thay đổi</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- MODAL ĐỔI MẬT KHẨU -->
+                    <div id="change-password-modal-overlay" class="tuition-modal-overlay" role="dialog" aria-labelledby="change-password-modal-title" aria-modal="true">
+                        <div class="tuition-modal">
+                            <div class="tuition-modal-header">
+                                <h3 class="tuition-modal-title" id="change-password-modal-title" data-i18n="changePasswordModalTitle">Đổi mật khẩu</h3>
+                                <button type="button" class="tuition-modal-close" id="btn-close-change-password" aria-label="Đóng">&times;</button>
+                            </div>
+                            <form id="change-password-form">
+                                <div class="tuition-modal-body">
+                                    <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                                        <label class="form-label" data-i18n="currentPassword">Mật khẩu hiện tại *</label>
+                                        <input type="password" id="pwd-current" class="course-search-input" required autocomplete="current-password">
+                                    </div>
+                                    <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                                        <label class="form-label" data-i18n="newPassword">Mật khẩu mới *</label>
+                                        <input type="password" id="pwd-new" class="course-search-input" required autocomplete="new-password">
+                                    </div>
+                                    <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                                        <label class="form-label" data-i18n="confirmNewPassword">Nhập lại mật khẩu mới *</label>
+                                        <input type="password" id="pwd-confirm" class="course-search-input" required autocomplete="new-password">
+                                    </div>
+                                </div>
+                                <div class="tuition-modal-footer">
+                                    <button type="button" class="tuition-btn-cancel" id="btn-cancel-change-password" data-i18n="cancel">Hủy</button>
+                                    <button type="submit" class="tuition-btn-confirm" id="btn-submit-change-password" data-i18n="changePasswordBtn">Đổi mật khẩu</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
 
@@ -2251,7 +2459,7 @@
                         <div class="profile-item-card" data-key="id">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Mã định danh (ID)</span>
+                                <span class="profile-label" data-i18n="studentId">Mã định danh (ID)</span>
                                 <strong class="profile-value" id="profile-id">-</strong>
                             </div>
                         </div>
@@ -2259,7 +2467,7 @@
                         <div class="profile-item-card" data-key="hoTen">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Họ và tên</span>
+                                <span class="profile-label" data-i18n="fullName">Họ và tên</span>
                                 <strong class="profile-value" id="profile-hoTen">-</strong>
                             </div>
                         </div>
@@ -2267,7 +2475,7 @@
                         <div class="profile-item-card" data-key="ngaySinh">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Ngày sinh</span>
+                                <span class="profile-label" data-i18n="dob">Ngày sinh</span>
                                 <strong class="profile-value" id="profile-ngaySinh">-</strong>
                             </div>
                         </div>
@@ -2275,7 +2483,7 @@
                         <div class="profile-item-card" data-key="noiSinh">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Nơi sinh</span>
+                                <span class="profile-label" data-i18n="pob">Nơi sinh</span>
                                 <strong class="profile-value" id="profile-noiSinh">-</strong>
                             </div>
                         </div>
@@ -2283,7 +2491,7 @@
                         <div class="profile-item-card" data-key="gioiTinh">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Giới tính</span>
+                                <span class="profile-label" data-i18n="gender">Giới tính</span>
                                 <strong class="profile-value" id="profile-gioiTinh">-</strong>
                             </div>
                         </div>
@@ -2291,7 +2499,7 @@
                         <div class="profile-item-card" data-key="username">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Tài khoản</span>
+                                <span class="profile-label" data-i18n="username">Tài khoản</span>
                                 <strong class="profile-value" id="profile-username">-</strong>
                             </div>
                         </div>
@@ -2299,7 +2507,7 @@
                         <div class="profile-item-card" data-key="email">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Email</span>
+                                <span class="profile-label" data-i18n="email">Email</span>
                                 <strong class="profile-value" id="profile-email">-</strong>
                             </div>
                         </div>
@@ -2307,7 +2515,7 @@
                         <div class="profile-item-card" data-key="soDienThoai">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Số điện thoại</span>
+                                <span class="profile-label" data-i18n="phone">Số điện thoại</span>
                                 <strong class="profile-value" id="profile-soDienThoai">-</strong>
                             </div>
                         </div>
@@ -2315,7 +2523,7 @@
                         <div class="profile-item-card" data-key="soGD">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Sở GD&ĐT</span>
+                                <span class="profile-label" data-i18n="educationDept">Sở GD&ĐT</span>
                                 <strong class="profile-value" id="profile-soGD">-</strong>
                             </div>
                         </div>
@@ -2323,7 +2531,7 @@
                         <div class="profile-item-card" data-key="truong">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Trường</span>
+                                <span class="profile-label" data-i18n="school">Trường</span>
                                 <strong class="profile-value" id="profile-truong">-</strong>
                             </div>
                         </div>
@@ -2331,7 +2539,7 @@
                         <div class="profile-item-card" data-key="khoi">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Khối</span>
+                                <span class="profile-label" data-i18n="grade">Khối</span>
                                 <strong class="profile-value" id="profile-khoi">-</strong>
                             </div>
                         </div>
@@ -2339,7 +2547,7 @@
                         <div class="profile-item-card" data-key="lop">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Lớp</span>
+                                <span class="profile-label" data-i18n="className">Lớp</span>
                                 <strong class="profile-value" id="profile-lop">-</strong>
                             </div>
                         </div>
@@ -2347,7 +2555,7 @@
                         <div class="profile-item-card" data-key="nganhDaoTao">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Ngành đào tạo</span>
+                                <span class="profile-label" data-i18n="major">Ngành đào tạo</span>
                                 <strong class="profile-value" id="profile-nganhDaoTao">-</strong>
                             </div>
                         </div>
@@ -2355,7 +2563,7 @@
                         <div class="profile-item-card" data-key="khoa">
                             
                             <div class="profile-details">
-                                <span class="profile-label">Khoa</span>
+                                <span class="profile-label" data-i18n="faculty">Khoa</span>
                                 <strong class="profile-value" id="profile-khoa">-</strong>
                             </div>
                         </div>
@@ -2365,8 +2573,8 @@
             <!-- SECTION KẾT QUẢ HỌC TẬP -->
             <section class="page-section" id="study-result-page">
                 <div class="page-header">
-                    <h1 class="page-title">KẾT QUẢ HỌC TẬP</h1>
-                    <div class="page-breadcrumb">Trang chủ / Chức năng trực tuyến / Kết quả học tập</div>
+                    <h1 class="page-title" data-i18n="studyResultsTitle">KẾT QUẢ HỌC TẬP</h1>
+                    <div class="page-breadcrumb" data-i18n="studyResultsBreadcrumb">Trang chủ / Chức năng trực tuyến / Kết quả học tập</div>
                 </div>
 
                 <div class="study-result-card">
@@ -2376,13 +2584,11 @@
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                             </svg>
-                            Lọc theo khóa học:
+                            <span data-i18n="filterByCourse">Lọc theo khóa học:</span>
                         </label>
                         <div class="filter-select-wrapper">
                             <select id="study-course-filter" class="study-filter-select">
-                                <option value="all">Tất cả khóa học</option>
-                                <option value="Nhập môn Giải tích I">Nhập môn Giải tích I</option>
-                                <option value="Nhập môn Đại số tuyến tính">Nhập môn Đại số tuyến tính</option>
+                                <option value="all" data-i18n="allCourses">Tất cả khóa học</option>
                             </select>
                         </div>
                     </div>
@@ -2411,8 +2617,8 @@
             <!-- 3. TRANG THÔNG BÁO -->
             <section class="page-section" id="notification-page">
                 <div class="page-header">
-                    <h1 class="page-title">THÔNG BÁO</h1>
-                    <div class="page-breadcrumb">Trang chủ / Trang cá nhân / Thông báo</div>
+                    <h1 class="page-title" data-i18n="notificationsTitle">THÔNG BÁO</h1>
+                    <div class="page-breadcrumb" data-i18n="notificationsBreadcrumb">Trang chủ / Trang cá nhân / Thông báo</div>
                 </div>
                 <div class="notification-container">
                     <!-- Danh sách thông báo dạng bảng -->
@@ -2420,8 +2626,8 @@
                         <table class="notification-table">
                             <thead>
                                 <tr>
-                                    <th class="notification-th-title">Tiêu đề</th>
-                                    <th class="notification-th-date">Ngày đăng</th>
+                                    <th class="notification-th-title" data-i18n="notifTitle">Tiêu đề</th>
+                                    <th class="notification-th-date" data-i18n="notifDate">Ngày đăng</th>
                                 </tr>
                             </thead>
                             <tbody id="notification-table-body">
@@ -2437,7 +2643,7 @@
                                 <line x1="19" y1="12" x2="5" y2="12"></line>
                                 <polyline points="12 19 5 12 12 5"></polyline>
                             </svg>
-                            <span>Quay lại danh sách thông báo</span>
+                            <span data-i18n="backToNotifList">Quay lại danh sách thông báo</span>
                         </button>
                         
                         <h2 id="notification-detail-title" class="notification-detail-main-title"></h2>
@@ -2451,15 +2657,15 @@
             <!-- 4. TRANG LỊCH HỌC -->
             <section class="page-section" id="schedule-page">
                 <div class="page-header">
-                    <h1 class="page-title">LỊCH HỌC</h1>
-                    <div class="page-breadcrumb">Trang chủ / Chức năng trực tuyến / Lịch học</div>
+                    <h1 class="page-title" data-i18n="scheduleTitle">LỊCH HỌC</h1>
+                    <div class="page-breadcrumb" data-i18n="scheduleBreadcrumb">Trang chủ / Chức năng trực tuyến / Lịch học</div>
                 </div>
                 
                 <div class="schedule-card">
                     <div class="schedule-card-header">
                         <div>
-                            <div class="schedule-card-title">Thời khóa biểu học tập</div>
-                            <div class="schedule-card-desc">Danh sách các buổi học chi tiết theo lịch giảng dạy</div>
+                            <div class="schedule-card-title" data-i18n="timetable">Thời khóa biểu học tập</div>
+                            <div class="schedule-card-desc" data-i18n="timetableDesc">Danh sách các buổi học chi tiết theo lịch giảng dạy</div>
                         </div>
                     </div>
 
@@ -2467,14 +2673,14 @@
                         <table class="schedule-table">
                             <thead>
                                 <tr>
-                                    <th class="col-stt text-center">STT</th>
-                                    <th class="col-ngay text-center">Ngày học</th>
-                                    <th class="col-gio text-center">Thời gian bắt đầu học</th>
-                                    <th class="col-thuoluong text-center">Thời lượng học</th>
-                                    <th class="col-khoahoc text-left">Khóa học</th>
-                                    <th class="col-noidung text-left">Nội dung buổi học</th>
-                                    <th class="col-chuyencan text-center">Chuyên cần</th>
-                                    <th class="col-thaotac text-center">Thao tác</th>
+                                    <th class="col-stt text-center" data-i18n="stt">STT</th>
+                                    <th class="col-ngay text-center" data-i18n="date">Ngày học</th>
+                                    <th class="col-gio text-center" data-i18n="startTime">Thời gian bắt đầu học</th>
+                                    <th class="col-thuoluong text-center" data-i18n="duration">Thời lượng học</th>
+                                    <th class="col-khoahoc text-left" data-i18n="course">Khóa học</th>
+                                    <th class="col-noidung text-left" data-i18n="lessonContent">Nội dung buổi học</th>
+                                    <th class="col-chuyencan text-center" data-i18n="attendance">Chuyên cần</th>
+                                    <th class="col-thaotac text-center" data-i18n="actions">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="schedule-table-body">
@@ -2490,15 +2696,15 @@
             <!-- 5. TRANG HỌC PHÍ -->
             <section class="page-section" id="tuition-page">
                 <div class="page-header">
-                    <h1 class="page-title">HỌC PHÍ</h1>
-                    <div class="page-breadcrumb">Trang chủ / Chức năng trực tuyến / Học phí</div>
+                    <h1 class="page-title" data-i18n="tuitionTitle">HỌC PHÍ</h1>
+                    <div class="page-breadcrumb" data-i18n="tuitionBreadcrumb">Trang chủ / Chức năng trực tuyến / Học phí</div>
                 </div>
                 
                 <div class="tuition-card">
                     <div class="tuition-card-header">
                         <div>
-                            <div class="tuition-card-title">Danh sách học phí</div>
-                            <div class="tuition-card-desc">Các khoản học phí đang chờ thanh toán</div>
+                            <div class="tuition-card-title" data-i18n="tuitionList">Danh sách học phí</div>
+                            <div class="tuition-card-desc" data-i18n="tuitionListDesc">Các khoản học phí đang chờ thanh toán</div>
                         </div>
                     </div>
 
@@ -2506,13 +2712,13 @@
                         <table class="tuition-table">
                             <thead>
                                 <tr>
-                                    <th class="text-center" style="width: 60px;">STT</th>
-                                    <th class="text-center">Ngày bắt đầu tính học phí</th>
-                                    <th class="text-center">Ngày kết thúc tính học phí</th>
-                                    <th class="text-right">Học phí gốc</th>
-                                    <th class="text-right">Miễn giảm</th>
-                                    <th class="text-right">Học phí cần thanh toán</th>
-                                    <th class="text-center" style="width: 160px;">Thao tác</th>
+                                    <th class="text-center" style="width: 60px;" data-i18n="stt">STT</th>
+                                    <th class="text-center" data-i18n="startDate">Ngày bắt đầu tính học phí</th>
+                                    <th class="text-center" data-i18n="endDate">Ngày kết thúc tính học phí</th>
+                                    <th class="text-right" data-i18n="originalTuition">Học phí gốc</th>
+                                    <th class="text-right" data-i18n="discount">Miễn giảm</th>
+                                    <th class="text-right" data-i18n="finalAmount">Học phí cần thanh toán</th>
+                                    <th class="text-center" style="width: 160px;" data-i18n="actions">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="tuition-table-body">
@@ -2531,30 +2737,30 @@
             <div id="tuition-modal-overlay" class="tuition-modal-overlay">
                 <div class="tuition-modal">
                     <div class="tuition-modal-header">
-                        <h3 class="tuition-modal-title">Xác nhận nộp học phí</h3>
-                        <button type="button" class="tuition-modal-close" onclick="closeTuitionModal()">&times;</button>
+                        <h3 class="tuition-modal-title" data-i18n="confirmTuitionTitle">Xác nhận nộp học phí</h3>
+                        <button type="button" class="tuition-modal-close" onclick="closeTuitionModal()" aria-label="Đóng">&times;</button>
                     </div>
                     <div class="tuition-modal-body">
                         <div class="tuition-modal-row">
-                            <span class="tuition-modal-label">Khoản học phí:</span>
+                            <span class="tuition-modal-label" data-i18n="tuitionPeriodLabel">Khoản học phí:</span>
                             <span class="tuition-modal-value" id="modal-tuition-period">-</span>
                         </div>
                         <div class="tuition-modal-row">
-                            <span class="tuition-modal-label">Học phí gốc:</span>
+                            <span class="tuition-modal-label" data-i18n="originalTuitionLabel">Học phí gốc:</span>
                             <span class="tuition-modal-value" id="modal-tuition-original">1.800.000</span>
                         </div>
                         <div class="tuition-modal-row">
-                            <span class="tuition-modal-label">Miễn giảm:</span>
+                            <span class="tuition-modal-label" data-i18n="discountLabel">Miễn giảm:</span>
                             <span class="tuition-modal-value" id="modal-tuition-discount">1.500.000</span>
                         </div>
                         <div class="tuition-modal-row tuition-modal-row-total">
-                            <span class="tuition-modal-label">Số tiền cần thanh toán:</span>
+                            <span class="tuition-modal-label" data-i18n="finalAmountLabel">Số tiền cần thanh toán:</span>
                             <span class="tuition-modal-value-highlight" id="modal-tuition-final">300.000</span>
                         </div>
                     </div>
                     <div class="tuition-modal-footer">
-                        <button type="button" class="tuition-btn-cancel" onclick="closeTuitionModal()">Hủy</button>
-                        <button type="button" class="tuition-btn-confirm" onclick="submitTuitionPayment()">Tiếp tục thanh toán</button>
+                        <button type="button" class="tuition-btn-cancel" onclick="closeTuitionModal()" data-i18n="cancel">Hủy</button>
+                        <button type="button" class="tuition-btn-confirm" onclick="submitTuitionPayment()" data-i18n="proceedPayment">Tiếp tục thanh toán</button>
                     </div>
                 </div>
             </div>
@@ -2609,6 +2815,37 @@ if (user) {
             setText('sidebarUserCode', user.id);
             setText('hero-hoTen', user.hoTen);
             setText('hero-id', user.id);
+
+            // Cấu hình Avatar động theo ID học sinh (dạng ${user.id}.png)
+            function setupDynamicAvatar(userId) {
+                if (!userId) return;
+                const avatarFileName = `${userId}.png`;
+                const sidebarAvatarContainer = document.getElementById('sidebarUserAvatarContainer');
+                const profileHeroAvatarContainer = document.getElementById('profileHeroAvatarContainer');
+
+                const defaultSidebarSvg = `<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+                const defaultProfileSvg = `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+
+                const img = new Image();
+                img.onload = function() {
+                    if (sidebarAvatarContainer) {
+                        sidebarAvatarContainer.innerHTML = `<img src="${avatarFileName}" alt="Avatar">`;
+                    }
+                    if (profileHeroAvatarContainer) {
+                        profileHeroAvatarContainer.innerHTML = `<img src="${avatarFileName}" alt="Avatar">`;
+                    }
+                };
+                img.onerror = function() {
+                    if (sidebarAvatarContainer) {
+                        sidebarAvatarContainer.innerHTML = defaultSidebarSvg;
+                    }
+                    if (profileHeroAvatarContainer) {
+                        profileHeroAvatarContainer.innerHTML = defaultProfileSvg;
+                    }
+                };
+                img.src = avatarFileName;
+            }
+            setupDynamicAvatar(user.id);
 
             // Xử lý nạp dữ liệu và ẨN các trường không có dữ liệu
             const profileCards = document.querySelectorAll('.profile-item-card');
@@ -3035,6 +3272,16 @@ function loadCoursePermissions() {
                     url: "course-math-12.html" // TODO: thay bằng URL thật của khóa học
                 },
                 {
+                    id: "course-chemistry-12",
+                    title: "Hóa học 12",
+                    level: "THPT",
+                    teacher: "Nguyễn Thị Mai Phương",
+                    duration: "",
+                    students: 1,
+                    image: "CHEM12.jpg",
+                    url: "course-chemistry-12.html" // TODO: thay bằng URL thật của khóa học
+                },
+                {
                     id: "course-math221a",
                     title: "Giải tích thực một biến (MATH221A)",
                     level: "Đại học",
@@ -3156,28 +3403,38 @@ function loadCoursePermissions() {
                         </button>
                     `;
 
+                    const currentLang = localStorage.getItem('qn-study-language') || 'vi';
+                    const dict = translations[currentLang] || translations['vi'];
+
                     if (status === COURSE_STATUS.ENDED) {
                         badgeClass = 'course-badge-ended';
-                        badgeText = 'Kết thúc';
+                        badgeText = dict.endedBadge || 'Kết thúc';
                         buttonHtml = `
                             <button class="course-btn course-btn-ended" disabled>
-                                Kết thúc
+                                ${dict.endedBtn || 'Kết thúc'}
                             </button>
                         `;
                     } else if (status === COURSE_STATUS.ALLOWED) {
                         badgeClass = 'course-badge-allowed';
-                        badgeText = 'Đã tham gia';
+                        badgeText = dict.enrolledBadge || 'Đã tham gia';
                         buttonHtml = `
                             <button class="course-btn course-btn-enter" onclick="openCourse('${course.id}')">
-                                Vào học →
+                                ${dict.enterCourseBtn || 'Vào học →'}
                             </button>
                         `;
                     } else if (status === COURSE_STATUS.REQUESTED) {
                         badgeClass = 'course-badge-requested';
-                        badgeText = 'Đang yêu cầu';
+                        badgeText = dict.requestedBadge || 'Đang yêu cầu';
                         buttonHtml = `
                             <button class="course-btn course-btn-requested" disabled>
-                                Đã gửi yêu cầu
+                                ${dict.requestedBtn || 'Đã gửi yêu cầu'}
+                            </button>
+                        `;
+                    } else {
+                        badgeText = dict.unregisteredBadge || 'Chưa đăng ký';
+                        buttonHtml = `
+                            <button class="course-btn course-btn-enroll" onclick="handleCourseRegistration('${course.id}')">
+                                ${dict.registerBtn || 'Đăng ký'}
                             </button>
                         `;
                     }
@@ -3687,6 +3944,27 @@ function loadCoursePermissions() {
                 return num.toFixed(2).replace(/\.00$/, '.0');
             }
 
+            // Hàm tạo các lựa chọn filter động từ dữ liệu thật
+            function populateLearningCourseFilter(data) {
+                if (!courseFilterSelect) return;
+                const currentLang = localStorage.getItem('qn-study-language') || 'vi';
+                const allCoursesLabel = currentLang === 'en' ? 'All courses' : 'Tất cả khóa học';
+
+                const uniqueCourses = [...new Set(
+                    data
+                        .map(item => item.course)
+                        .filter(course => course && String(course).trim() !== '')
+                )];
+
+                courseFilterSelect.innerHTML = `<option value="all" data-i18n="allCourses">${allCoursesLabel}</option>`;
+                uniqueCourses.forEach(course => {
+                    const opt = document.createElement('option');
+                    opt.value = course;
+                    opt.textContent = course; // Giữ nguyên tên gốc từ Google Sheets
+                    courseFilterSelect.appendChild(opt);
+                });
+            }
+
             // Hàm render Bảng dữ liệu từ learningResultsData (dữ liệu thật)
             function renderLearningResultsTable(data) {
                 const thead = document.getElementById('study-result-thead');
@@ -3770,6 +4048,7 @@ function loadCoursePermissions() {
                         }
                         learningResultsData = Array.isArray(response.data) ? response.data : [];
                         learningResultsLoaded = true;
+                        populateLearningCourseFilter(learningResultsData);
                         renderLearningResultsTable(learningResultsData);
                     })
                     .catch(error => {
@@ -3793,6 +4072,195 @@ function loadCoursePermissions() {
             // Đổi filter chỉ lọc lại dữ liệu đã có trong bộ nhớ, KHÔNG gọi lại Apps Script
             if (courseFilterSelect) {
                 courseFilterSelect.addEventListener('change', () => renderLearningResultsTable(learningResultsData));
+            }
+
+            /* ==========================================
+               5e. CHỨC NĂNG CHỈNH SỬA THÔNG TIN & ĐỔI MẬT KHẨU
+               ========================================== */
+            const editProfileOverlay = document.getElementById('edit-profile-modal-overlay');
+            const changePasswordOverlay = document.getElementById('change-password-modal-overlay');
+
+            const btnOpenEditProfile = document.getElementById('btn-open-edit-profile');
+            const btnCloseEditProfile = document.getElementById('btn-close-edit-profile');
+            const btnCancelEditProfile = document.getElementById('btn-cancel-edit-profile');
+
+            const btnOpenChangePassword = document.getElementById('btn-open-change-password');
+            const btnCloseChangePassword = document.getElementById('btn-close-change-password');
+            const btnCancelChangePassword = document.getElementById('btn-cancel-change-password');
+
+            const editProfileForm = document.getElementById('edit-profile-form');
+            const changePasswordForm = document.getElementById('change-password-form');
+
+            function openEditProfileModal() {
+                if (!user) return;
+                document.getElementById('edit-hoTen').value = user.hoTen || '';
+                document.getElementById('edit-ngaySinh').value = user.ngaySinh || '';
+                document.getElementById('edit-noiSinh').value = user.noiSinh || '';
+                document.getElementById('edit-gioiTinh').value = user.gioiTinh || '';
+                document.getElementById('edit-email').value = user.email || '';
+                document.getElementById('edit-soDienThoai').value = user.soDienThoai || '';
+                document.getElementById('edit-soGD').value = user.soGD || '';
+                document.getElementById('edit-truong').value = user.truong || '';
+                document.getElementById('edit-khoi').value = user.khoi || '';
+                document.getElementById('edit-lop').value = user.lop || '';
+                document.getElementById('edit-nganhDaoTao').value = user.nganhDaoTao || '';
+                document.getElementById('edit-khoa').value = user.khoa || '';
+
+                if (editProfileOverlay) editProfileOverlay.classList.add('active');
+            }
+
+            function closeEditProfileModal() {
+                if (editProfileOverlay) editProfileOverlay.classList.remove('active');
+            }
+
+            function openChangePasswordModal() {
+                if (changePasswordForm) changePasswordForm.reset();
+                if (changePasswordOverlay) changePasswordOverlay.classList.add('active');
+            }
+
+            function closeChangePasswordModal() {
+                if (changePasswordOverlay) changePasswordOverlay.classList.remove('active');
+            }
+
+            if (btnOpenEditProfile) btnOpenEditProfile.addEventListener('click', openEditProfileModal);
+            if (btnCloseEditProfile) btnCloseEditProfile.addEventListener('click', closeEditProfileModal);
+            if (btnCancelEditProfile) btnCancelEditProfile.addEventListener('click', closeEditProfileModal);
+
+            if (btnOpenChangePassword) btnOpenChangePassword.addEventListener('click', openChangePasswordModal);
+            if (btnCloseChangePassword) btnCloseChangePassword.addEventListener('click', closeChangePasswordModal);
+            if (btnCancelChangePassword) btnCancelChangePassword.addEventListener('click', closeChangePasswordModal);
+
+            // Xử lý gửi Form Chỉnh sửa thông tin
+            if (editProfileForm) {
+                editProfileForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const hoTen = document.getElementById('edit-hoTen').value.trim();
+                    const email = document.getElementById('edit-email').value.trim();
+
+                    if (!hoTen || !email) {
+                        showToast('Vui lòng điền các trường bắt buộc (Họ tên, Email).', 'error');
+                        return;
+                    }
+
+                    const updatedFields = {
+                        hoTen: hoTen,
+                        ngaySinh: document.getElementById('edit-ngaySinh').value.trim(),
+                        noiSinh: document.getElementById('edit-noiSinh').value.trim(),
+                        gioiTinh: document.getElementById('edit-gioiTinh').value.trim(),
+                        email: email,
+                        soDienThoai: document.getElementById('edit-soDienThoai').value.trim(),
+                        soGD: document.getElementById('edit-soGD').value.trim(),
+                        truong: document.getElementById('edit-truong').value.trim(),
+                        khoi: document.getElementById('edit-khoi').value.trim(),
+                        lop: document.getElementById('edit-lop').value.trim(),
+                        nganhDaoTao: document.getElementById('edit-nganhDaoTao').value.trim(),
+                        khoa: document.getElementById('edit-khoa').value.trim()
+                    };
+
+                    const btnSubmit = document.getElementById('btn-submit-edit-profile');
+                    const originalBtnText = btnSubmit ? btnSubmit.textContent : '';
+                    if (btnSubmit) {
+                        btnSubmit.disabled = true;
+                        btnSubmit.textContent = 'Đang lưu...';
+                    }
+
+                    callAppsScript(Object.assign({
+                        action: 'updateProfile',
+                        id: user.id,
+                        username: user.username
+                    }, updatedFields))
+                    .then(response => {
+                        if (response && response.success) {
+                            showToast(response.message || 'Cập nhật thông tin thành công.', 'success');
+                            // Cập nhật lại đối tượng user local
+                            Object.assign(user, updatedFields);
+                            sessionStorage.setItem('loggedInUser', JSON.stringify(user));
+
+                            // Cập nhật UI
+                            setText('sidebarUserName', user.hoTen);
+                            setText('hero-hoTen', user.hoTen);
+                            profileCards.forEach(card => {
+                                const key = card.getAttribute('data-key');
+                                const val = user[key];
+                                const valueEl = card.querySelector('.profile-value');
+                                const isValid = val !== undefined && val !== null && String(val).trim() !== '' && String(val).trim() !== '-';
+                                if (isValid) {
+                                    if (valueEl) valueEl.textContent = val;
+                                    card.style.display = 'flex';
+                                } else {
+                                    card.style.display = 'none';
+                                }
+                            });
+                            closeEditProfileModal();
+                        } else {
+                            showToast((response && response.message) || 'Không thể cập nhật thông tin.', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        showToast('Lỗi khi gửi dữ liệu cập nhật: ' + err.message, 'error');
+                    })
+                    .finally(() => {
+                        if (btnSubmit) {
+                            btnSubmit.disabled = false;
+                            btnSubmit.textContent = originalBtnText;
+                        }
+                    });
+                });
+            }
+
+            // Xử lý gửi Form Đổi mật khẩu
+            if (changePasswordForm) {
+                changePasswordForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const currentPassword = document.getElementById('pwd-current').value;
+                    const newPassword = document.getElementById('pwd-new').value;
+                    const confirmPassword = document.getElementById('pwd-confirm').value;
+
+                    if (!currentPassword || !newPassword || !confirmPassword) {
+                        showToast('Vui lòng điền đầy đủ thông tin mật khẩu.', 'error');
+                        return;
+                    }
+                    if (newPassword !== confirmPassword) {
+                        showToast('Mật khẩu mới và xác nhận mật khẩu không khớp.', 'error');
+                        return;
+                    }
+                    if (newPassword.length < 6) {
+                        showToast('Mật khẩu mới phải có độ dài ít nhất 6 ký tự.', 'error');
+                        return;
+                    }
+
+                    const btnSubmit = document.getElementById('btn-submit-change-password');
+                    const originalBtnText = btnSubmit ? btnSubmit.textContent : '';
+                    if (btnSubmit) {
+                        btnSubmit.disabled = true;
+                        btnSubmit.textContent = 'Đang đổi...';
+                    }
+
+                    callAppsScript({
+                        action: 'changePassword',
+                        id: user.id,
+                        username: user.username,
+                        currentPassword: currentPassword,
+                        newPassword: newPassword
+                    })
+                    .then(response => {
+                        if (response && response.success) {
+                            showToast(response.message || 'Đổi mật khẩu thành công.', 'success');
+                            closeChangePasswordModal();
+                        } else {
+                            showToast((response && response.message) || 'Không thể đổi mật khẩu. Vui lòng kiểm tra lại mật khẩu hiện tại.', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        showToast('Lỗi kết nối khi đổi mật khẩu: ' + err.message, 'error');
+                    })
+                    .finally(() => {
+                        if (btnSubmit) {
+                            btnSubmit.disabled = false;
+                            btnSubmit.textContent = originalBtnText;
+                        }
+                    });
+                });
             }
 
             /* ==========================================
@@ -3860,36 +4328,247 @@ function loadCoursePermissions() {
             const vietnamFlagSvg = `<rect width="300" height="200" fill="#da251d"/><polygon points="150,55 162,92 201,92 169,115 181,152 150,130 119,152 131,115 99,92 138,92" fill="#ffee00"/>`;
             const ukFlagSvg = `<rect width="600" height="400" fill="#012169"/><path d="M0,0 L600,400 M600,0 L0,400" stroke="#fff" stroke-width="60"/><path d="M0,0 L600,400 M600,0 L0,400" stroke="#C8102E" stroke-width="40"/><path d="M300,0 V400 M0,200 H600" stroke="#fff" stroke-width="100"/><path d="M300,0 V400 M0,200 H600" stroke="#C8102E" stroke-width="60"/>`;
 
-            // Từ điển dịch cho các mục menu và tiêu đề trang chính
+            // Từ điển dịch i18n toàn diện cho giao diện tĩnh
             const translations = {
                 vi: {
-                    "Trang cá nhân": "Trang cá nhân",
-                    "Thông tin cá nhân": "Thông tin cá nhân",
-                    "Thông báo": "Thông báo",
-                    "Chức năng trực tuyến": "Chức năng trực tuyến",
-                    "Kết quả học tập": "Kết quả học tập",
-                    "Khóa học": "Khóa học",
-                    "Lịch học": "Lịch học",
-                    "Học phí": "Học phí",
-                    "Đăng xuất": "Đăng xuất"
+                    selectLangTitle: "Chọn ngôn ngữ",
+                    notificationTitle: "Thông báo",
+                    themeToggleTitle: "Chuyển giao diện Sáng/Tối",
+                    contactTitle: "Liên hệ",
+
+                    personalGroup: "Trang cá nhân",
+                    profile: "Thông tin cá nhân",
+                    notifications: "Thông báo",
+                    onlineFeaturesGroup: "Chức năng trực tuyến",
+                    studyResults: "Kết quả học tập",
+                    courses: "Khóa học",
+                    schedule: "Lịch học",
+                    tuition: "Học phí",
+                    logout: "Đăng xuất",
+
+                    coursesTitle: "KHÓA HỌC",
+                    coursesBreadcrumb: "Trang chủ / Chức năng trực tuyến / Khóa học",
+                    courseSearchPlaceholder: "Tìm kiếm khóa học theo tên hoặc giảng viên...",
+                    teacherLabel: "GV:",
+                    durationLabel: "Thời lượng:",
+                    unregisteredBadge: "Chưa đăng ký",
+                    enrolledBadge: "Đã tham gia",
+                    requestedBadge: "Đang yêu cầu",
+                    endedBadge: "Kết thúc",
+                    registerBtn: "Đăng ký",
+                    enterCourseBtn: "Vào học →",
+                    requestedBtn: "Đã gửi yêu cầu",
+                    endedBtn: "Kết thúc",
+                    retryBtn: "Thử lại",
+                    loadingCourses: "Đang tải danh sách khóa học...",
+                    noCoursesFound: "Không tìm thấy khóa học nào phù hợp.",
+
+                    profileTitle: "THÔNG TIN CÁ NHÂN",
+                    profileBreadcrumb: "Trang chủ / Trang cá nhân / Thông tin cá nhân",
+                    studentRole: "Thí sinh / Học sinh",
+                    studentId: "Mã định danh (ID)",
+                    fullName: "Họ và tên",
+                    dob: "Ngày sinh",
+                    pob: "Nơi sinh",
+                    gender: "Giới tính",
+                    username: "Tài khoản",
+                    email: "Email",
+                    phone: "Số điện thoại",
+                    educationDept: "Sở GD&ĐT",
+                    school: "Trường",
+                    grade: "Khối",
+                    className: "Lớp",
+                    major: "Ngành đào tạo",
+                    faculty: "Khoa",
+                    editProfile: "Chỉnh sửa thông tin",
+                    changePassword: "Đổi mật khẩu",
+                    cancel: "Hủy",
+                    saveChanges: "Lưu thay đổi",
+                    currentPassword: "Mật khẩu hiện tại *",
+                    newPassword: "Mật khẩu mới *",
+                    confirmNewPassword: "Nhập lại mật khẩu mới *",
+                    changePasswordBtn: "Đổi mật khẩu",
+                    editProfileModalTitle: "Chỉnh sửa thông tin cá nhân",
+                    changePasswordModalTitle: "Đổi mật khẩu",
+
+                    studyResultsTitle: "KẾT QUẢ HỌC TẬP",
+                    studyResultsBreadcrumb: "Trang chủ / Chức năng trực tuyến / Kết quả học tập",
+                    filterByCourse: "Lọc theo khóa học:",
+                    allCourses: "Tất cả khóa học",
+                    stt: "STT",
+                    courseCol: "Khóa học",
+                    evalContent: "Nội dung đánh giá",
+                    evalScore: "Điểm đánh giá",
+                    noteCol: "Ghi chú",
+                    noLearningResults: "Chưa có dữ liệu kết quả học tập.",
+                    loadingLearningResults: "Đang tải kết quả học tập...",
+
+                    scheduleTitle: "LỊCH HỌC",
+                    scheduleBreadcrumb: "Trang chủ / Chức năng trực tuyến / Lịch học",
+                    timetable: "Thời khóa biểu học tập",
+                    timetableDesc: "Danh sách các buổi học chi tiết theo lịch giảng dạy",
+                    date: "Ngày học",
+                    startTime: "Thời gian bắt đầu học",
+                    duration: "Thời lượng học",
+                    course: "Khóa học",
+                    lessonContent: "Nội dung buổi học",
+                    attendance: "Chuyên cần",
+                    actions: "Thao tác",
+                    upcomingStatus: "Chưa diễn ra",
+                    attendedStatus: "Đã học",
+                    absentStatus: "Chưa học",
+                    joinClass: "Vào học",
+
+                    tuitionTitle: "HỌC PHÍ",
+                    tuitionBreadcrumb: "Trang chủ / Chức năng trực tuyến / Học phí",
+                    tuitionList: "Danh sách học phí",
+                    tuitionListDesc: "Các khoản học phí đang chờ thanh toán",
+                    startDate: "Ngày bắt đầu tính học phí",
+                    endDate: "Ngày kết thúc tính học phí",
+                    originalTuition: "Học phí gốc",
+                    discount: "Miễn giảm",
+                    finalAmount: "Học phí cần thanh toán",
+                    payTuition: "Nộp học phí",
+                    paidStatus: "Đã nộp",
+                    confirmTuitionTitle: "Xác nhận nộp học phí",
+                    tuitionPeriodLabel: "Khoản học phí:",
+                    originalTuitionLabel: "Học phí gốc:",
+                    discountLabel: "Miễn giảm:",
+                    finalAmountLabel: "Số tiền cần thanh toán:",
+                    proceedPayment: "Tiếp tục thanh toán",
+
+                    notificationsTitle: "THÔNG BÁO",
+                    notificationsBreadcrumb: "Trang chủ / Trang cá nhân / Thông báo",
+                    notifTitle: "Tiêu đề",
+                    notifDate: "Ngày đăng",
+                    backToNotifList: "Quay lại danh sách thông báo",
+
+                    langSwitched: "Đã chuyển sang Tiếng Việt"
                 },
                 en: {
-                    "Trang cá nhân": "Personal Profile",
-                    "Thông tin cá nhân": "Personal Information",
-                    "Thông báo": "Notifications",
-                    "Chức năng trực tuyến": "Online Features",
-                    "Kết quả học tập": "Learning Results",
-                    "Khóa học": "Courses",
-                    "Lịch học": "Schedule",
-                    "Học phí": "Tuition",
-                    "Đăng xuất": "Logout"
+                    selectLangTitle: "Select Language",
+                    notificationTitle: "Notifications",
+                    themeToggleTitle: "Toggle Light/Dark Theme",
+                    contactTitle: "Contact Support",
+
+                    personalGroup: "Personal Profile",
+                    profile: "Personal Information",
+                    notifications: "Notifications",
+                    onlineFeaturesGroup: "Online Features",
+                    studyResults: "Learning Results",
+                    courses: "Courses",
+                    schedule: "Schedule",
+                    tuition: "Tuition",
+                    logout: "Logout",
+
+                    coursesTitle: "COURSES",
+                    coursesBreadcrumb: "Home / Online Features / Courses",
+                    courseSearchPlaceholder: "Search courses by title or instructor...",
+                    teacherLabel: "Lecturer:",
+                    durationLabel: "Duration:",
+                    unregisteredBadge: "Not Registered",
+                    enrolledBadge: "Enrolled",
+                    requestedBadge: "Requested",
+                    endedBadge: "Ended",
+                    registerBtn: "Register",
+                    enterCourseBtn: "Enter →",
+                    requestedBtn: "Requested",
+                    endedBtn: "Ended",
+                    retryBtn: "Retry",
+                    loadingCourses: "Loading courses...",
+                    noCoursesFound: "No courses matching your search.",
+
+                    profileTitle: "PERSONAL INFORMATION",
+                    profileBreadcrumb: "Home / Personal Profile / Personal Information",
+                    studentRole: "Candidate / Student",
+                    studentId: "Student ID",
+                    fullName: "Full Name",
+                    dob: "Date of Birth",
+                    pob: "Place of Birth",
+                    gender: "Gender",
+                    username: "Username",
+                    email: "Email",
+                    phone: "Phone Number",
+                    educationDept: "Education Dept.",
+                    school: "School",
+                    grade: "Grade",
+                    className: "Class",
+                    major: "Major",
+                    faculty: "Faculty",
+                    editProfile: "Edit Information",
+                    changePassword: "Change Password",
+                    cancel: "Cancel",
+                    saveChanges: "Save Changes",
+                    currentPassword: "Current Password *",
+                    newPassword: "New Password *",
+                    confirmNewPassword: "Confirm New Password *",
+                    changePasswordBtn: "Change Password",
+                    editProfileModalTitle: "Edit Personal Information",
+                    changePasswordModalTitle: "Change Password",
+
+                    studyResultsTitle: "LEARNING RESULTS",
+                    studyResultsBreadcrumb: "Home / Online Features / Learning Results",
+                    filterByCourse: "Filter by course:",
+                    allCourses: "All courses",
+                    stt: "No.",
+                    courseCol: "Course",
+                    evalContent: "Assessment Content",
+                    evalScore: "Score",
+                    noteCol: "Note",
+                    noLearningResults: "No learning results available.",
+                    loadingLearningResults: "Loading learning results...",
+
+                    scheduleTitle: "SCHEDULE",
+                    scheduleBreadcrumb: "Home / Online Features / Schedule",
+                    timetable: "Class Timetable",
+                    timetableDesc: "Detailed list of scheduled classes",
+                    date: "Date",
+                    startTime: "Start Time",
+                    duration: "Duration",
+                    course: "Course",
+                    lessonContent: "Lesson Content",
+                    attendance: "Attendance",
+                    actions: "Action",
+                    upcomingStatus: "Upcoming",
+                    attendedStatus: "Attended",
+                    absentStatus: "Absent",
+                    joinClass: "Join Class",
+
+                    tuitionTitle: "TUITION",
+                    tuitionBreadcrumb: "Home / Online Features / Tuition",
+                    tuitionList: "Tuition Fees",
+                    tuitionListDesc: "List of pending tuition payments",
+                    startDate: "Start Date",
+                    endDate: "End Date",
+                    originalTuition: "Original Fee",
+                    discount: "Discount",
+                    finalAmount: "Amount Due",
+                    payTuition: "Pay Fee",
+                    paidStatus: "Paid",
+                    confirmTuitionTitle: "Confirm Tuition Payment",
+                    tuitionPeriodLabel: "Tuition Item:",
+                    originalTuitionLabel: "Original Fee:",
+                    discountLabel: "Discount:",
+                    finalAmountLabel: "Amount Due:",
+                    proceedPayment: "Proceed to Payment",
+
+                    notificationsTitle: "NOTIFICATIONS",
+                    notificationsBreadcrumb: "Home / Personal Profile / Notifications",
+                    notifTitle: "Title",
+                    notifDate: "Date Posted",
+                    backToNotifList: "Back to Notifications",
+
+                    langSwitched: "Switched to English"
                 }
             };
 
             function changePageLanguage(lang) {
+                const targetLang = translations[lang] ? lang : 'vi';
+                const dict = translations[targetLang];
+
                 // 1. Đổi icon cờ trên status bar
                 if (currentFlagIcon) {
-                    if (lang === 'en') {
+                    if (targetLang === 'en') {
                         currentFlagIcon.setAttribute('viewBox', '0 0 600 400');
                         currentFlagIcon.innerHTML = ukFlagSvg;
                     } else {
@@ -3898,17 +4577,52 @@ function loadCoursePermissions() {
                     }
                 }
 
-                // 2. Quét và dịch văn bản trên menu / tiêu đề
-                const dict = translations[lang] || translations['vi'];
-                document.querySelectorAll('.sidebar .menu-item span, .page-title').forEach(el => {
-                    const originalText = el.getAttribute('data-original') || el.textContent.trim();
-                    if (!el.hasAttribute('data-original')) {
-                        el.setAttribute('data-original', originalText);
-                    }
-                    if (dict[originalText]) {
-                        el.textContent = dict[originalText];
+                // 2. Dịch các phần tử có data-i18n
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (dict[key]) {
+                        el.textContent = dict[key];
                     }
                 });
+
+                // 3. Dịch data-i18n-placeholder
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (dict[key]) {
+                        el.placeholder = dict[key];
+                    }
+                });
+
+                // 4. Dịch data-i18n-title
+                document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-title');
+                    if (dict[key]) {
+                        el.title = dict[key];
+                    }
+                });
+
+                // 5. Dịch data-i18n-aria-label
+                document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-aria-label');
+                    if (dict[key]) {
+                        el.setAttribute('aria-label', dict[key]);
+                    }
+                });
+
+                // 6. Cập nhật lại các bảng động nếu đang mở
+                const searchInput = document.getElementById('course-search-input');
+                renderCourses(searchInput ? searchInput.value : '');
+
+                if (learningResultsLoaded) {
+                    populateLearningCourseFilter(learningResultsData);
+                    renderLearningResultsTable(learningResultsData);
+                }
+                if (scheduleLoaded) {
+                    renderScheduleTable(scheduleData);
+                }
+                if (tuitionLoaded) {
+                    renderTuitionTable(tuitionData);
+                }
             }
 
             // Khởi tạo ngôn ngữ từ localStorage khi tải trang (mặc định 'vi')
@@ -3938,7 +4652,8 @@ function loadCoursePermissions() {
                     if (langDropdownMenu) {
                         langDropdownMenu.style.display = 'none';
                     }
-                    showToast(selectedLang === 'en' ? 'Switched to English' : 'Đã chuyển sang Tiếng Việt', 'success');
+                    const msg = translations[selectedLang] ? translations[selectedLang].langSwitched : 'Đã chuyển sang Tiếng Việt';
+                    showToast(msg, 'success');
                 });
             });
 
