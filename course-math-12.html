@@ -1111,6 +1111,7 @@
                         <select id="course-filter-select" class="filter-select">
                             <option value="all">Tất cả bài học</option>
                             <option value="incomplete">Bài chưa hoàn thành</option>
+                            <option value="lesson">Buổi học</option>
                             <option value="pdf">Tài liệu (.pdf)</option>
                             <option value="test">Bài kiểm tra</option>
                             <option value="assignment">Bài tập nộp file</option>
@@ -1644,7 +1645,7 @@
                                 </div>
                                 <div class="lesson-details">
                                     <div class="lesson-title-container">
-                                        <h3 class="lesson-title">Bài giảng Bài 5: Ứng dụng đạo hàm để giải quyết các vấn đề thực tiễn</h3>
+                                        <h3 class="lesson-title">Tài liệu Bài 5: Ứng dụng đạo hàm để giải quyết các vấn đề thực tiễn</h3>
                                         <span class="status-badge" data-badge-for="doc12"></span>
                                     </div>
                                     <div class="lesson-meta">
@@ -1656,6 +1657,29 @@
                                 <div class="lesson-actions">
                                     <a href="https://drive.google.com/file/d/1fxEm8TIW1yAxd_Ba5dXKpIdS-Me-YnJW/view?usp=sharing" class="btn btn-primary btn-action" data-action-for="doc12" data-default-text="Lấy tài liệu" target="_blank" rel="noopener noreferrer">Lấy tài liệu</a>
                                     <button class="btn btn-status btn-complete" data-key="course_cd1_b3_doc12_completed">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!--Mục 3: Bài giảng PDF-->
+                            <div class="lesson-item" data-schedule-id="doc13" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Bài giảng Bài 5: Ứng dụng đạo hàm để giải quyết các vấn đề thực tiễn (Phần 1)</h3>
+                                        <span class="status-badge" data-badge-for="doc13"></span>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <i class="fa-regular fa-file-lines"></i>
+                                        <span>Tài liệu đính kèm (.pdf)</span>
+                                        <span class="countdown-text" data-countdown-for="doc13"></span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1M1JiBe30srNGXlotygPHTljoeFL6Tfo4/view?usp=sharing" class="btn btn-primary btn-action" data-action-for="doc13" data-default-text="Lấy tài liệu" target="_blank" rel="noopener noreferrer">Lấy tài liệu</a>
+                                    <button class="btn btn-status btn-complete" data-key="course_cd1_b3_doc13_completed">
                                         <span class="btn-complete-text">Hoàn thành</span>
                                     </button>
                                 </div>
@@ -1755,6 +1779,10 @@
                 close: "2026-09-12T15:00:00"
             },
             doc12: {
+                open: null,
+                close: null
+            },
+            doc13: {
                 open: null,
                 close: null
             },
