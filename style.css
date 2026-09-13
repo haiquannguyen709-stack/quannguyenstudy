@@ -1,0 +1,2846 @@
+        /* ==========================================
+           1. RESET & BASE STYLES
+           ========================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-blue: #1565C0;
+            --primary-blue-hover: #0d47a1;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --sidebar-bg: #FFFFFF;
+            --sidebar-active-bg: #E3F2FD;
+            --sidebar-hover-bg: #F1F5F9;
+            --text-main: #2c3e50;
+            --text-sub: #607d8b;
+            --text-white: #ffffff;
+            --border-color: #d0e3f0;
+            --status-bar-height: 62px;
+            --transition-speed: 0.3s;
+            --input-bg: #ffffff;
+            --table-header-bg: #f1f5f9;
+            --table-hover-bg: #f0f7ff;
+        }
+
+        html.dark-mode {
+            --primary-blue: #1e88e5;
+            --primary-blue-hover: #1565c0;
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --sidebar-bg: #181818;
+            --sidebar-active-bg: #e0e0e0;
+            --sidebar-hover-bg: #2a2a2a;
+            --text-main: #e0e0e0;
+            --text-sub: #a0a0a0;
+            --border-color: #333333;
+            --input-bg: #252525;
+            --table-header-bg: #252525;
+            --table-hover-bg: #2c2c2c;
+        }
+
+        html.dark-mode .sidebar-logo {
+            filter: invert(1) grayscale(100%) brightness(200%);
+            mix-blend-mode: screen;
+            transition: filter var(--transition-speed) ease;
+        }
+
+        html.dark-mode .menu-item.active {
+            color: #000000;
+            font-weight: 700;
+        }
+
+        html.dark-mode .menu-item.active svg {
+            stroke: #000000;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-body);
+            height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+        }
+
+        .status-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ==========================================
+           2. STATUS BAR
+           ========================================== */
+        .status-bar {
+            height: var(--status-bar-height);
+            background-color: var(--primary-blue);
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-bar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-bar-icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-white);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color var(--transition-speed) ease, transform 0.15s ease;
+        }
+
+        .status-bar-icon-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .status-bar-icon-btn:active {
+            transform: scale(0.94);
+        }
+
+        /* ==========================================
+           3. APP CONTAINER & GRID LAYOUT
+           ========================================== */
+        .app-container {
+            margin-top: var(--status-bar-height);
+            height: calc(100vh - var(--status-bar-height));
+            display: grid;
+            grid-template-columns: 280px 1fr; /* Sidebar cố định 280px bên trái, Main Content chiếm phần còn lại */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ==========================================
+           4. SIDEBAR
+           ========================================== */
+        .sidebar {
+            background-color: #FFFFFF;
+            border-right: 1px solid #E5E7EB;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            white-space: nowrap;
+            height: 100%;
+        }
+
+        /* Custom Scrollbar cho Sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: #1565C0;
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background-color: #0d47a1;
+        }
+
+        .sidebar::-webkit-scrollbar-button {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Firefox */
+        .sidebar {
+            scrollbar-width: thin;
+            scrollbar-color: #1565C0 transparent;
+        }
+
+        /* --- NẤC 1: LOGO --- */
+        .sidebar-section-logo {
+            padding: 20px 16px 10px 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sidebar-logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sidebar-logo {
+            width: 150px;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+        }
+
+        html.dark-mode .sidebar-logo {
+            filter: invert(1) hue-rotate(180deg);
+            transition: filter var(--transition-speed) ease;
+        }
+
+        /* --- NẤC 2: THÔNG TIN THÍ SINH --- */
+        .sidebar-section-user {
+            padding: 12px 16px 20px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border-bottom: 1px dashed rgba(21, 101, 192, 0.2);
+            margin-bottom: 12px;
+        }
+
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            border: 2px solid var(--primary-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .user-avatar img,
+        .profile-hero-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+        }
+
+        .user-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .user-code {
+            font-size: 0.825rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            background-color: rgba(21, 101, 192, 0.1);
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+
+        /* --- NẤC 3 & 4: MENU GROUPS --- */
+        .menu-group {
+            padding: 8px 12px;
+        }
+
+        .menu-group-title {
+            font-size: 0.725rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 8px 12px 6px 12px;
+        }
+
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: #37474F;
+            text-decoration: none;
+            font-size: 0.925rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background-color: var(--sidebar-hover-bg);
+            color: #1565C0;
+        }
+
+        .menu-item.active {
+            background-color: #E3F2FD;
+            color: #1565C0;
+            font-weight: 700;
+        }
+
+        .menu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 15%;
+            height: 70%;
+            width: 4px;
+            background-color: var(--primary-blue);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .menu-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+        }
+
+        /* ==========================================
+           5. MAIN CONTENT AREA
+           ========================================== */
+        .main-content {
+            background-color: #f8fafc;
+            padding: 28px 36px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Section chuyển đổi trang (SPA) */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.25s ease-in-out forwards;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1565C0;
+            margin-bottom: 6px;
+        }
+
+        html.dark-mode .page-title {
+            color: #64b5f6;
+        }
+
+        .page-breadcrumb {
+            font-size: 0.875rem;
+            color: var(--text-sub);
+        }
+
+        /* Card Giao diện Placeholder */
+        .content-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .placeholder-icon {
+            width: 64px;
+            height: 64px;
+            background-color: #eef6ff;
+            color: var(--primary-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .placeholder-text-main {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .placeholder-text-sub {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            max-width: 400px;
+        }
+
+        /* Grid hiển thị demo khóa học */
+        .courses-placeholder-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .course-card-skeleton {
+            background-color: #ffffff;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            text-align: left;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .skeleton-img {
+            height: 120px;
+            background-color: #e2e8f0;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .skeleton-title {
+            height: 18px;
+            width: 75%;
+            background-color: #cbd5e1;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-desc {
+            height: 12px;
+            width: 50%;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+        }
+
+        /* ==========================================
+           6. RESPONSIVE DESIGN
+           ========================================== */
+        /* Nút Toggle Mobile & Overlay ẩn mặc định trên Desktop */
+        #mobile-sidebar-toggle,
+        #mobile-sidebar-overlay {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            /* 0. Cho phép body cuộn tự nhiên theo chiều dọc trên mobile */
+            body {
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+            }
+
+            /* 1. Reset layout Grid & mở khóa chiều cao app-container trên Mobile */
+            .app-container {
+                display: block;
+                position: relative;
+                height: auto;
+                min-height: calc(100vh - var(--status-bar-height));
+                overflow: visible;
+            }
+
+            /* 2. Biến Sidebar thành Drawer trượt từ bên trái */
+            .sidebar {
+                position: fixed;
+                top: var(--status-bar-height);
+                left: 0;
+                bottom: 0;
+                width: 280px;
+                max-width: 80vw;
+                z-index: 1050;
+                transform: translateX(-100%);
+                transition: transform var(--transition-speed) ease-in-out;
+                box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            /* 3. Main content tự co giãn chiều cao theo toàn bộ danh sách khóa học */
+            .main-content {
+                padding: 16px;
+                width: 100%;
+                height: auto;
+                min-height: calc(100vh - var(--status-bar-height));
+                overflow-y: visible;
+            }
+
+            /* 4. Overlay mờ nền - Đảm bảo ngắt pointer-events khi đóng */
+            #mobile-sidebar-overlay {
+                display: block;
+                position: fixed;
+                top: var(--status-bar-height);
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(15, 23, 42, 0.5);
+                backdrop-filter: blur(2px);
+                z-index: 1040;
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition: opacity var(--transition-speed) ease, visibility var(--transition-speed) ease;
+            }
+
+            #mobile-sidebar-overlay.active {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+            }
+
+            /* 5. Nút tròn toggle Sidebar góc dưới bên trái */
+            #mobile-sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                width: 46px;
+                height: 46px;
+                border-radius: 50%;
+                background-color: var(--primary-blue);
+                color: #ffffff;
+                border: none;
+                box-shadow: 0 4px 12px rgba(21, 101, 192, 0.4);
+                z-index: 1100;
+                cursor: pointer;
+                transition: background-color 0.2s ease, transform 0.2s ease;
+            }
+
+            #mobile-sidebar-toggle:active {
+                transform: scale(0.92);
+                background-color: var(--primary-blue-hover);
+            }
+
+            /* 6. Xử lý Bảng Lịch học lăn ngang chuẩn Mobile */
+            .schedule-table-responsive {
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .schedule-table {
+                min-width: 860px; /* Đảm bảo 8 cột có không gian hiển thị rộng rãi, không bị ép chữ */
+                width: 100%;
+                table-layout: auto;
+            }
+
+            .schedule-table th, 
+            .schedule-table td {
+                white-space: normal;
+            }
+
+            .col-stt { width: 50px; }
+            .col-ngay { width: 100px; }
+            .col-gio { width: 110px; }
+            .col-thuoluong { width: 100px; }
+            .col-khoahoc { width: 170px; }
+            .col-noidung { width: 220px; }
+            .col-chuyencan { width: 110px; }
+            .col-thaotac { width: 100px; }
+        }
+        /* ==========================================
+           7. NOTIFICATION SYSTEM STYLES
+           ========================================== */
+        .notification-container {
+            width: 100%;
+        }
+
+        .notification-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            min-height: 380px;
+        }
+
+        /* Bảng danh sách thông báo */
+        .notification-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .notification-table th {
+            padding: 14px 16px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            border-bottom: 2px solid var(--border-color);
+            background-color: #f8fafc;
+        }
+
+        .notification-th-title {
+            width: 75%;
+            text-align: left;
+        }
+
+        .notification-th-date {
+            width: 25%;
+            text-align: right;
+        }
+
+        .notification-row {
+            cursor: pointer;
+            transition: background-color var(--transition-speed) ease;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .notification-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .notification-row:hover {
+            background-color: #f0f7ff;
+        }
+
+        .notification-cell-title {
+            padding: 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification-item-icon {
+            color: var(--primary-blue);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-cell-date {
+            padding: 16px;
+            font-size: 0.875rem;
+            color: var(--text-sub);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        /* Trang chi tiết thông báo */
+        .notification-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--primary-blue);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .notification-back-btn:hover {
+            background-color: var(--sidebar-active-bg);
+            border-color: var(--primary-blue);
+        }
+
+        .notification-detail-main-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+
+        .notification-detail-meta {
+            font-size: 0.875rem;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        .notification-divider {
+            border: 0;
+            height: 1px;
+            background: #e2e8f0;
+            margin: 16px 0 24px 0;
+        }
+
+        /* Trình bày nội dung chi tiết */
+        .notification-body {
+            color: #334155;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .notification-body h3 {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin: 18px 0 10px 0;
+            font-weight: 700;
+        }
+
+        .notification-body h4 {
+            font-size: 1rem;
+            color: var(--primary-blue);
+            margin: 14px 0 8px 0;
+            font-weight: 600;
+        }
+
+        .notification-body p {
+            margin-bottom: 12px;
+        }
+
+        .notification-body ul {
+            margin: 8px 0 16px 24px;
+        }
+
+        .notification-body li {
+            margin-bottom: 6px;
+        }
+
+        /* Bảng lồng trong nội dung chi tiết */
+        .notification-inner-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .notification-inner-table th,
+        .notification-inner-table td {
+            border: 1px solid #cbd5e1;
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .notification-inner-table th {
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .notification-inner-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .notification-th-title { width: 65%; }
+            .notification-th-date { width: 35%; }
+            .notification-cell-title { font-size: 0.875rem; }
+            .notification-cell-date { font-size: 0.8rem; }
+        }
+
+        /* ==========================================
+           8. COURSE STYLES
+           ========================================== */
+        .course-search-container {
+            margin-bottom: 24px;
+            width: 100%;
+        }
+
+        .course-search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .course-search-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .course-search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            font-size: 0.95rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            background-color: #ffffff;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        .course-search-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+        }
+
+        .course-no-result {
+            grid-column: 1 / -1;
+            background-color: #ffffff;
+            padding: 40px;
+            text-align: center;
+            border-radius: 12px;
+            border: 1px dashed #cbd5e1;
+            color: var(--text-sub);
+            font-size: 0.95rem;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+
+        @media (max-width: 992px) {
+            .course-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .course-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .course-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            position: relative;
+            animation: courseFadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes courseFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ==========================================
+           TRẠNG THÁI KHÓA HỌC ĐÃ KẾT THÚC
+           ========================================== */
+
+        .course-card.course-card-ended {
+            background-color: #f1f3f5;
+            border-color: #d1d5db;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.025);
+        }
+
+        .course-card.course-card-ended:hover {
+            transform: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.025);
+        }
+
+        .course-card.course-card-ended .course-image {
+            filter: grayscale(35%);
+            opacity: 0.88;
+        }
+
+        .course-card.course-card-ended .course-body {
+            background-color: #f1f3f5;
+        }
+
+        .course-card.course-card-ended .course-title {
+            color: #64748b;
+        }
+
+        .course-card.course-card-ended .course-level-tag {
+            background-color: #e2e8f0;
+            color: #64748b;
+        }
+
+        .course-card.course-card-ended .course-meta {
+            color: #7b8794;
+        }
+
+        .course-card.course-card-ended .course-footer {
+            border-top-color: #d9dee5;
+        }
+
+        .course-card.course-card-ended .course-students {
+            color: #7b8794;
+        }
+
+        .course-image {
+            height: 140px;
+            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .course-image img.img-error {
+            display: none;
+        }
+
+        .course-image svg {
+            width: 48px;
+            height: 48px;
+            opacity: 0.85;
+        }
+
+        .course-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .course-badge-allowed {
+            background-color: #2e7d32;
+        }
+
+        .course-badge-unallowed {
+            background-color: #64748b;
+        }
+
+        .course-badge-ended {
+            background-color: #64748b;
+            color: #ffffff;
+        }
+
+        .course-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .course-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            line-height: 1.35;
+            min-height: 2.7em;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .course-level-tag {
+            display: inline-block;
+            align-self: flex-start;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 6px;
+            margin-bottom: 14px;
+        }
+
+        .course-meta {
+            font-size: 0.875rem;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .course-footer {
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .course-students {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .course-btn {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .course-btn:active {
+            transform: scale(0.98);
+        }
+
+        .course-btn-enter {
+            background-color: #2e7d32;
+            color: #ffffff;
+        }
+
+        .course-btn-enter:hover {
+            background-color: #1b5e20;
+        }
+
+        .course-btn-enroll {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+        }
+
+        .course-btn-enroll:hover {
+            background-color: var(--primary-blue-hover);
+        }
+
+        .course-btn-ended {
+            background-color: #64748b;
+            color: #ffffff;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .course-btn-ended:hover {
+            background-color: #64748b;
+            transform: none;
+        }
+
+        .course-btn-ended:active {
+            transform: none;
+        }
+        .course-badge-requested {
+            background-color: #f9a825;
+        }
+
+        .course-btn-requested {
+            background-color: #cbd5e1;
+            color: #475569;
+            cursor: not-allowed;
+        }
+
+        .course-btn-requested:hover {
+            background-color: #cbd5e1;
+        }
+
+        .course-loading-state,
+        .course-error-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-sub);
+        }
+
+        .course-error-state {
+            color: #c62828;
+        }
+
+        .course-retry-btn {
+            margin-top: 12px;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            background-color: var(--primary-blue);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .course-retry-btn:hover {
+            background-color: var(--primary-blue-hover);
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            min-width: 260px;
+            max-width: 360px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .toast-success { background-color: #2e7d32; }
+        .toast-error { background-color: #c62828; }
+        .toast-info { background-color: #1565C0; }
+        /* ==========================================
+           9. TUITION PAGE STYLES (ĐỘC LẬP / PRE-FIXED)
+           ========================================== */
+        .tuition-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            padding: 24px;
+            animation: tuitionFadeUp 0.35s ease-out forwards;
+        }
+
+        @keyframes tuitionFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tuition-card-header {
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tuition-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .tuition-card-desc {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        .tuition-table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tuition-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.925rem;
+            white-space: nowrap;
+        }
+
+        .tuition-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tuition-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-main);
+            vertical-align: middle;
+            transition: background-color 0.2s ease;
+        }
+
+        .tuition-table tbody tr:hover td {
+            background-color: #f0f7ff;
+        }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+
+        .tuition-amount-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .tuition-amount-highlight {
+            font-weight: 700;
+            color: var(--primary-blue);
+            font-size: 1rem;
+        }
+
+        .tuition-badge {
+            font-size: 0.725rem;
+            font-weight: 600;
+            background-color: #e3f2fd;
+            color: #1565c0;
+            padding: 3px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .tuition-btn-pay {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tuition-btn-pay:hover {
+            background-color: var(--primary-blue-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(21, 101, 192, 0.3);
+        }
+
+        .tuition-btn-pay:active {
+            transform: translateY(0);
+        }
+
+        .tuition-btn-pay:active {
+            transform: translateY(0);
+        }
+
+        /* ==========================================
+           TRẠNG THÁI HỌC PHÍ ĐỘNG (đã nộp / đang tải / lỗi)
+           ========================================== */
+        .tuition-row-paid td {
+            background-color: #f0fdf4;
+            color: #166534;
+        }
+
+        .tuition-row-paid:hover td {
+            background-color: #dcfce7;
+        }
+
+        .tuition-status-paid {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background-color: #dcfce7;
+            color: #15803d;
+            font-weight: 700;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .tuition-table-loading,
+        .tuition-table-error {
+            color: var(--text-sub);
+            padding: 24px 12px;
+        }
+
+        .tuition-table-error {
+            color: #c62828;
+        }
+
+        /* MODAL STYLES */
+        .tuition-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(2px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .tuition-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .tuition-modal {
+            background-color: #ffffff;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 440px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+
+        .tuition-modal-overlay.active .tuition-modal {
+            transform: scale(1);
+        }
+
+        .tuition-modal-header {
+            padding: 16px 20px;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tuition-modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .tuition-modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .tuition-modal-close:hover {
+            color: var(--text-main);
+        }
+
+        .tuition-modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tuition-modal-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.925rem;
+            color: var(--text-main);
+        }
+
+        .tuition-modal-label {
+            color: var(--text-sub);
+        }
+
+        .tuition-modal-value {
+            font-weight: 600;
+        }
+
+        .tuition-modal-row-total {
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px dashed #cbd5e1;
+            font-size: 1rem;
+        }
+
+        .tuition-modal-value-highlight {
+            font-weight: 700;
+            color: var(--primary-blue);
+            font-size: 1.1rem;
+        }
+
+        .tuition-modal-footer {
+            padding: 16px 20px;
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .tuition-btn-cancel {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tuition-btn-cancel:hover {
+            background-color: #f1f5f9;
+        }
+
+        .tuition-btn-confirm {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tuition-btn-confirm:hover {
+            background-color: var(--primary-blue-hover);
+        }
+        /* ==========================================
+           10b. SCHEDULE PAGE STYLES (ĐỒNG BỘ TRANG HỌC PHÍ)
+           ========================================== */
+        .schedule-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            padding: 24px;
+            animation: tuitionFadeUp 0.35s ease-out forwards;
+        }
+
+        .schedule-card-header {
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .schedule-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .schedule-card-desc {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        .schedule-table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            table-layout: fixed;
+        }
+
+        .schedule-table th {
+            background-color: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            padding: 12px 10px;
+            border-bottom: 2px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .schedule-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-main);
+            vertical-align: middle;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.45;
+        }
+
+        /* Phân bổ tỷ lệ độ rộng 8 cột cân đối */
+        .col-stt { width: 5%; }
+        .col-ngay { width: 11%; }
+        .col-gio { width: 11%; }
+        .col-thuoluong { width: 11%; }
+        .col-khoahoc { width: 17%; }
+        .col-noidung { width: 23%; }
+        .col-chuyencan { width: 10%; }
+        .col-thaotac { width: 12%; }
+
+        .text-left { text-align: left; }
+
+        /* MÀU NỀN DÒNG CÓ THỨ TỰ ƯU TIÊN */
+        /* Trạng thái 1: Sắp diễn ra (Ưu tiên cao nhất) */
+        .schedule-row-upcoming td {
+            background-color: #E7F1FF !important;
+        }
+
+        /* Trạng thái 2: Đã diễn ra nhưng Chưa học */
+        .schedule-row-absent td {
+            background-color: #FDECEC !important;
+        }
+
+        /* Trạng thái 3: Đã học */
+        .schedule-row-attended td {
+            background-color: #EAF7EA !important;
+        }
+
+        /* BADGE CỘT CHUYÊN CẦN */
+        .chuyencan-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .chuyencan-attended {
+            background-color: #D1E7DD;
+            color: #0F5132;
+        }
+
+        .chuyencan-absent {
+            background-color: #F8D7DA;
+            color: #842029;
+        }
+
+        .chuyencan-upcoming {
+            background-color: #C3E0FF;
+            color: #0A438A;
+        }
+
+        /* NÚT VÀO HỌC */
+        .schedule-btn-join {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.15);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            width: 100%;
+            max-width: 95px;
+        }
+
+        .schedule-btn-join:hover:not(:disabled) {
+            background-color: var(--primary-blue-hover);
+            transform: translateY(-1px);
+        }
+
+        .schedule-btn-join:disabled {
+            background-color: #cbd5e1;
+            color: #64748b;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        /* ==========================================
+           10. PROFILE PAGE STYLES (ĐỘC LẬP & TỰ ĐỘNG ẨN TRỐNG)
+           ========================================== */
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: profileFadeIn 0.35s ease-out forwards;
+        }
+
+        @keyframes profileFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hero Banner Cá nhân */
+        .profile-hero-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .profile-hero-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            border: 2px solid var(--primary-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(21, 101, 192, 0.12);
+            flex-shrink: 0;
+        }
+
+        .profile-hero-name {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .profile-hero-tags {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .profile-hero-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            background-color: rgba(21, 101, 192, 0.1);
+            color: var(--primary-blue);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .profile-hero-badge.badge-role {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .profile-action-btn {
+            background-color: #1565C0;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(21, 101, 192, 0.2);
+        }
+
+        .profile-action-btn:hover {
+            background-color: #0d47a1;
+            transform: translateY(-1px);
+        }
+
+        .profile-action-btn:active {
+            transform: translateY(0);
+        }
+
+        .profile-btn-password {
+            background-color: #ffffff;
+            color: #1565C0;
+            border: 1px solid #1565C0;
+            box-shadow: none;
+        }
+
+        .profile-btn-password:hover {
+            background-color: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            #edit-profile-modal-overlay .tuition-modal-body {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* Lưới các thẻ chi tiết */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .profile-item-card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .profile-item-card:hover {
+            border-color: #93c5fd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.06);
+        }
+
+        .profile-icon {
+            font-size: 1.4rem;
+            width: 42px;
+            height: 42px;
+            background-color: #f1f5f9;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+        }
+
+        .profile-label {
+            font-size: 0.775rem;
+            color: var(--text-sub);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .profile-value {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            font-weight: 600;
+            word-break: break-word;
+        }
+        /* ==========================================
+           11. STUDY RESULT PAGE STYLES (UPGRADED)
+           ========================================== */
+        .study-result-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            padding: 24px;
+            animation: studyFadeUp 0.35s ease-out forwards;
+        }
+
+        @keyframes studyFadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .study-result-filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-size: 0.925rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-select-wrapper {
+            position: relative;
+            min-width: 240px;
+        }
+
+        .study-filter-select {
+            width: 100%;
+            padding: 9px 36px 9px 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: all 0.2s ease;
+        }
+
+        .study-filter-select:hover {
+            border-color: var(--primary-blue);
+            background-color: #ffffff;
+        }
+
+        .study-filter-select:focus {
+            border-color: var(--primary-blue);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+        }
+
+        .filter-select-wrapper::after {
+            content: '▼';
+            font-size: 0.7rem;
+            color: var(--text-sub);
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .study-result-table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .study-result-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.925rem;
+            text-align: left;
+        }
+
+        /* 1. Header bảng: Xanh nước biển chủ đạo, chữ trắng, bôi đậm */
+        .study-result-table th {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            font-weight: 700;
+            padding: 14px 16px;
+            border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+
+        .study-result-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        /* 2. Dòng dữ liệu xen kẽ: Dòng chẵn trắng, dòng lẻ xanh rất nhạt */
+        .study-result-table tbody tr:nth-child(odd) td {
+            background-color: #ffffff;
+        }
+
+        .study-result-table tbody tr:nth-child(even) td {
+            background-color: #f4f8fd; 
+        }
+
+        /* 7. Hiệu ứng Hover rất nhẹ và mượt */
+        .study-result-table tbody tr {
+            transition: background-color 0.25s ease;
+        }
+
+        .study-result-table tbody tr:hover td {
+            background-color: #eaf3ff !important;
+        }
+
+        /* 5. Cột STT: Căn giữa, màu chữ thông thường */
+        .study-result-table td:first-child,
+        .study-result-table th:first-child {
+            text-align: center;
+        }
+
+        /* 3. Cột Điểm đánh giá: Bôi đậm, màu xanh nước biển chủ đạo, nổi bật */
+        .study-result-table td:nth-last-child(2) {
+            font-weight: 700;
+            color: var(--primary-blue);
+            font-size: 1.05rem;
+        }
+
+        /* 4. Cột Nội dung đánh giá: Màu xanh nước biển, font-weight normal/400 */
+        .study-result-table td:nth-child(2),
+        .study-result-table td:nth-child(3) {
+            color: var(--primary-blue);
+            font-weight: 400;
+        }
+
+        /* 6. Cột Ghi chú: Plain text, màu hài hòa */
+        .study-result-table td:last-child {
+            color: var(--text-main);
+            font-weight: 400;
+        }
+
+        /* Dark mode tương thích cho bảng kết quả học tập */
+        html.dark-mode .study-result-table th {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .study-result-table tbody tr:nth-child(odd) td {
+            background-color: var(--bg-card);
+        }
+
+        html.dark-mode .study-result-table tbody tr:nth-child(even) td {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        html.dark-mode .study-result-table tbody tr:hover td {
+            background-color: rgba(30, 136, 229, 0.12) !important;
+        }
+
+        html.dark-mode .study-result-table td:nth-last-child(2) {
+            color: #64b5f6;
+        }
+
+        html.dark-mode .study-result-table td:nth-child(2),
+        html.dark-mode .study-result-table td:nth-child(3) {
+            color: #90caf9;
+        }
+/* ==========================================
+           12. DARK MODE OVERRIDES
+           ========================================== */
+        html.dark-mode .sidebar,
+        html.dark-mode .content-card,
+        html.dark-mode .course-card,
+        html.dark-mode .course-card-skeleton,
+        html.dark-mode .notification-card,
+        html.dark-mode .tuition-card,
+        html.dark-mode .schedule-card,
+        html.dark-mode .profile-item-card,
+        html.dark-mode .study-result-card,
+        html.dark-mode .tuition-modal {
+            background-color: var(--bg-card);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .main-content {
+            background-color: var(--bg-body);
+        }
+
+        html.dark-mode .sidebar {
+            border-right-color: var(--border-color);
+        }
+
+        html.dark-mode .menu-item {
+            color: var(--text-main);
+        }
+
+        html.dark-mode .course-search-input,
+        html.dark-mode .study-filter-select {
+            background-color: var(--input-bg);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .notification-table th,
+        html.dark-mode .tuition-table th,
+        html.dark-mode .schedule-table th,
+        html.dark-mode .study-result-table th,
+        html.dark-mode .notification-inner-table th,
+        html.dark-mode .tuition-modal-header,
+        html.dark-mode .tuition-modal-footer {
+            background-color: var(--table-header-bg);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .notification-row:hover,
+        html.dark-mode .tuition-table tbody tr:hover td,
+        html.dark-mode .study-result-table tbody tr:hover td {
+            background-color: var(--table-hover-bg);
+        }
+
+        html.dark-mode .notification-row,
+        html.dark-mode .notification-table td,
+        html.dark-mode .tuition-table td,
+        html.dark-mode .schedule-table td,
+        html.dark-mode .study-result-table td,
+        html.dark-mode .notification-divider,
+        html.dark-mode .notification-inner-table td {
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .notification-body {
+            color: var(--text-main);
+        }
+
+        html.dark-mode .profile-hero-card {
+            background: linear-gradient(135deg, #1e1e1e 0%, #252525 100%);
+            border-color: var(--border-color);
+        }
+
+        html.dark-mode .user-avatar,
+        html.dark-mode .profile-hero-avatar {
+            background-color: #252525;
+        }
+
+        html.dark-mode .profile-icon {
+            background-color: #2a2a2a;
+        }
+
+        html.dark-mode .schedule-row-upcoming td { background-color: #1a2a3a !important; }
+        html.dark-mode .schedule-row-absent td { background-color: #3a1a1a !important; }
+        html.dark-mode .schedule-row-attended td { background-color: #1a3a1a !important; }
+
+        html.dark-mode .tuition-row-paid td { background-color: #1a3a2a; color: #81c784; }
+        html.dark-mode .tuition-status-paid { background-color: #2e7d32; color: #ffffff; }
+
+        html.dark-mode .course-level-tag {
+            background-color: rgba(30, 136, 229, 0.2);
+            color: #64b5f6;
+        }
+
+        html.dark-mode .status-bar-icon-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        html.dark-mode .course-card.course-card-ended {
+            background-color: #252525;
+            border-color: #3f3f46;
+        }
+
+        html.dark-mode .course-card.course-card-ended .course-body {
+            background-color: #252525;
+        }
+
+        html.dark-mode .course-card.course-card-ended .course-title {
+            color: #a1a1aa;
+        }
+
+        html.dark-mode .course-card.course-card-ended .course-meta,
+        html.dark-mode .course-card.course-card-ended .course-students {
+            color: #8b8b8b;
+        }
+
+        html.dark-mode .course-card.course-card-ended .course-level-tag {
+            background-color: #3f3f46;
+            color: #a1a1aa;
+        }
+        /* ==========================================
+           11b. UNIVERSITY ACADEMIC RESULT STYLES (Mô phỏng bảng điểm trường)
+           ========================================== */
+        .study-mode-switch-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .study-segmented-control {
+            display: inline-flex;
+            background-color: #e2e8f0;
+            border-radius: 8px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .study-segmented-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .study-segmented-btn.active {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            box-shadow: 0 2px 5px rgba(21, 101, 192, 0.25);
+        }
+
+        /* ==========================================
+           THANH BỘ LỌC KẾT QUẢ HỌC TẬP ĐẠI HỌC
+           ========================================== */
+        .uni-result-filter-bar {
+            width: 100%;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 2fr 1.35fr 1.35fr 0.85fr;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .uni-result-filter-group {
+            width: 100%;
+        }
+
+        .uni-result-filter-input,
+        .uni-result-filter-select {
+            width: 100%;
+            height: 42px;
+            padding: 0 14px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background-color: #E7F5FF;
+            color: var(--text-main);
+            border: 1px solid var(--primary-blue);
+            border-radius: 8px;
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .uni-result-filter-input:focus,
+        .uni-result-filter-select:focus {
+            border-color: var(--primary-blue-hover);
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+        }
+
+        .uni-result-filter-select:disabled {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .uni-result-filter-btn {
+            width: 100%;
+            height: 42px;
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            border: 1px solid var(--primary-blue);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-sizing: border-box;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .uni-result-filter-btn:hover {
+            background-color: var(--primary-blue-hover);
+        }
+
+        .uni-result-filter-btn:active {
+            transform: scale(0.98);
+        }
+
+        html.dark-mode .uni-result-filter-input,
+        html.dark-mode .uni-result-filter-select {
+            background-color: #1a2a3a;
+            color: var(--text-main);
+            border-color: var(--primary-blue);
+        }
+
+        @media (max-width: 768px) {
+            .uni-result-filter-bar {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        html.dark-mode .study-segmented-control {
+            background-color: #2a2a2a;
+        }
+
+        .uni-result-container {
+            background-color: #ffffff;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            padding: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        html.dark-mode .uni-result-container {
+            background-color: var(--bg-card);
+            border-color: var(--border-color);
+        }
+
+        .uni-table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .uni-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+        }
+
+        html.dark-mode .uni-table {
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        /* Header phong cách Bảng điểm trường */
+        .uni-table th {
+            background-color: rgb(21,101,192);
+            color: #ffffff;
+            font-weight: 700;
+            text-align: center;
+            padding: 10px 8px;
+            border: 1px solid #0c3b66;
+            white-space: nowrap;
+            font-size: 0.875rem;
+        }
+
+        .uni-table td {
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            vertical-align: middle;
+        }
+
+        html.dark-mode .uni-table td {
+            border-color: var(--border-color);
+        }
+
+        /* Dòng Phân nhóm Năm học & Học kỳ */
+        .uni-group-row-year td {
+            background-color: #dbeafe !important;
+            font-weight: 700;
+            color: #1e40af;
+            font-size: 0.95rem;
+            padding: 8px 12px;
+        }
+
+        .uni-group-row-semester td {
+            background-color: #eff6ff !important;
+            font-weight: 700;
+            color: #1d4ed8;
+            font-size: 0.9rem;
+            padding: 6px 16px;
+        }
+
+        html.dark-mode .uni-group-row-year td {
+            background-color: #1e3a8a !important;
+            color: #bfdbfe;
+        }
+
+        html.dark-mode .uni-group-row-semester td {
+            background-color: #172554 !important;
+            color: #93c5fd;
+        }
+
+        /* Định dạng độ rộng cột bảng điểm đại học */
+        .uni-col-name {
+            width: 30%;
+        }
+        .uni-col-note {
+            width: 140px;
+        }
+
+        /* Định dạng Cột Mã HP: Chữ bôi đậm màu Xanh nước biển */
+        .uni-table tbody tr td:nth-child(2) strong {
+            color: #1565C0;
+            font-weight: 700;
+        }
+
+        html.dark-mode .uni-table tbody tr td:nth-child(2) strong {
+            color: #64b5f6;
+        }
+
+        /* Styling cho Cột Điểm 10 (Màu Đen) & Cột Điểm 4 (Màu Xanh nước biển) */
+        .uni-col-score10 {
+            font-weight: 700 !important;
+            color: var(--text-main, #2c3e50) !important;
+            text-align: center;
+        }
+
+        html.dark-mode .uni-col-score10 {
+            color: var(--text-main, #e0e0e0) !important;
+        }
+
+        .uni-col-score4 {
+            font-weight: 700 !important;
+            color: #1565C0 !important;
+            text-align: center;
+        }
+
+        html.dark-mode .uni-col-score4 {
+            color: #64b5f6 !important;
+        }
+
+        .uni-col-grade {
+            font-weight: 700 !important;
+            text-align: center;
+        }
+
+        /* Phân loại màu sắc điểm chữ: Điểm A là Xanh lá cây đậm (#1b5e20 / #2e7d32) */
+        .uni-grade-A { color: #1b5e20; font-weight: 800; }
+        .uni-grade-Bplus, .uni-grade-B { color: #2e7d32; }
+        .uni-grade-Cplus, .uni-grade-C { color: #d97706; }
+        .uni-grade-Dplus, .uni-grade-D { color: #dc2626; }
+        .uni-grade-F { color: #991b1b; }
+
+        html.dark-mode .uni-grade-A { color: #4ade80; font-weight: 800; }
+        html.dark-mode .uni-grade-Bplus, html.dark-mode .uni-grade-B { color: #81c784; }
+        html.dark-mode .uni-grade-Cplus, html.dark-mode .uni-grade-C { color: #fbbf24; }
+        html.dark-mode .uni-grade-Dplus, html.dark-mode .uni-grade-D { color: #f87171; }
+        html.dark-mode .uni-grade-F { color: #ef4444; }
+
+        /* Icon kết quả hoàn thành (Hiện đại, đồng nhất, căn giữa tuyệt đối) */
+        .uni-completed-icon,
+        .uni-failed-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+            vertical-align: middle;
+        }
+
+        .uni-completed-icon {
+            background-color: #2E7D32;
+            color: #ffffff;
+        }
+
+        .uni-failed-icon {
+            background-color: #E74C3C;
+            color: #ffffff;
+        }
+
+        .uni-completed-icon:hover,
+        .uni-failed-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .uni-completed-icon svg,
+        .uni-failed-icon svg {
+            width: 12px;
+            height: 12px;
+            display: block;
+            stroke-width: 3;
+            stroke: #ffffff;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Nút Xem chi tiết / Nút xổ lên - Biểu tượng tự do đầy đặn & mềm mại (Không hình vuông) */
+        .uni-btn-detail {
+            background: transparent;
+            border: none;
+            color: rgb(21,101,192);
+            cursor: pointer;
+            font-size: 1.25rem;
+            font-weight: 800;
+            padding: 4px 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease, transform 0.2s ease;
+            line-height: 1;
+            user-select: none;
+        }
+
+        .uni-btn-detail:hover {
+            color: #1565C0;
+            transform: scale(1.25);
+        }
+
+        .uni-btn-detail:active {
+            transform: scale(1.05);
+        }
+
+        html.dark-mode .uni-btn-detail {
+            color: #90caf9;
+        }
+
+        html.dark-mode .uni-btn-detail:hover {
+            color: #64b5f6;
+        }
+
+        /* Nút Chỉnh sửa Điểm đặt trong Bảng Chi tiết - Kích thước gọn gàng, cân đối chiều cao hàng */
+        .uni-btn-edit {
+            background-color: #2e7d32;
+            color: #ffffff;
+            border: 1.5px solid #000000;
+            padding: 3px 10px;
+            height: 26px;
+            box-sizing: border-box;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+        }
+
+        .uni-btn-edit:hover {
+            background-color: #1b5e20;
+            border-color: #000000;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .uni-btn-edit:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .uni-btn-edit svg {
+            width: 13px;
+            height: 13px;
+            stroke: #ffffff;
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+            display: block;
+        }
+
+        /* Ô nhập điểm Modal theo yêu cầu màu #D1EAFF */
+        .score-input-custom {
+            background-color: #D1EAFF !important;
+            color: #0f172a !important;
+            border: 1px solid #93c5fd !important;
+            font-weight: 700 !important;
+            text-align: center;
+        }
+
+        .score-input-custom:focus {
+            border-color: #1565C0 !important;
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.25) !important;
+            outline: none;
+        }
+
+        /* Trực quan nút nhập điểm rèn luyện */
+        .uni-sum-val-clickable {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dashed;
+            text-underline-offset: 3px;
+            transition: opacity 0.2s ease;
+        }
+
+        .uni-sum-val-clickable:hover {
+            opacity: 0.8;
+        }
+
+        /* Bảng chi tiết thành phần môn học */
+        .uni-detail-row td {
+            background-color: #f8fafc !important;
+            padding: 12px 20px !important;
+        }
+
+        html.dark-mode .uni-detail-row td {
+            background-color: #181818 !important;
+        }
+
+        .uni-detail-table {
+            width: 100%;
+            max-width: 800px;
+            margin: 6px auto;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            table-layout: fixed;
+        }
+
+        html.dark-mode .uni-detail-table {
+            background-color: #1e1e1e;
+            border-color: #333333;
+        }
+
+        .uni-detail-table th {
+            background-color: rgb(21,101,192);
+            color: #ffffff;
+            padding: 4px 8px;
+            border: 1px solid #cbd5e1;
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 2.0;
+        }
+
+        html.dark-mode .uni-detail-table th {
+            background-color: #0c3b66;
+            color: #ffffff;
+            border-color: var(--border-color);
+        }
+
+        /* Thu nhỏ chiều cao dòng gọn gàng & đổi màu điểm thành phần sang Xanh nước biển */
+        .uni-detail-table td {
+            padding: 4px 8px;
+            border: 1px solid #cbd5e1;
+            vertical-align: middle;
+            white-space: nowrap;
+            line-height: 1.2;
+        }
+
+        .uni-detail-table td:nth-child(4) strong {
+            color: #1565C0;
+            font-weight: 700;
+        }
+
+        html.dark-mode .uni-detail-table td:nth-child(4) strong {
+            color: #64b5f6;
+        }
+
+        /* Căn giữa tuyệt đối cho nút Chỉnh sửa trong cột Thao tác (Cột 5) */
+        .uni-detail-table td:nth-child(5) {
+            text-align: center !important;
+            vertical-align: middle !important;
+        }
+
+        .uni-detail-table td:nth-child(5) .uni-btn-edit {
+            margin: 0 auto !important;
+            display: inline-flex !important;
+            vertical-align: middle;
+        }
+
+        /* Phân bổ tỷ lệ cột bảng chi tiết */
+        .uni-detail-table .uni-detail-col-stt { width: 50px; text-align: center; }
+        .uni-detail-table .uni-detail-col-name { width: auto; white-space: nowrap; }
+        .uni-detail-table .uni-detail-col-weight { width: 100px; text-align: center; }
+        .uni-detail-table .uni-detail-col-score { width: 90px; text-align: center; }
+        .uni-detail-table .uni-detail-col-action { width: 160px; text-align: center; }
+
+        /* Cột Điểm nổi bật: Chữ màu xanh, lớn hơn 1px (0.85rem + 1px), font-weight 700 */
+        .uni-detail-score-val {
+            color: #1565C0;
+            font-size: calc(0.85rem + 3px);
+            font-weight: 700;
+            display: inline-block;
+            line-height: 1.6;
+        }
+
+        html.dark-mode .uni-detail-score-val {
+            color: #64b5f6;
+        }
+
+        .uni-summary-box-school {
+            background-color: #F9D496;
+            border: none;
+            padding: 14px 24px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            align-items: center;
+            font-size: 0.875rem;
+            color: #222222;
+            line-height: 1.8;
+            border-radius: 0;
+            font-weight: 700;
+        }
+
+
+        html.dark-mode .uni-summary-box-school {
+            background-color: #4a3e1a;
+            border-color: #6e5c27;
+            color: #ffffff;
+        }
+
+        .uni-summary-box-school .uni-sum-col {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .uni-summary-box-school .uni-sum-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .uni-summary-box-school .uni-sum-label {
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .uni-summary-box-school .uni-sum-val {
+            font-weight: 700;
+            color: #1565C0;
+            text-align: right;
+            margin-left: 8px;
+        }
+
+        html.dark-mode .uni-summary-box-school .uni-sum-val {
+            color: #64b5f6;
+        }
+
+        .uni-group-row-year td {
+            background-color: #fce4ec !important;
+            color: #880e4f !important;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+
+        .uni-group-row-semester td {
+            background-color: #e3f2fd !important;
+            color: #0d47a1 !important;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+
+        html.dark-mode .uni-group-row-year td {
+            background-color: #4a148c !important;
+            color: #f8bbd0 !important;
+        }
+
+        html.dark-mode .uni-group-row-semester td {
+            background-color: #0d47a1 !important;
+            color: #bbdefb !important;
+        }
+
+        /* ==========================================
+           BẢNG TỔNG HỢP HIỆN TẠI TOÀN BỘ QUÁ TRÌNH HỌC ĐẠI HỌC (HNUE)
+           ========================================== */
+        .uni-current-summary {
+            width: 100%;
+            border: 2px solid var(--primary-blue);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            background-color: var(--bg-card);
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.08);
+            display: grid;
+            grid-template-columns: 1fr 5fr;
+        }
+
+        .uni-current-summary-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background-color: #f8fafc;
+            border-right: 1px solid var(--border-color);
+        }
+
+        html.dark-mode .uni-current-summary-logo {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .uni-current-summary-logo img {
+            width: 100%;
+            max-width: 90px;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .uni-current-summary-grid {
+            padding: 16px 20px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px 24px;
+            align-content: center;
+        }
+
+        .uni-current-summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            gap: 12px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .uni-current-summary-item:last-child,
+        .uni-current-summary-item:nth-last-child(2) {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .uni-current-summary-label {
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        .uni-current-summary-value {
+            color: var(--primary-blue);
+            font-weight: 700;
+            text-align: right;
+        }
+
+        html.dark-mode .uni-current-summary-value {
+            color: #64b5f6;
+        }
+
+        @media (max-width: 992px) {
+            .uni-current-summary {
+                grid-template-columns: 90px 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .uni-current-summary {
+                grid-template-columns: 1fr;
+            }
+            .uni-current-summary-logo {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 12px;
+            }
+            .uni-current-summary-logo img {
+                max-width: 60px;
+            }
+            .uni-current-summary-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        /* Nút thu gọn / mở rộng học kỳ */
+        .uni-semester-toggle-btn {
+            background: transparent;
+            border: 1px solid rgba(13, 71, 161, 0.25);
+            color: #0d47a1;
+            cursor: pointer;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            line-height: 1;
+            padding: 0;
+            margin: 0 auto;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .uni-semester-toggle-btn:hover {
+            background-color: rgba(13, 71, 161, 0.12);
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+
+        .uni-semester-toggle-btn:active {
+            transform: scale(0.95);
+        }
+
+        html.dark-mode .uni-semester-toggle-btn {
+            color: #93c5fd;
+            border-color: rgba(147, 197, 253, 0.3);
+        }
+
+        html.dark-mode .uni-semester-toggle-btn:hover {
+            background-color: rgba(147, 197, 253, 0.18);
+            border-color: #93c5fd;
+        }
+
+        /* Thanh tổng kết năm học */
+        .uni-summary-box-year {
+            background-color: #E7F5FF !important;
+            border-top: 2px solid var(--primary-blue);
+        }
+
+        html.dark-mode .uni-summary-box-year {
+            background-color: #1e3a5f !important;
+        }
+
+        /* Nút thu gọn / mở rộng năm học */
+        .uni-year-toggle-btn {
+            background: transparent;
+            border: 1px solid rgba(13, 71, 161, 0.3);
+            color: #0d47a1;
+            cursor: pointer;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            line-height: 1;
+            padding: 0;
+            margin: 0 auto;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .uni-year-toggle-btn:hover {
+            background-color: rgba(13, 71, 161, 0.15);
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+
+        html.dark-mode .uni-year-toggle-btn {
+            color: #93c5fd;
+            border-color: rgba(147, 197, 253, 0.4);
+        }
+
+        html.dark-mode .uni-year-toggle-btn:hover {
+            background-color: rgba(147, 197, 253, 0.2);
+        }
