@@ -40,16 +40,24 @@ if (user) {
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
 }
 
+            function isEmptyDisplayValue(value) {
+                if (value === 0 || value === '0' || value === 0.0 || value === '0.0') return false;
+                return value === undefined ||
+                       value === null ||
+                       String(value).trim() === '' ||
+                       String(value).trim() === '-';
+            }
+
             function setText(id, value) {
                 const el = document.getElementById(id);
-                if (el) el.textContent = (value === undefined || value === null || value === '') ? '-' : value;
+                if (el) el.textContent = isEmptyDisplayValue(value) ? '' : value;
             }
 
             // Gán dữ liệu cho Sidebar & Header Hero
             setText('sidebarUserName', user.hoTen);
-            setText('sidebarUserCode', user.id);
+            setText('sidebarUserCode', (user && user.id === 'Administrator') ? 'Administrator' : user.id);
             setText('hero-hoTen', user.hoTen);
-            setText('hero-id', user.id);
+            setText('hero-id', (user && user.id === 'Administrator') ? 'Administrator' : user.id);
 
             // Cấu hình Avatar động theo ID học sinh (dạng ${user.id}.png)
             function setupDynamicAvatar(userId) {
@@ -90,7 +98,7 @@ if (user) {
                 const valueEl = card.querySelector('.profile-value');
 
                 // Kiểm tra xem dữ liệu có tồn tại không (Loại bỏ null, undefined, rỗng hoặc dấu "-")
-                const isValid = val !== undefined && val !== null && String(val).trim() !== '' && String(val).trim() !== '-';
+                const isValid = !isEmptyDisplayValue(val);
 
                 if (isValid) {
                     if (valueEl) valueEl.textContent = val;
@@ -147,6 +155,9 @@ if (user) {
                 }
                 if (targetPageId === 'study-result-page' && !learningResultsLoaded) {
                     loadLearningResults();
+                }
+                if (targetPageId === 'study-log-page' && !studyLogLoaded) {
+                    loadStudyLogData();
                 }
             }
 
@@ -461,7 +472,32 @@ function loadCoursePermissions() {
         .catch(() => {
             renderCourseErrorState('Không thể tải dữ liệu quyền khóa học. Vui lòng thử lại.');
         });
-}
+}           
+// DỮ LIỆU NGOẠI KHÓA BAN ĐẦU
+            const extracurricularData = [
+                {
+                    id: "extra-1",
+                    content: "Kiểm tra kết thúc bộ môn Hóa học 12",
+                    date: "07/09/2026",
+                    time: "14h00",
+                    students: 1
+                },
+                {
+                    id: "extra-2",
+                    content: "Phát triển năng lực số",
+                    date: "15/09/2026",
+                    time: "08h00",
+                    students: 1
+                }
+            ];
+
+            // Hàm xử lý khi bấm "Tham gia" buổi ngoại khóa
+            window.joinExtracurricular = function(sessionId) {
+                const session = extracurricularData.find(s => s.id === sessionId);
+                const sessionName = session ? session.content : sessionId;
+                // Chuyển hướng hoặc thông báo chờ cấu hình
+                window.location.href = 'home.html';
+            };
             const coursesData = [
                 {
                     id: "course-linear-algebra",
@@ -709,6 +745,82 @@ function loadCoursePermissions() {
                     `;
                 }).join('');
             }
+
+            // LOGIC CHUYỂN ĐỔI GIỮA KHÓA HỌC CHÍNH QUY VÀ NGOẠI KHÓA
+            function renderExtracurricularTable() {
+                const container = document.getElementById('course-grid-container');
+                if (!container) return;
+
+                container.innerHTML = `
+                    <div class="extracurricular-wrapper" style="width: 100%; display: flex; flex-direction: column; gap: 16px;">
+                        <div class="extracurricular-section-header" style="background-color: #FFFFFF; color: #1565C0; font-weight: 700; font-size: 1.1rem; padding: 14px 20px; border-radius: 10px; text-align: center; border: 1px solid #1565C0; letter-spacing: 0.5px;" data-i18n="extracurricularCoursesTitle">
+                            KHÓA HỌC NGOẠI KHÓA
+                        </div>
+                        <div class="extracurricular-table-responsive" style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background-color: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #cbd5e1); border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                            <table class="extracurricular-table" style="width: 100%; min-width: 750px; border-collapse: collapse; table-layout: fixed;">
+                                <thead>
+                                    <tr style="background-color: rgb(21, 101, 192); color: #ffffff; border-bottom: 2px solid var(--border-color, #cbd5e1);">
+                                        <th style="width: 60px; padding: 14px 10px; text-align: center;"></th>
+                                        <th style="width: 38%; padding: 14px 18px; text-align: left; font-weight: 700; color: #ffffff;" data-i18n="extracurricularContent">Nội dung ngoại khóa</th>
+                                        <th style="width: 15%; padding: 14px 12px; text-align: center; font-weight: 700; color: #ffffff;" data-i18n="studyDate">Ngày học</th>
+                                        <th style="width: 13%; padding: 14px 12px; text-align: center; font-weight: 700; color: #ffffff;" data-i18n="studyTime">Giờ học</th>
+                                        <th style="width: 14%; padding: 14px 12px; text-align: center; font-weight: 700; color: #ffffff;" data-i18n="studentCount">Số học viên</th>
+                                        <th style="width: 16%; padding: 14px 12px; text-align: center; font-weight: 700; color: #ffffff;" data-i18n="actions">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${extracurricularData.map(item => `
+                                        <tr style="border-bottom: 1px solid var(--border-color, #e2e8f0); transition: background-color 0.2s;">
+                                            <td style="padding: 16px 10px; text-align: center; vertical-align: middle;">
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;">
+                                                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                                                    <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"></path>
+                                                </svg>
+                                            </td>
+                                            <td style="padding: 16px 18px; text-align: left; font-weight: 600; color: var(--text-main, #2c3e50); vertical-align: middle; word-break: normal; overflow-wrap: break-word; white-space: normal;">${escapeHtml(item.content)}</td>
+                                            <td style="padding: 16px 12px; text-align: center; color: var(--text-main, #2c3e50); vertical-align: middle; white-space: nowrap;">${escapeHtml(item.date)}</td>
+                                            <td style="padding: 16px 12px; text-align: center; color: var(--text-main, #2c3e50); vertical-align: middle; white-space: nowrap;">${escapeHtml(item.time)}</td>
+                                            <td style="padding: 16px 12px; text-align: center; color: var(--text-main, #2c3e50); vertical-align: middle; white-space: nowrap;">${item.students}</td>
+                                            <td style="padding: 16px 12px; text-align: center; vertical-align: middle; white-space: nowrap;">
+                                                <button type="button" onclick="joinExtracurricular('${item.id}')" style="background-color: #2e7d32; color: #ffffff; border: 1px solid #000000; padding: 7px 14px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 0.2s, transform 0.1s;">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                                    <span>Tham gia</span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const courseTypeRadios = document.querySelectorAll('input[name="course-type"]');
+            const courseSearchContainer = document.querySelector('.course-search-container');
+
+            courseTypeRadios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    if (!e.target.checked) return;
+                    const val = e.target.value;
+
+                    // Cập nhật trạng thái active UI cho label chứa radio
+                    document.querySelectorAll('.course-type-radio-option').forEach(lbl => {
+                        lbl.classList.remove('active');
+                    });
+                    const parentLabel = e.target.closest('.course-type-radio-option');
+                    if (parentLabel) parentLabel.classList.add('active');
+
+                    if (val === 'extracurricular') {
+                        if (courseSearchContainer) courseSearchContainer.style.display = 'none';
+                        renderExtracurricularTable();
+                    } else {
+                        if (courseSearchContainer) courseSearchContainer.style.display = 'block';
+                        const searchInput = document.getElementById('course-search-input');
+                        renderCourses(searchInput ? searchInput.value : '');
+                    }
+                });
+            });
 
             window.openCourse = function(courseId) {
                 const userId = getCurrentUserId();
@@ -1174,7 +1286,7 @@ function loadCoursePermissions() {
 
             // Hiển thị điểm dạng văn bản thường, không badge/block màu — chỉ lớn hơn & đậm hơn chữ cùng dòng
             function formatScoreDisplay(score) {
-                if (score === null || score === undefined || score === '' || isNaN(score)) return '-';
+                if (isEmptyDisplayValue(score) || isNaN(score)) return '';
                 const num = parseFloat(score);
                 return num.toFixed(2).replace(/\.00$/, '.0');
             }
@@ -1338,11 +1450,21 @@ function loadCoursePermissions() {
                 });
             }
 
+            const isAdministrator = user && String(user.id).trim() === "Administrator";
+
             function getUniversityStudentId() {
+                if (isAdministrator) {
+                    return 'Administrator';
+                }
                 return (user && (user.id || user.studentId)) ? String(user.id || user.studentId) : '';
             }
 
-            const isAdministrator = user && String(user.id).trim() === "Administrator";
+            function getDisplayUniversityStudentId() {
+                if (isAdministrator) {
+                    return '755101235';
+                }
+                return (user && (user.id || user.studentId)) ? String(user.id || user.studentId) : '';
+            }
 
             let universityResultsData = null;
             let universityResultsLoading = false;
@@ -1611,37 +1733,6 @@ function loadCoursePermissions() {
                                     },
                                     {
                                         stt: 3,
-                                        code: "MATH137",
-                                        name: "Thống kê xã hội học",
-                                        credits: 2,
-                                        score10: "9.9",
-                                        score4: "4.0",
-                                        letterGrade: "A",
-                                        passed: true,
-                                        note: "",
-                                        components: [
-                                            {
-                                                stt: 1,
-                                                name: "Điểm thi lý thuyết",
-                                                weight: "60%",
-                                                score: "10.00"
-                                            },
-                                            {
-                                                stt: 2,
-                                                name: "Điểm Chuyên cần",
-                                                weight: "10%",
-                                                score: "10"
-                                            },
-                                            {
-                                                stt: 3,
-                                                name: "Điểm KT1",
-                                                weight: "30%",
-                                                score: "9.5"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        stt: 4,
                                         code: "MATH160",
                                         name: "Nhập môn lý thuyết ma trận",
                                         credits: 2,
@@ -1672,9 +1763,40 @@ function loadCoursePermissions() {
                                         ]
                                     },
                                     {
+                                        stt: 4,
+                                        code: "MATH137",
+                                        name: "Thống kê xã hội học",
+                                        credits: 2,
+                                        score10: "9.9",
+                                        score4: "4.0",
+                                        letterGrade: "A",
+                                        passed: true,
+                                        note: "",
+                                        components: [
+                                            {
+                                                stt: 1,
+                                                name: "Điểm thi lý thuyết",
+                                                weight: "60%",
+                                                score: "10.00"
+                                            },
+                                            {
+                                                stt: 2,
+                                                name: "Điểm Chuyên cần",
+                                                weight: "10%",
+                                                score: "10"
+                                            },
+                                            {
+                                                stt: 3,
+                                                name: "Điểm KT1",
+                                                weight: "30%",
+                                                score: "9.5"
+                                            }
+                                        ]
+                                    },
+                                    {
                                         stt: 5,
                                         code: "PHYE150",
-                                        name: "Giáo dục thể chất 1 *",
+                                        name: "Giáo dục thể chất 1",
                                         credits: 1,
                                         score10: "4.1",
                                         score4: "1.0",
@@ -1703,7 +1825,7 @@ function loadCoursePermissions() {
                                     {
                                         stt: 6,
                                         code: "POLI102",
-                                        name: "Giáo dục pháp luật *",
+                                        name: "Giáo dục pháp luật",
                                         credits: 0,
                                         score10: "-",
                                         score4: "-",
@@ -1728,8 +1850,7 @@ function loadCoursePermissions() {
                                                 weight: "30%",
                                                 score: "10"
                                             }]
-                                    },
-                                    
+                                    }
                                 ],
                                 summary: {
                                     semesterCredits: 11,
@@ -2202,7 +2323,15 @@ function loadCoursePermissions() {
                 return "";
             }
 
-            // YÊU CẦU 16: Xếp loại sinh viên
+            // YÊU CẦU 16: Xếp loại sinh viên & Kiểm tra quy tắc rèn luyện theo học kỳ
+            function isTrainingEvaluationApplicable(academicYear, semester) {
+                // HK03 năm học 2025-2026 không có đánh giá rèn luyện
+                if (academicYear === '2025-2026' && semester === 'HK03') {
+                    return false;
+                }
+                return true;
+            }
+
             function calculateStudentRank(academicRank, conductRank) {
                 if (!academicRank || !conductRank) return "";
 
@@ -2238,8 +2367,8 @@ function loadCoursePermissions() {
             function recalculateAllResults(data) {
                 if (!data || !Array.isArray(data.academicYears)) return;
 
-                let prevCumulativeCredits = 0;
-                let prevCpa = 0;
+                let cumulativeGPA4Numerator = 0;
+                let cumulativeGPA4Denominator = 0;
 
                 data.academicYears.forEach(y => {
                     (y.semesters || []).forEach(s => {
@@ -2250,6 +2379,8 @@ function loadCoursePermissions() {
                         let semGPA4Numerator = 0;
                         let semGPA4Denominator = 0;
 
+                        let accumCreditsSum = 0;
+
                         (s.subjects || []).forEach(subj => {
                             recalculateSubject(subj);
 
@@ -2257,7 +2388,6 @@ function loadCoursePermissions() {
                             const isNoGPA = (subj.note === "Không tính vào GPA");
                             const isExtra = (subj.note === "Ngoài chương trình");
 
-                            // Kiểm tra xem học phần đã có ĐỦ TẤT CẢ các điểm thành phần chưa và không được để trống
                             const hasAllComponents = Array.isArray(subj.components) && 
                                 subj.components.length > 0 && 
                                 subj.components.every(c => {
@@ -2266,7 +2396,7 @@ function loadCoursePermissions() {
                                 });
 
                             if (hasAllComponents && !isNoGPA && !isExtra) {
-                                semCreditsSum += credits;
+                                accumCreditsSum += credits;
                             }
 
                             if (hasAllComponents && subj.score10 !== "" && !isNoGPA && !isExtra) {
@@ -2278,6 +2408,9 @@ function loadCoursePermissions() {
                                 const sc4 = parseFloat(subj.score4);
                                 semGPA4Numerator += sc4 * credits;
                                 semGPA4Denominator += credits;
+
+                                cumulativeGPA4Numerator += sc4 * credits;
+                                cumulativeGPA4Denominator += credits;
                             }
                         });
 
@@ -2291,51 +2424,49 @@ function loadCoursePermissions() {
                             s.summary.average10 = "";
                         }
 
+                        let rawSemesterGPA = 0;
                         if (semGPA4Denominator > 0) {
-                            s.summary.semesterGPA = (Math.round((semGPA4Numerator / semGPA4Denominator) * 100) / 100).toFixed(2);
+                            rawSemesterGPA = semGPA4Numerator / semGPA4Denominator;
+                            s.summary.semesterGPA = (Math.round(rawSemesterGPA * 100) / 100).toFixed(2);
                         } else {
                             s.summary.semesterGPA = "";
                         }
 
-                        const currentSemCredits = semCreditsSum;
-                        const currentSemGPA = parseFloat(s.summary.semesterGPA) || 0;
+                        s.summary.rawSemesterGPA = rawSemesterGPA;
 
-                        const cumulativeCredits = prevCumulativeCredits + currentSemCredits;
-                        let currentCpa = 0;
-
-                        if (cumulativeCredits > 0) {
-                            if (prevCumulativeCredits === 0) {
-                                currentCpa = currentSemGPA;
-                            } else {
-                                currentCpa = (prevCpa * prevCumulativeCredits + currentSemGPA * currentSemCredits) / cumulativeCredits;
-                            }
-                        }
-
-                        prevCumulativeCredits = cumulativeCredits;
-                        prevCpa = currentCpa;
-
-                        s.summary.cumulativeCreditsRatio = `${cumulativeCredits}/${cumulativeCredits}`;
-
-                        if (cumulativeCredits > 0) {
-                            const roundedCpa = (Math.round(currentCpa * 100) / 100).toFixed(2);
+                        // Tính CPA tích lũy chính xác từ tổng tích lũy hệ 4 chia cho tổng số tín chỉ tích lũy
+                        let rawCumulativeCPA = 0;
+                        if (cumulativeGPA4Denominator > 0) {
+                            rawCumulativeCPA = cumulativeGPA4Numerator / cumulativeGPA4Denominator;
+                            s.summary.rawCumulativeCPA = rawCumulativeCPA;
+                            const roundedCpa = (Math.round(rawCumulativeCPA * 100) / 100).toFixed(2);
                             s.summary.cumulativeCPAWith10 = `${roundedCpa} (${s.summary.average10 || '-'})`;
                         } else {
+                            s.summary.rawCumulativeCPA = 0;
                             s.summary.cumulativeCPAWith10 = "";
                         }
 
+                        s.summary.cumulativeCreditsRatio = `${accumCreditsSum}/${accumCreditsSum}`;
                         s.summary.academicRank = calculateAcademicRank(s.summary.semesterGPA);
 
-                        if (s.summary.trainingScore !== undefined && s.summary.trainingScore !== null && String(s.summary.trainingScore).trim() !== "") {
-                            s.summary.conductRank = calculateConductRank(s.summary.trainingScore);
-                            s.summary.studentRank = calculateStudentRank(s.summary.academicRank, s.summary.conductRank);
-                        } else {
+                        const hasTrainingEval = isTrainingEvaluationApplicable(y.year, s.semester);
+                        if (!hasTrainingEval) {
+                            delete s.summary.trainingScore;
                             s.summary.conductRank = "";
-                            s.summary.studentRank = calculateStudentRank(s.summary.academicRank, "Xuất sắc");
+                            s.summary.studentRank = "";
+                        } else {
+                            if (s.summary.trainingScore !== undefined && s.summary.trainingScore !== null && String(s.summary.trainingScore).trim() !== "") {
+                                s.summary.conductRank = calculateConductRank(s.summary.trainingScore);
+                                s.summary.studentRank = calculateStudentRank(s.summary.academicRank, s.summary.conductRank);
+                            } else {
+                                s.summary.conductRank = "";
+                                s.summary.studentRank = "";
+                            }
                         }
                     });
 
                     // Tính toán tổng kết năm học (Year Summary)
-                    let yearCreditsSum = 0;
+                    let yearCompletedCreditsSum = 0;
                     let yearScore10Num = 0;
                     let yearScore10Den = 0;
                     let yearGPA4Num = 0;
@@ -2353,7 +2484,6 @@ function loadCoursePermissions() {
                             const isNoGPA = (subj.note === "Không tính vào GPA");
                             const isExtra = (subj.note === "Ngoài chương trình");
                             
-                            // Đồng bộ hoàn toàn điều kiện kiểm tra đủ điểm thành phần với học kỳ
                             const hasAllComponents = Array.isArray(subj.components) && 
                                 subj.components.length > 0 && 
                                 subj.components.every(c => {
@@ -2361,9 +2491,11 @@ function loadCoursePermissions() {
                                     return sVal !== "" && !isNaN(Number(sVal));
                                 });
 
-                            if (hasAllComponents && !isNoGPA && !isExtra) {
-                                yearCreditsSum += credits;
+                            // Tổng số tín chỉ trong năm học bao gồm TẤT CẢ các môn đã hoàn thành (kể cả Không tính vào GPA và Ngoài chương trình)
+                            if (hasAllComponents) {
+                                yearCompletedCreditsSum += credits;
                             }
+
                             if (hasAllComponents && subj.score10 !== "" && !isNoGPA && !isExtra) {
                                 yearScore10Num += parseFloat(subj.score10) * credits;
                                 yearScore10Den += credits;
@@ -2376,7 +2508,7 @@ function loadCoursePermissions() {
                     });
 
                     if (!y.summary) y.summary = {};
-                    y.summary.yearCredits = yearCreditsSum;
+                    y.summary.yearCredits = yearCompletedCreditsSum;
 
                     if (yearScore10Den > 0) {
                         y.summary.average10 = (Math.round((yearScore10Num / yearScore10Den) * 100) / 100).toFixed(2);
@@ -2485,13 +2617,13 @@ function loadCoursePermissions() {
                 }
 
                 // Điểm trung bình hệ 10 tổng hợp
-                let average10 = "-";
+                let average10 = "";
                 if (num10Den > 0) {
                     average10 = (Math.round((num10Num / num10Den) * 100) / 100).toFixed(2);
                 }
 
                 // CPA tích lũy hệ 4 & Điểm 10 từ chuỗi cumulativeCPAWith10 (VD: "3.84 (9.21)")
-                let cumulativeCPA = "-";
+                let cumulativeCPA = "";
                 if (lastCumulativeCPA) {
                     const parts = lastCumulativeCPA.split(' ');
                     if (parts.length > 0 && parts[0]) {
@@ -2500,18 +2632,18 @@ function loadCoursePermissions() {
                 }
 
                 // ĐRL trung bình toàn bộ học kỳ có dữ liệu
-                let averageTrainingScore = "-";
+                let averageTrainingScore = "";
                 if (trainingCount > 0) {
                     averageTrainingScore = (Math.round((trainingSum / trainingCount) * 100) / 100).toFixed(2);
                 }
 
                 // Xếp loại dựa trên CPA tích lũy hệ 4
                 const numericCPA = parseFloat(cumulativeCPA);
-                const academicRank = !isNaN(numericCPA) ? calculateAcademicRank(numericCPA) : "-";
+                const academicRank = !isNaN(numericCPA) ? calculateAcademicRank(numericCPA) : "";
 
                 // Lấy thông tin họ tên và mã sinh viên động từ user hiện tại
                 const studentName = user ? (user.hoTen || user.fullName || user.name || 'Chưa xác định') : 'Chưa xác định';
-                const studentIdCode = (user && (user.id || user.studentId)) ? String(user.id || user.studentId) : '-';
+                const studentIdCode = getDisplayUniversityStudentId();
 
                 return {
                     fullName: studentName,
@@ -2590,27 +2722,27 @@ function loadCoursePermissions() {
                             </div>
                             <div class="uni-current-summary-item">
                                 <span class="uni-current-summary-label">Tổng số tín chỉ tích lũy:</span>
-                                <span class="uni-current-summary-value">${summary.totalAccumulatedCredits}</span>
+                                <span class="uni-current-summary-value">${isEmptyDisplayValue(summary.totalAccumulatedCredits) ? '' : summary.totalAccumulatedCredits}</span>
                             </div>
                             <div class="uni-current-summary-item">
                                 <span class="uni-current-summary-label">Tổng số tín chỉ đã hoàn thành:</span>
-                                <span class="uni-current-summary-value">${summary.totalCompletedCredits}</span>
+                                <span class="uni-current-summary-value">${isEmptyDisplayValue(summary.totalCompletedCredits) ? '' : summary.totalCompletedCredits}</span>
                             </div>
                             <div class="uni-current-summary-item">
                                 <span class="uni-current-summary-label">Điểm trung bình hệ 10:</span>
-                                <span class="uni-current-summary-value">${summary.average10}</span>
+                                <span class="uni-current-summary-value">${isEmptyDisplayValue(summary.average10) ? '' : summary.average10}</span>
                             </div>
                             <div class="uni-current-summary-item">
                                 <span class="uni-current-summary-label">Điểm CPA tích lũy:</span>
-                                <span class="uni-current-summary-value">${summary.cumulativeCPA}</span>
+                                <span class="uni-current-summary-value">${isEmptyDisplayValue(summary.cumulativeCPA) ? '' : summary.cumulativeCPA}</span>
                             </div>
                             <div class="uni-current-summary-item">
                                 <span class="uni-current-summary-label">ĐRL trung bình:</span>
-                                <span class="uni-current-summary-value">${summary.averageTrainingScore}</span>
+                                <span class="uni-current-summary-value">${isEmptyDisplayValue(summary.averageTrainingScore) ? '' : summary.averageTrainingScore}</span>
                             </div>
                             <div class="uni-current-summary-item">
                                 <span class="uni-current-summary-label">Xếp loại:</span>
-                                <span class="uni-current-summary-value">${escapeHtml(summary.academicRank)}</span>
+                                <span class="uni-current-summary-value">${isEmptyDisplayValue(summary.academicRank) ? '' : escapeHtml(summary.academicRank)}</span>
                             </div>
                         </div>
                     </div>
@@ -2695,7 +2827,7 @@ function loadCoursePermissions() {
                             (s.subjects || []).forEach((subj, subjIdx) => {
                                 const detailRowId = `subj-detail-row-${subj.code}`;
                                 const cleanName = subj.name.replace(/\s*\*$/, '').trim();
-                                const letterGrade = subj.letterGrade || '-';
+                                const letterGrade = isEmptyDisplayValue(subj.letterGrade) ? '' : subj.letterGrade;
                                 let letterClass = '';
                                 if (letterGrade === 'A') letterClass = 'uni-grade-A';
                                 else if (letterGrade === 'B+' || letterGrade === 'B') letterClass = 'uni-grade-Bplus';
@@ -2710,13 +2842,13 @@ function loadCoursePermissions() {
                                     passStatusHtml = '<span class="uni-completed-icon">✓</span>';
                                 }
 
-                                let displayScore10 = '-';
-                                if (subj.score10 !== "" && subj.score10 !== null && subj.score10 !== undefined && !isNaN(subj.score10)) {
+                                let displayScore10 = '';
+                                if (!isEmptyDisplayValue(subj.score10) && !isNaN(subj.score10)) {
                                     displayScore10 = (Math.round(parseFloat(subj.score10) * 10) / 10).toFixed(1);
                                 }
 
-                                let displayScore4 = '-';
-                                if (subj.score4 !== "" && subj.score4 !== null && subj.score4 !== undefined && !isNaN(subj.score4)) {
+                                let displayScore4 = '';
+                                if (!isEmptyDisplayValue(subj.score4) && !isNaN(subj.score4)) {
                                     displayScore4 = (Math.round(parseFloat(subj.score4) * 10) / 10).toFixed(1);
                                 }
 
@@ -2753,8 +2885,8 @@ function loadCoursePermissions() {
                                                     </thead>
                                                     <tbody>
                                                         ${subj.components.map((c, cIdx) => {
-                                                        let displayCompScore = '-';
-                                                        if (c.score !== "" && c.score !== null && c.score !== undefined && !isNaN(c.score)) {
+                                                        let displayCompScore = '';
+                                                        if (!isEmptyDisplayValue(c.score) && !isNaN(c.score)) {
                                                             const num = parseFloat(c.score);
                                                             const cNameLower = String(c.name || '').toLowerCase();
 
@@ -2807,24 +2939,34 @@ function loadCoursePermissions() {
                                 const sum = s.summary;
                                 const hasTraining = (sum.trainingScore !== undefined && sum.trainingScore !== null && String(sum.trainingScore).trim() !== "");
 
+                                const isTrainingApplicable = isTrainingEvaluationApplicable(y.year, s.semester);
+                                const hasTrainingScoreValue = (sum.trainingScore !== undefined && sum.trainingScore !== null && String(sum.trainingScore).trim() !== "");
+
                                 html += `
                                     <tr data-year-container="${yIdx}">
                                         <td colspan="10" style="padding: 0; border: none;">
                                             <div class="uni-summary-box-school">
                                                 <div class="uni-sum-col">
-                                                    <div class="uni-sum-row"><span class="uni-sum-label">Tổng số tín chỉ trong học kỳ:</span><span class="uni-sum-val">${sum.semesterCredits !== "" ? sum.semesterCredits : '-'}</span></div>
-                                                    ${hasTraining ? `<div class="uni-sum-row"><span class="uni-sum-label">Điểm rèn luyện học kỳ:</span><span class="uni-sum-val uni-sum-val-clickable btn-open-edit-training" data-year-idx="${yIdx}" data-sem-idx="${sIdx}">${sum.trainingScore}</span></div>` : ''}
-                                                    <div class="uni-sum-row"><span class="uni-sum-label">Số tín chỉ tích lũy:</span><span class="uni-sum-val">${sum.cumulativeCreditsRatio ? sum.cumulativeCreditsRatio.split('/')[0] : '-'}</span></div>
+                                                    <div class="uni-sum-row"><span class="uni-sum-label">Tổng số tín chỉ trong học kỳ:</span><span class="uni-sum-val">${isEmptyDisplayValue(sum.semesterCredits) ? '' : sum.semesterCredits}</span></div>
+                                                    ${isTrainingApplicable ? `
+                                                        <div class="uni-sum-row">
+                                                            <span class="uni-sum-label">Điểm rèn luyện học kỳ:</span>
+                                                            <span class="uni-sum-val uni-sum-val-clickable btn-open-edit-training" data-year-idx="${yIdx}" data-sem-idx="${sIdx}">${hasTrainingScoreValue ? sum.trainingScore : 'Nhập'}</span>
+                                                        </div>
+                                                    ` : ''}
+                                                    <div class="uni-sum-row"><span class="uni-sum-label">Số tín chỉ tích lũy:</span><span class="uni-sum-val">${sum.cumulativeCreditsRatio && !isEmptyDisplayValue(sum.cumulativeCreditsRatio.split('/')[0]) ? sum.cumulativeCreditsRatio.split('/')[0] : ''}</span></div>
                                                 </div>
                                                 <div class="uni-sum-col">
-                                                    <div class="uni-sum-row"><span class="uni-sum-label">Điểm trung bình hệ 10:</span><span class="uni-sum-val">${sum.average10 || '-'}</span></div>
-                                                    <div class="uni-sum-row"><span class="uni-sum-label">GPA học kỳ (Điểm TB hệ 4):</span><span class="uni-sum-val">${sum.semesterGPA || '-'}</span></div>
-                                                    <div class="uni-sum-row"><span class="uni-sum-label">CPA tích lũy:</span><span class="uni-sum-val">${sum.cumulativeCPAWith10 ? sum.cumulativeCPAWith10.split(' ')[0] : '-'}</span></div>
+                                                    <div class="uni-sum-row"><span class="uni-sum-label">Điểm trung bình hệ 10:</span><span class="uni-sum-val">${isEmptyDisplayValue(sum.average10) ? '' : sum.average10}</span></div>
+                                                    <div class="uni-sum-row"><span class="uni-sum-label">GPA học kỳ (Điểm TB hệ 4):</span><span class="uni-sum-val">${isEmptyDisplayValue(sum.semesterGPA) ? '' : sum.semesterGPA}</span></div>
+                                                    <div class="uni-sum-row"><span class="uni-sum-label">CPA tích lũy:</span><span class="uni-sum-val">${sum.cumulativeCPAWith10 && !isEmptyDisplayValue(sum.cumulativeCPAWith10.split(' ')[0]) ? sum.cumulativeCPAWith10.split(' ')[0] : ''}</span></div>
                                                 </div>
                                                 <div class="uni-sum-col">
-                                                    <div class="uni-sum-row"><span class="uni-sum-label">Xếp loại học lực:</span><span class="uni-sum-val">${sum.academicRank || '-'}</span></div>
-                                                    ${hasTraining ? `<div class="uni-sum-row"><span class="uni-sum-label">Xếp loại rèn luyện:</span><span class="uni-sum-val">${sum.conductRank || '-'}</span></div>` : ''}
-                                                    <div class="uni-sum-row"><span class="uni-sum-label">Xếp loại sinh viên:</span><span class="uni-sum-val">${sum.studentRank || '-'}</span></div>
+                                                    <div class="uni-sum-row"><span class="uni-sum-label">Xếp loại học lực:</span><span class="uni-sum-val">${isEmptyDisplayValue(sum.academicRank) ? '' : sum.academicRank}</span></div>
+                                                    ${isTrainingApplicable ? `
+                                                        <div class="uni-sum-row"><span class="uni-sum-label">Xếp loại rèn luyện:</span><span class="uni-sum-val">${isEmptyDisplayValue(sum.conductRank) ? '' : sum.conductRank}</span></div>
+                                                        <div class="uni-sum-row"><span class="uni-sum-label">Xếp loại tổng kết:</span><span class="uni-sum-val">${isEmptyDisplayValue(sum.studentRank) ? '' : sum.studentRank}</span></div>
+                                                    ` : ''}
                                                 </div>
                                             </div>
                                         </td>
@@ -2841,17 +2983,17 @@ function loadCoursePermissions() {
                                     <td colspan="10" style="padding: 0; border: none;">
                                         <div class="uni-summary-box-school uni-summary-box-year">
                                             <div class="uni-sum-col">
-                                                <div class="uni-sum-row"><span class="uni-sum-label">Tổng số tín chỉ trong năm học:</span><span class="uni-sum-val">${ySum.yearCredits !== undefined ? ySum.yearCredits : '-'}</span></div>
-                                                <div class="uni-sum-row"><span class="uni-sum-label">ĐRL tích lũy:</span><span class="uni-sum-val">${hasYearTraining ? ySum.trainingScore : '-'}</span></div>
-                                                <div class="uni-sum-row"><span class="uni-sum-label">Số tín chỉ tích lũy:</span><span class="uni-sum-val">${ySum.cumulativeCreditsRatio ? ySum.cumulativeCreditsRatio.split('/')[0] : '-'}</span></div>
+                                                <div class="uni-sum-row"><span class="uni-sum-label">Tổng số tín chỉ trong năm học:</span><span class="uni-sum-val">${isEmptyDisplayValue(ySum.yearCredits) ? '' : ySum.yearCredits}</span></div>
+                                                <div class="uni-sum-row"><span class="uni-sum-label">ĐRL tích lũy:</span><span class="uni-sum-val">${hasYearTraining ? ySum.trainingScore : ''}</span></div>
+                                                <div class="uni-sum-row"><span class="uni-sum-label">Số tín chỉ tích lũy:</span><span class="uni-sum-val">${ySum.cumulativeCreditsRatio && !isEmptyDisplayValue(ySum.cumulativeCreditsRatio.split('/')[0]) ? ySum.cumulativeCreditsRatio.split('/')[0] : ''}</span></div>
                                             </div>
                                             <div class="uni-sum-col">
-                                                <div class="uni-sum-row"><span class="uni-sum-label">Điểm trung bình hệ 10:</span><span class="uni-sum-val">${ySum.average10 || '-'}</span></div>
-                                                <div class="uni-sum-row"><span class="uni-sum-label">Điểm trung bình tích lũy hệ 4:</span><span class="uni-sum-val">${ySum.yearGPA || '-'}</span></div>
-                                                <div class="uni-sum-row"><span class="uni-sum-label">CPA tích lũy:</span><span class="uni-sum-val">${ySum.cumulativeCPAWith10 ? ySum.cumulativeCPAWith10.split(' ')[0] : '-'}</span></div>
+                                                <div class="uni-sum-row"><span class="uni-sum-label">Điểm trung bình hệ 10:</span><span class="uni-sum-val">${isEmptyDisplayValue(ySum.average10) ? '' : ySum.average10}</span></div>
+                                                <div class="uni-sum-row"><span class="uni-sum-label">Điểm trung bình tích lũy hệ 4:</span><span class="uni-sum-val">${isEmptyDisplayValue(ySum.yearGPA) ? '' : ySum.yearGPA}</span></div>
+                                                <div class="uni-sum-row"><span class="uni-sum-label">CPA tích lũy:</span><span class="uni-sum-val">${ySum.cumulativeCPAWith10 && !isEmptyDisplayValue(ySum.cumulativeCPAWith10.split(' ')[0]) ? ySum.cumulativeCPAWith10.split(' ')[0] : ''}</span></div>
                                             </div>
                                             <div class="uni-sum-col">
-                                                <div class="uni-sum-row"><span class="uni-sum-label">Xếp loại:</span><span class="uni-sum-val">${ySum.academicRank || '-'}</span></div>
+                                                <div class="uni-sum-row"><span class="uni-sum-label">Xếp loại:</span><span class="uni-sum-val">${isEmptyDisplayValue(ySum.academicRank) ? '' : ySum.academicRank}</span></div>
                                             </div>
                                         </div>
                                     </td>
@@ -3100,7 +3242,7 @@ function loadCoursePermissions() {
 
                         const inputTraining = document.getElementById('input-training-score');
                         if (inputTraining) {
-                            inputTraining.value = sem.summary && sem.summary.trainingScore !== undefined ? sem.summary.trainingScore : '87';
+                            inputTraining.value = (sem.summary && sem.summary.trainingScore !== undefined && sem.summary.trainingScore !== null && String(sem.summary.trainingScore).trim() !== '') ? sem.summary.trainingScore : '';
                         }
 
                         const modalOverlay = document.getElementById('edit-training-score-modal-overlay');
@@ -3718,7 +3860,15 @@ function loadCoursePermissions() {
                     notifDate: "Ngày đăng",
                     backToNotifList: "Quay lại danh sách thông báo",
 
-                    langSwitched: "Đã chuyển sang Tiếng Việt"
+                    langSwitched: "Đã chuyển sang Tiếng Việt",
+                    regularCourses: "Khóa học chính quy",
+                    extracurricularCourses: "Khóa học ngoại khóa",
+                    extracurricularCoursesTitle: "KHÓA HỌC NGOẠI KHÓA",
+                    extracurricularContent: "Nội dung ngoại khóa",
+                    studyDate: "Ngày học",
+                    studyTime: "Giờ học",
+                    studentCount: "Số học viên",
+                    participate: "Tham gia"
                 },
                 en: {
                         selectLangTitle: "Select Language",
@@ -3837,7 +3987,15 @@ function loadCoursePermissions() {
                     notifDate: "Date Posted",
                     backToNotifList: "Back to Notifications",
 
-                    langSwitched: "Switched to English"
+                    langSwitched: "Switched to English",
+                    regularCourses: "Regular Courses",
+                    extracurricularCourses: "Extracurricular Courses",
+                    extracurricularCoursesTitle: "EXTRACURRICULAR COURSES",
+                    extracurricularContent: "Extracurricular Content",
+                    studyDate: "Study Date",
+                    studyTime: "Study Time",
+                    studentCount: "Student Count",
+                    participate: "Participate"
                 }
             };
 
@@ -3976,6 +4134,680 @@ function loadCoursePermissions() {
                     }
                 });
             });
+
+            /* ==========================================
+               8. CHỨC NĂNG NHẬT KÝ HỌC TẬP (STUDY LOG)
+               ========================================== */
+            // CONFIG - GOOGLE APPS SCRIPT RIÊNG CHO NHẬT KÝ HỌC TẬP
+            // (TÁCH BIỆT HOÀN TOÀN VỚI APPS_SCRIPT_URL / callAppsScript() Ở TRÊN,
+            //  theo đúng quy ước đã áp dụng cho UNIVERSITY_RESULTS_APPS_SCRIPT_URL)
+            const STUDY_LOG_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywOVc8_NMe4bnhUEt9FCadMkV5OyFvrL5kllons5v94UVHRfXlJ78jTr79rVIT10Av/exec';
+
+            let studyLogLoaded = false;
+            let studyLogTasks = [];
+            let studyLogBookmarks = {};
+            let studyLogEditingId = null;
+            let studyLogSubmitting = false;
+
+            function callStudyLogAppsScript(action, params, method) {
+                method = method || 'GET';
+                if (method === 'GET') {
+                    const url = new URL(STUDY_LOG_APPS_SCRIPT_URL);
+                    url.searchParams.append('action', action);
+                    Object.keys(params || {}).forEach(key => {
+                        if (params[key] !== undefined && params[key] !== null) {
+                            url.searchParams.append(key, params[key]);
+                        }
+                    });
+                    return fetch(url.toString()).then(res => {
+                        if (!res.ok) throw new Error('Lỗi mạng: ' + res.status);
+                        return res.json();
+                    });
+                }
+
+                const payload = Object.assign({ action: action }, params || {});
+                return fetch(STUDY_LOG_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload)
+                }).then(res => {
+                    if (!res.ok) throw new Error('Lỗi mạng: ' + res.status);
+                    return res.json();
+                });
+            }
+
+            function loadStudyLogBookmarks() {
+                try {
+                    const raw = localStorage.getItem('study-log-bookmarks');
+                    studyLogBookmarks = raw ? JSON.parse(raw) : {};
+                } catch (err) {
+                    studyLogBookmarks = {};
+                }
+            }
+
+            function saveStudyLogBookmarks() {
+                try {
+                    localStorage.setItem('study-log-bookmarks', JSON.stringify(studyLogBookmarks));
+                } catch (err) {
+                    console.error('Không thể lưu bookmark Nhật ký học tập:', err);
+                }
+            }
+
+            function toggleStudyLogBookmark(taskId) {
+                if (studyLogBookmarks[taskId]) {
+                    delete studyLogBookmarks[taskId];
+                } else {
+                    studyLogBookmarks[taskId] = true;
+                }
+                saveStudyLogBookmarks();
+            }
+
+            function generateStudyTaskId() {
+                if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+                    return crypto.randomUUID();
+                }
+                return 'task-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+            }
+
+            function studyLogPad2(n) {
+                return String(n).padStart(2, '0');
+            }
+
+            // Hàm chuyển đổi thời gian UTC sang múi giờ Việt Nam (Asia/Ho_Chi_Minh) và format dd/mm HH:mm
+            function formatVietnamDateTime(value) {
+                if (!value) return '';
+                let d;
+                if (value instanceof Date) {
+                    d = value;
+                } else if (typeof value === 'number') {
+                    d = new Date(value);
+                } else if (typeof value === 'string') {
+                    let str = value.trim();
+                    if (!str || str === '-') return '';
+                    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(str)) {
+                        d = new Date(str);
+                    } else if (/^\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}/.test(str)) {
+                        d = new Date(str.replace(' ', 'T') + (str.endsWith('Z') ? '' : 'Z'));
+                    } else {
+                        d = new Date(str);
+                    }
+                }
+                if (!d || isNaN(d.getTime())) return String(value);
+
+                // Ép sang múi giờ Asia/Ho_Chi_Minh (UTC+7)
+                const options = {
+                    timeZone: 'Asia/Ho_Chi_Minh',
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                };
+                try {
+                    const formatter = new Intl.DateTimeFormat('en-GB', options);
+                    const parts = formatter.formatToParts(d);
+                    let day = '', month = '', hour = '', minute = '';
+                    parts.forEach(p => {
+                        if (p.type === 'day') day = p.value;
+                        if (p.type === 'month') month = p.value;
+                        if (p.type === 'hour') hour = p.value;
+                        if (p.type === 'minute') minute = p.value;
+                    });
+                    if (day && month && hour && minute) {
+                        return `${day}/${month} ${hour}:${minute}`;
+                    }
+                } catch (e) {
+                    // Fallback an toàn nếu môi trường không hỗ trợ Intl timeZone
+                }
+
+                const day = studyLogPad2(d.getUTCDate());
+                const month = studyLogPad2(d.getUTCMonth() + 1);
+                const hour = studyLogPad2((d.getUTCHours() + 7) % 24);
+                const minute = studyLogPad2(d.getUTCMinutes());
+                return `${day}/${month} ${hour}:${minute}`;
+            }
+
+            function formatStudyLogCreatedDisplay(value) {
+                return formatVietnamDateTime(value);
+            }
+
+            // Hàm xử lý thời gian hết hạn an toàn, tránh hoàn toàn lỗi 1899-12-30 và time serial của Google Sheets
+            function parseGoogleSheetsTimeSerial(serialVal) {
+                const num = Number(serialVal);
+                if (isNaN(num)) return { hour: 0, minute: 0 };
+                let fractional = num - Math.floor(num);
+                if (fractional < 0) fractional = 0;
+                const totalMinutes = Math.round(fractional * 24 * 60);
+                const hour = Math.floor(totalMinutes / 60) % 24;
+                const minute = totalMinutes % 60;
+                return { hour: hour, minute: minute };
+            }
+
+            function getStudyTaskDueTimestamp(task) {
+                if (!task.NgayHetHan) return NaN;
+                let year = 2026, month = 0, day = 1;
+                const dateStr = String(task.NgayHetHan).trim();
+                
+                if (dateStr.includes('-')) {
+                    const parts = dateStr.split('-');
+                    if (parts.length === 3) {
+                        if (parts[0].length === 4) {
+                            year = parseInt(parts[0], 10);
+                            month = parseInt(parts[1], 10) - 1;
+                            day = parseInt(parts[2], 10);
+                        } else {
+                            day = parseInt(parts[0], 10);
+                            month = parseInt(parts[1], 10) - 1;
+                            year = parseInt(parts[2], 10);
+                        }
+                    }
+                } else if (dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        day = parseInt(parts[0], 10);
+                        month = parseInt(parts[1], 10) - 1;
+                        year = parseInt(parts[2], 10);
+                    }
+                }
+
+                let hour = 0, minute = 0;
+                const gioVal = task.GioHetHan;
+                if (gioVal !== undefined && gioVal !== null && String(gioVal).trim() !== '') {
+                    if (typeof gioVal === 'number' || (!isNaN(gioVal) && !String(gioVal).includes(':') && !String(gioVal).includes('h'))) {
+                        const timeObj = parseGoogleSheetsTimeSerial(gioVal);
+                        hour = timeObj.hour;
+                        minute = timeObj.minute;
+                    } else {
+                        const cleanTime = String(gioVal).trim().toLowerCase().replace('h', ':');
+                        const timeParts = cleanTime.split(':');
+                        if (timeParts.length >= 1) hour = parseInt(timeParts[0], 10) || 0;
+                        if (timeParts.length >= 2) minute = parseInt(timeParts[1], 10) || 0;
+                    }
+                }
+
+                const dt = new Date(year, month, day, hour, minute, 0);
+                return dt.getTime();
+            }
+
+            function formatStudyTaskDueDisplay(task) {
+                if (!task.NgayHetHan) return '';
+                let day = '', month = '', year = '';
+                const dateStr = String(task.NgayHetHan).trim();
+
+                if (dateStr.includes('-')) {
+                    const parts = dateStr.split('-');
+                    if (parts.length === 3) {
+                        if (parts[0].length === 4) {
+                            year = parts[0];
+                            month = parts[1];
+                            day = parts[2];
+                        } else {
+                            day = parts[0];
+                            month = parts[1];
+                            year = parts[2];
+                        }
+                    }
+                } else if (dateStr.includes('/')) {
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        day = parts[0];
+                        month = parts[1];
+                        year = parts[2];
+                    }
+                }
+
+                if (!day || !month) return String(task.NgayHetHan);
+
+                let hour = 0, minute = 0;
+                const gioVal = task.GioHetHan;
+                if (gioVal !== undefined && gioVal !== null && String(gioVal).trim() !== '') {
+                    if (typeof gioVal === 'number' || (!isNaN(gioVal) && !String(gioVal).includes(':') && !String(gioVal).includes('h'))) {
+                        const timeObj = parseGoogleSheetsTimeSerial(gioVal);
+                        hour = timeObj.hour;
+                        minute = timeObj.minute;
+                    } else {
+                        const cleanTime = String(gioVal).trim().toLowerCase().replace('h', ':');
+                        const timeParts = cleanTime.split(':');
+                        if (timeParts.length >= 1) hour = parseInt(timeParts[0], 10) || 0;
+                        if (timeParts.length >= 2) minute = parseInt(timeParts[1], 10) || 0;
+                    }
+                }
+
+                const timeDisplay = studyLogPad2(hour) + ':' + studyLogPad2(minute);
+                return `${day}/${month} ${timeDisplay}`;
+            }
+
+            function getStudyTaskEffectiveStatus(task) {
+                if (task.TrangThai === 'Đã hoàn thành') return 'Đã hoàn thành';
+                const dueTs = getStudyTaskDueTimestamp(task);
+                if (!isNaN(dueTs) && Date.now() > dueTs) return 'Quá hạn';
+                return task.TrangThai || 'Chưa bắt đầu';
+            }
+
+            function getStudyTaskStatusClass(status) {
+                switch (status) {
+                    case 'Đã hoàn thành': return 'study-log-status-done';
+                    case 'Đang thực hiện': return 'study-log-status-progress';
+                    case 'Quá hạn': return 'study-log-status-overdue';
+                    default: return 'study-log-status-pending';
+                }
+            }
+
+            function getStudyTaskPriorityClass(priority) {
+                switch (priority) {
+                    case 'Khẩn cấp': return 'study-log-priority-urgent';
+                    case 'Cao': return 'study-log-priority-high';
+                    case 'Trung bình': return 'study-log-priority-medium';
+                    default: return 'study-log-priority-low';
+                }
+            }
+
+            // Điểm ưu tiên dùng cho sort 2 tầng: Khẩn cấp > Cao > Trung bình > Thấp
+            function getStudyTaskPriorityScore(priority) {
+                switch (priority) {
+                    case 'Khẩn cấp': return 4;
+                    case 'Cao': return 3;
+                    case 'Trung bình': return 2;
+                    case 'Thấp': return 1;
+                    default: return 0;
+                }
+            }
+
+            function renderStudyLogTable() {
+                const tbody = document.getElementById('study-log-table-body');
+                if (!tbody) return;
+
+                if (!studyLogTasks.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="study-log-empty">Chưa có nhiệm vụ nào.</td></tr>';
+                    return;
+                }
+
+                const sortedTasks = studyLogTasks.slice().sort((a, b) => {
+                    // TẦNG 1: Độ ưu tiên (Khẩn cấp > Cao > Trung bình > Thấp)
+                    const scoreA = getStudyTaskPriorityScore(a.DoUuTien);
+                    const scoreB = getStudyTaskPriorityScore(b.DoUuTien);
+                    if (scoreA !== scoreB) return scoreB - scoreA;
+
+                    // TẦNG 2: Deadline gần nhất đứng trước (an toàn với deadline rỗng/sai format)
+                    const dueA = getStudyTaskDueTimestamp(a);
+                    const dueB = getStudyTaskDueTimestamp(b);
+                    if (isNaN(dueA) && isNaN(dueB)) return 0;
+                    if (isNaN(dueA)) return 1;
+                    if (isNaN(dueB)) return -1;
+                    return dueA - dueB;
+                });
+
+                tbody.innerHTML = sortedTasks.map(task => {
+                    const effectiveStatus = getStudyTaskEffectiveStatus(task);
+                    const statusClass = getStudyTaskStatusClass(effectiveStatus);
+                    const isBookmarked = !!studyLogBookmarks[task.ID];
+                    const isDone = effectiveStatus === 'Đã hoàn thành';
+                    return `
+                        <tr data-task-id="${escapeHtml(task.ID)}" class="${isBookmarked ? 'study-log-bookmarked' : ''}">
+                            <td>${escapeHtml(task.MonHoc)}</td>
+                            <td>${escapeHtml(task.TieuDe)}</td>
+                            <td>${escapeHtml(task.ThoiGianKhoiTao)}</td>
+                            <td>${formatStudyTaskDueDisplay(task)}</td>
+                            <td><span class="study-log-status ${statusClass}">${escapeHtml(effectiveStatus)}</span></td>
+                            <td class="text-center">
+                                <div class="study-log-actions-cell">
+                                    <button type="button" class="study-log-row-btn" data-action="detail" title="Chi tiết">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                    </button>
+                                    <button type="button" class="study-log-row-btn" data-action="complete" title="Hoàn thành" ${isDone ? 'disabled' : ''}>
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    </button>
+                                    <button type="button" class="study-log-row-btn" data-action="edit" title="Chỉnh sửa">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    </button>
+                                    <button type="button" class="study-log-row-btn ${isBookmarked ? 'study-log-row-btn-active' : ''}" data-action="bookmark" title="Đánh dấu">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="${isBookmarked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            function loadStudyLogData() {
+                studyLogLoaded = true;
+                callStudyLogAppsScript('getTasks', {}, 'GET')
+                    .then(response => {
+                        if (response && response.success && Array.isArray(response.tasks)) {
+                            const pendingLocalTasks = studyLogTasks.filter(localTask =>
+                                !response.tasks.some(cloudTask => cloudTask.ID === localTask.ID)
+                            );
+                            studyLogTasks = response.tasks.concat(pendingLocalTasks);
+                            renderStudyLogTable();
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Không thể tải dữ liệu Nhật ký học tập:', err);
+                    });
+            }
+
+            function openStudyTaskModal(mode, task) {
+                const overlay = document.getElementById('study-task-modal-overlay');
+                const form = document.getElementById('study-task-form');
+                const titleEl = document.getElementById('study-task-modal-title');
+                const errorEl = document.getElementById('study-task-form-error');
+                const saveBtn = document.getElementById('btn-save-study-task');
+                if (!overlay || !form) return;
+
+                form.reset();
+                if (errorEl) {
+                    errorEl.style.display = 'none';
+                    errorEl.textContent = '';
+                }
+                form.querySelectorAll('.study-log-input-error').forEach(el => el.classList.remove('study-log-input-error'));
+
+                if (mode === 'edit' && task) {
+                    studyLogEditingId = task.ID;
+                    if (titleEl) titleEl.textContent = 'Chỉnh sửa nhiệm vụ';
+                    if (saveBtn) saveBtn.textContent = 'Cập nhật nhiệm vụ';
+                    document.getElementById('study-task-title').value = task.TieuDe || '';
+                    document.getElementById('study-task-subject').value = task.MonHoc || '';
+                    document.getElementById('study-task-due-date').value = task.NgayHetHan || '';
+                    document.getElementById('study-task-due-time').value = task.GioHetHan || '';
+                    document.getElementById('study-task-content').value = task.NoiDung || '';
+                    document.getElementById('study-task-type').value = task.LoaiNhiemVu || '';
+                    document.getElementById('study-task-priority').value = task.DoUuTien || '';
+                    document.getElementById('study-task-status').value = (task.TrangThai === 'Đang thực hiện') ? 'Đang thực hiện' : 'Chưa bắt đầu';
+                } else {
+                    studyLogEditingId = null;
+                    if (titleEl) titleEl.textContent = 'Tạo mới nhiệm vụ';
+                    if (saveBtn) saveBtn.textContent = 'Lưu nhiệm vụ';
+                    document.getElementById('study-task-status').value = 'Chưa bắt đầu';
+                }
+
+                overlay.classList.add('active');
+            }
+
+            function closeStudyTaskModal() {
+                const overlay = document.getElementById('study-task-modal-overlay');
+                if (overlay) overlay.classList.remove('active');
+                studyLogEditingId = null;
+            }
+
+            function showStudyTaskFormError(message, focusEl) {
+                const errorEl = document.getElementById('study-task-form-error');
+                if (errorEl) {
+                    errorEl.textContent = message;
+                    errorEl.style.display = 'block';
+                }
+                if (focusEl) {
+                    focusEl.classList.add('study-log-input-error');
+                    focusEl.focus();
+                }
+            }
+
+            function validateStudyTaskForm(data) {
+                if (!data.TieuDe) {
+                    return { ok: false, message: 'Vui lòng nhập tiêu đề nhiệm vụ.', field: document.getElementById('study-task-title') };
+                }
+                if (!data.MonHoc) {
+                    return { ok: false, message: 'Vui lòng nhập môn học / học phần.', field: document.getElementById('study-task-subject') };
+                }
+                if (!data.GioHetHan) {
+                    return { ok: false, message: 'Vui lòng chọn giờ hết hạn.', field: document.getElementById('study-task-due-time') };
+                }
+                if (!data.NgayHetHan) {
+                    return { ok: false, message: 'Vui lòng chọn ngày hết hạn.', field: document.getElementById('study-task-due-date') };
+                }
+                if (!data.LoaiNhiemVu) {
+                    return { ok: false, message: 'Vui lòng chọn loại nhiệm vụ.', field: document.getElementById('study-task-type') };
+                }
+                if (!data.DoUuTien) {
+                    return { ok: false, message: 'Vui lòng chọn độ ưu tiên.', field: document.getElementById('study-task-priority') };
+                }
+                if (!data.TrangThai) {
+                    return { ok: false, message: 'Vui lòng chọn trạng thái khởi tạo.', field: document.getElementById('study-task-status') };
+                }
+                return { ok: true };
+            }
+
+            function openStudyTaskDetailModal(task) {
+                const overlay = document.getElementById('study-task-detail-modal-overlay');
+                const body = document.getElementById('study-task-detail-body');
+                if (!overlay || !body) return;
+
+                const effectiveStatus = getStudyTaskEffectiveStatus(task);
+                body.innerHTML = `
+                    <div class="study-log-detail-row"><span class="study-log-detail-label">Môn học:</span><span class="study-log-detail-value">${escapeHtml(task.MonHoc)}</span></div>
+                    <div class="study-log-detail-row"><span class="study-log-detail-label">Tiêu đề:</span><span class="study-log-detail-value">${escapeHtml(task.TieuDe)}</span></div>
+                    <div class="study-log-detail-row"><span class="study-log-detail-label">Thời gian khởi tạo:</span><span class="study-log-detail-value">${escapeHtml(task.ThoiGianKhoiTao)}</span></div>
+                    <div class="study-log-detail-row"><span class="study-log-detail-label">Thời gian hết hạn:</span><span class="study-log-detail-value">${formatStudyTaskDueDisplay(task)}</span></div>
+                    <div class="study-log-detail-row"><span class="study-log-detail-label">Loại nhiệm vụ:</span><span class="study-log-detail-value">${escapeHtml(task.LoaiNhiemVu)}</span></div>
+                    <div class="study-log-detail-row"><span class="study-log-detail-label">Độ ưu tiên:</span><span class="study-log-detail-value"><span class="study-log-priority ${getStudyTaskPriorityClass(task.DoUuTien)}">${escapeHtml(task.DoUuTien)}</span></span></div>
+                    <div class="study-log-detail-row"><span class="study-log-detail-label">Trạng thái:</span><span class="study-log-detail-value"><span class="study-log-status ${getStudyTaskStatusClass(effectiveStatus)}">${escapeHtml(effectiveStatus)}</span></span></div>
+                    <div class="study-log-detail-row study-log-detail-row-block">
+                        <span class="study-log-detail-label">Nội dung:</span>
+                        <div class="study-log-detail-content">${escapeHtml(task.NoiDung || '(Không có nội dung)')}</div>
+                    </div>
+                `;
+
+                overlay.classList.add('active');
+            }
+
+            function closeStudyTaskDetailModal() {
+                const overlay = document.getElementById('study-task-detail-modal-overlay');
+                if (overlay) overlay.classList.remove('active');
+            }
+
+            function completeStudyTask(task) {
+                if (task.TrangThai === 'Đã hoàn thành') return;
+                task.TrangThai = 'Đã hoàn thành';
+                renderStudyLogTable();
+
+                callStudyLogAppsScript('updateTask', { task: task }, 'POST')
+                    .then(response => {
+                        if (response && response.success) {
+                            showToast('Đã lưu nhiệm vụ thành công.', 'success');
+                        } else {
+                            showToast('Đã cập nhật giao diện nhưng chưa đồng bộ được dữ liệu lên máy chủ.', 'error');
+                            console.error('Cập nhật trạng thái hoàn thành thất bại:', response);
+                        }
+                    })
+                    .catch(err => {
+                        showToast('Đã cập nhật giao diện nhưng chưa đồng bộ được dữ liệu lên máy chủ.', 'error');
+                        console.error('Lỗi đồng bộ hoàn thành nhiệm vụ:', err);
+                    });
+            }
+
+            // Element References - Nhật ký học tập
+            const btnCreateStudyTask = document.getElementById('btn-create-study-task');
+            const studyLogTableBody = document.getElementById('study-log-table-body');
+            const studyTaskForm = document.getElementById('study-task-form');
+            const studyTaskModalOverlay = document.getElementById('study-task-modal-overlay');
+            const btnCloseStudyTaskModal = document.getElementById('btn-close-study-task-modal');
+            const btnCancelStudyTask = document.getElementById('btn-cancel-study-task');
+            const studyTaskDetailModalOverlay = document.getElementById('study-task-detail-modal-overlay');
+            const btnCloseStudyTaskDetail = document.getElementById('btn-close-study-task-detail');
+            const btnCloseStudyTaskDetailFooter = document.getElementById('btn-close-study-task-detail-footer');
+
+            if (btnCreateStudyTask) {
+                btnCreateStudyTask.addEventListener('click', () => {
+                    openStudyTaskModal('create');
+                });
+            }
+
+            if (btnCloseStudyTaskModal) btnCloseStudyTaskModal.addEventListener('click', closeStudyTaskModal);
+            if (btnCancelStudyTask) btnCancelStudyTask.addEventListener('click', closeStudyTaskModal);
+            if (studyTaskModalOverlay) {
+                studyTaskModalOverlay.addEventListener('click', (e) => {
+                    if (e.target === studyTaskModalOverlay) closeStudyTaskModal();
+                });
+            }
+
+            if (btnCloseStudyTaskDetail) btnCloseStudyTaskDetail.addEventListener('click', closeStudyTaskDetailModal);
+            if (btnCloseStudyTaskDetailFooter) btnCloseStudyTaskDetailFooter.addEventListener('click', closeStudyTaskDetailModal);
+            if (studyTaskDetailModalOverlay) {
+                studyTaskDetailModalOverlay.addEventListener('click', (e) => {
+                    if (e.target === studyTaskDetailModalOverlay) closeStudyTaskDetailModal();
+                });
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Escape') return;
+                if (studyTaskModalOverlay && studyTaskModalOverlay.classList.contains('active')) closeStudyTaskModal();
+                if (studyTaskDetailModalOverlay && studyTaskDetailModalOverlay.classList.contains('active')) closeStudyTaskDetailModal();
+            });
+
+            // Event delegation cho các nút Thao tác trong bảng (Chi tiết / Hoàn thành / Chỉnh sửa / Đánh dấu)
+            if (studyLogTableBody) {
+                studyLogTableBody.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.study-log-row-btn');
+                    if (!btn || btn.disabled) return;
+                    const row = btn.closest('tr[data-task-id]');
+                    if (!row) return;
+                    const taskId = row.getAttribute('data-task-id');
+                    const task = studyLogTasks.find(t => t.ID === taskId);
+                    if (!task) return;
+                    const action = btn.getAttribute('data-action');
+
+                    if (action === 'detail') {
+                        openStudyTaskDetailModal(task);
+                    } else if (action === 'complete') {
+                        completeStudyTask(task);
+                    } else if (action === 'edit') {
+                        openStudyTaskModal('edit', task);
+                    } else if (action === 'bookmark') {
+                        toggleStudyLogBookmark(task.ID);
+                        renderStudyLogTable();
+                    }
+                });
+            }
+
+            // Xử lý Submit Form Tạo mới / Chỉnh sửa nhiệm vụ (Optimistic UI)
+            if (studyTaskForm) {
+                studyTaskForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    if (studyLogSubmitting) return;
+
+                    // BƯỚC 1: Lấy dữ liệu từ Form
+                    const formData = {
+                        TieuDe: (document.getElementById('study-task-title').value || '').trim(),
+                        MonHoc: (document.getElementById('study-task-subject').value || '').trim(),
+                        GioHetHan: document.getElementById('study-task-due-time').value || '',
+                        NgayHetHan: document.getElementById('study-task-due-date').value || '',
+                        NoiDung: (document.getElementById('study-task-content').value || '').trim(),
+                        LoaiNhiemVu: document.getElementById('study-task-type').value || '',
+                        DoUuTien: document.getElementById('study-task-priority').value || '',
+                        TrangThai: document.getElementById('study-task-status').value || ''
+                    };
+
+                    // BƯỚC 2: Validate dữ liệu
+                    const validation = validateStudyTaskForm(formData);
+                    if (!validation.ok) {
+                        showStudyTaskFormError(validation.message, validation.field);
+                        return;
+                    }
+
+                    const errorEl = document.getElementById('study-task-form-error');
+                    if (errorEl) errorEl.style.display = 'none';
+
+                    const saveBtn = document.getElementById('btn-save-study-task');
+                    studyLogSubmitting = true;
+                    if (saveBtn) saveBtn.disabled = true;
+
+                    if (studyLogEditingId) {
+                        // LUỒNG CHỈNH SỬA
+                        const existingTask = studyLogTasks.find(t => t.ID === studyLogEditingId);
+                        if (!existingTask) {
+                            studyLogSubmitting = false;
+                            if (saveBtn) saveBtn.disabled = false;
+                            closeStudyTaskModal();
+                            return;
+                        }
+
+                        existingTask.MonHoc = formData.MonHoc;
+                        existingTask.TieuDe = formData.TieuDe;
+                        existingTask.NoiDung = formData.NoiDung;
+                        existingTask.LoaiNhiemVu = formData.LoaiNhiemVu;
+                        existingTask.DoUuTien = formData.DoUuTien;
+                        existingTask.GioHetHan = formData.GioHetHan;
+                        existingTask.NgayHetHan = formData.NgayHetHan;
+                        existingTask.TrangThai = formData.TrangThai;
+
+                        // BƯỚC 4-6: Đóng Modal + Cập nhật state + Render lại row ngay lập tức
+                        closeStudyTaskModal();
+                        renderStudyLogTable();
+
+                        // BƯỚC 7: Đồng bộ nền với Google Apps Script (KHÔNG await trước khi render)
+                        callStudyLogAppsScript('updateTask', { task: existingTask }, 'POST')
+                            .then(response => {
+                                if (response && response.success) {
+                                    showToast('Đã lưu nhiệm vụ thành công.', 'success');
+                                } else {
+                                    showToast('Đã cập nhật giao diện nhưng chưa đồng bộ được dữ liệu lên máy chủ.', 'error');
+                                    console.error('Cập nhật nhiệm vụ thất bại:', response);
+                                }
+                            })
+                            .catch(err => {
+                                showToast('Đã cập nhật giao diện nhưng chưa đồng bộ được dữ liệu lên máy chủ.', 'error');
+                                console.error('Lỗi đồng bộ cập nhật nhiệm vụ:', err);
+                            })
+                            .finally(() => {
+                                studyLogSubmitting = false;
+                                if (saveBtn) saveBtn.disabled = false;
+                            });
+                    } else {
+                        // LUỒNG TẠO MỚI
+                        // BƯỚC 3: Tạo ID + ThoiGianKhoiTao + object nhiệm vụ hoàn chỉnh
+                        const newTaskId = generateStudyTaskId();
+                        if (studyLogTasks.some(t => t.ID === newTaskId)) {
+                            studyLogSubmitting = false;
+                            if (saveBtn) saveBtn.disabled = false;
+                            return;
+                        }
+
+                        const newTask = {
+                            ID: newTaskId,
+                            MonHoc: formData.MonHoc,
+                            TieuDe: formData.TieuDe,
+                            NoiDung: formData.NoiDung,
+                            LoaiNhiemVu: formData.LoaiNhiemVu,
+                            DoUuTien: formData.DoUuTien,
+                            ThoiGianKhoiTao: formatStudyLogCreatedDisplay(new Date()),
+                            GioHetHan: formData.GioHetHan,
+                            NgayHetHan: formData.NgayHetHan,
+                            TrangThai: formData.TrangThai
+                        };
+
+                        // Chống nhân đôi: chỉ thêm vào state nếu ID chưa tồn tại
+                        if (!studyLogTasks.some(t => t.ID === newTask.ID)) {
+                            studyLogTasks.push(newTask);
+                        }
+
+                        // BƯỚC 4-6: Đóng Modal + Render row ngay lập tức (Optimistic UI)
+                        closeStudyTaskModal();
+                        renderStudyLogTable();
+
+                        // BƯỚC 7: Gửi request nền đến Google Apps Script SAU KHI đã render UI
+                        callStudyLogAppsScript('createTask', { task: newTask }, 'POST')
+                            .then(response => {
+                                if (response && response.success) {
+                                    showToast('Đã lưu nhiệm vụ thành công.', 'success');
+                                } else {
+                                    showToast('Đã cập nhật giao diện nhưng chưa đồng bộ được dữ liệu lên máy chủ.', 'error');
+                                    console.error('Tạo nhiệm vụ thất bại:', response);
+                                }
+                            })
+                            .catch(err => {
+                                showToast('Đã cập nhật giao diện nhưng chưa đồng bộ được dữ liệu lên máy chủ.', 'error');
+                                console.error('Lỗi đồng bộ tạo nhiệm vụ:', err);
+                            })
+                            .finally(() => {
+                                studyLogSubmitting = false;
+                                if (saveBtn) saveBtn.disabled = false;
+                            });
+                    }
+                });
+            }
+
+            // Khôi phục trạng thái Đánh dấu (bookmark) từ localStorage khi tải trang
+            loadStudyLogBookmarks();
         });
         if (Array.isArray(y.semesters)) {
                             y.semesters.forEach(s => {
