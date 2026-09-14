@@ -182,6 +182,19 @@
                             <span data-i18n="tuition">Học phí</span>
                         </a>
                     </li>
+                    <li>
+                        <a class="menu-item" data-page="study-log-page">
+                            <span class="menu-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                    <line x1="9" y1="12" x2="15" y2="12"></line>
+                                    <line x1="9" y1="16" x2="15" y2="16"></line>
+                                </svg>
+                            </span>
+                            <span data-i18n="studyLog">Nhật ký học tập</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
             <!-- NẤC 5: ĐĂNG XUẤT -->
@@ -224,7 +237,21 @@
                         <input type="text" id="course-search-input" class="course-search-input" placeholder="Tìm kiếm khóa học theo tên hoặc giảng viên..." data-i18n-placeholder="courseSearchPlaceholder">
                     </div>
                 </div>
-
+                <!-- Nhóm lựa chọn loại khóa học dạng Radio -->
+                <div class="course-type-filter-container" style="margin-bottom: 20px;">
+                    <div class="course-type-radio-group">
+                        <label class="course-type-radio-option active">
+                            <input type="radio" name="course-type" value="regular" checked>
+                            <span class="custom-radio"></span>
+                            <span class="course-type-radio-label" data-i18n="regularCourses">Khóa học chính quy</span>
+                        </label>
+                        <label class="course-type-radio-option">
+                            <input type="radio" name="course-type" value="extracurricular">
+                            <span class="custom-radio"></span>
+                            <span class="course-type-radio-label" data-i18n="extracurricularCourses">Khóa học ngoại khóa</span>
+                        </label>
+                    </div>
+                </div>
                 <div id="course-grid-container" class="course-grid">
                     <!-- Khóa học sẽ được render động từ JavaScript -->
                 </div>
@@ -655,6 +682,53 @@
                 </div>
             </section>
 
+            <!-- 6. TRANG NHẬT KÝ HỌC TẬP -->
+            <section class="page-section" id="study-log-page">
+                <div class="page-header">
+                    <h1 class="page-title" data-i18n="studyLogTitle">NHẬT KÝ HỌC TẬP</h1>
+                    <div class="page-breadcrumb" data-i18n="studyLogBreadcrumb">Trang chủ / Chức năng trực tuyến / Nhật ký học tập</div>
+                </div>
+
+                <div class="study-log-card">
+                    <div class="study-log-card-header">
+                        <div>
+                            <div class="study-log-card-title" data-i18n="studyLogListTitle">Danh sách nhiệm vụ</div>
+                            <div class="study-log-card-desc" data-i18n="studyLogListDesc">Quản lý và theo dõi các nhiệm vụ học tập của bạn</div>
+                        </div>
+                    </div>
+
+                    <div class="study-log-table-responsive">
+                        <table class="study-log-table" id="study-log-table">
+                            <thead>
+                                <tr>
+                                    <th data-i18n="studyLogColSubject">Môn học</th>
+                                    <th data-i18n="studyLogColTitle">Tiêu đề nhiệm vụ</th>
+                                    <th data-i18n="studyLogColCreated">Thời gian khởi tạo</th>
+                                    <th data-i18n="studyLogColDue">Thời gian hết hạn</th>
+                                    <th data-i18n="studyLogColStatus">Trạng thái</th>
+                                    <th class="text-center" data-i18n="studyLogColActions">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="study-log-table-body">
+                                <tr>
+                                    <td colspan="6" class="study-log-empty" data-i18n="studyLogEmpty">Chưa có nhiệm vụ nào.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="study-log-actions">
+                        <button type="button" class="study-log-create-btn" id="btn-create-study-task">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9"></path>
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                            </svg>
+                            <span data-i18n="studyLogCreateBtn">Tạo mới nhiệm vụ</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
             <!-- MODAL XÁC NHẬN THANH TOÁN -->
             <div id="tuition-modal-overlay" class="tuition-modal-overlay">
                 <div class="tuition-modal">
@@ -735,6 +809,96 @@
             </form>
         </div>
     </div>
+
+    <!-- MODAL TẠO / CHỈNH SỬA NHIỆM VỤ - NHẬT KÝ HỌC TẬP -->
+    <div id="study-task-modal-overlay" class="study-log-modal-overlay" role="dialog" aria-labelledby="study-task-modal-title" aria-modal="true">
+        <div class="study-log-modal" id="study-task-modal">
+            <div class="study-log-modal-header">
+                <h3 class="study-log-modal-title" id="study-task-modal-title">Tạo mới nhiệm vụ</h3>
+                <button type="button" class="study-log-modal-close" id="btn-close-study-task-modal" aria-label="Đóng">&times;</button>
+            </div>
+            <form id="study-task-form">
+                <div class="study-log-modal-body">
+                    <div class="study-log-form-group">
+                                                <label for="study-task-title">Tiêu đề nhiệm vụ <span class="study-log-required-mark">*</span></label>
+                        <input type="text" id="study-task-title" class="study-log-form-input" maxlength="200">
+                    </div>
+                    <div class="study-log-form-group">
+                                                   <label for="study-task-subject">Môn học / Học phần <span class="study-log-required-mark">*</span></label>
+                        <input type="text" id="study-task-subject" class="study-log-form-input" maxlength="150">
+                    </div>
+                    <div class="study-log-form-row">
+                        <div class="study-log-form-group">
+                            <label for="study-task-due-date">Ngày hết hạn <span class="study-log-required-mark">*</span></label>
+                            <input type="date" id="study-task-due-date" class="study-log-form-input">
+                        </div>
+                        <div class="study-log-form-group">
+                            <label for="study-task-due-time">Giờ hết hạn <span class="study-log-required-mark">*</span></label>
+                            <input type="time" id="study-task-due-time" class="study-log-form-input">
+                        </div>
+                    </div>
+                    <div class="study-log-form-group">
+                        <label for="study-task-content">Nội dung nhiệm vụ</label>
+                        <textarea id="study-task-content" class="study-log-form-input" rows="3"></textarea>
+                    </div>
+                    <div class="study-log-form-row">
+                        <div class="study-log-form-group">
+                            <label for="study-task-type">Loại nhiệm vụ</label>
+                            <select id="study-task-type" class="study-log-form-input">
+                                <option value="">-- Chọn loại --</option>
+                                <option value="Bài tập về nhà">Bài tập về nhà</option>
+                                <option value="Ôn tập">Ôn tập</option>
+                                <option value="Dự án">Dự án</option>
+                                <option value="Đồ án">Đồ án</option>
+                                <option value="Kiểm tra">Kiểm tra</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                        <div class="study-log-form-group">
+                            <label for="study-task-priority">Độ ưu tiên <span class="study-log-required-mark">*</span></label>
+                            <select id="study-task-priority" class="study-log-form-input">
+                                <option value="">-- Chọn độ ưu tiên --</option>
+                                <option value="Thấp">Thấp</option>
+                                <option value="Trung bình">Trung bình</option>
+                                <option value="Cao">Cao</option>
+                                <option value="Khẩn cấp">Khẩn cấp</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="study-log-form-group">
+                        <label for="study-task-status">Trạng thái khởi tạo <span class="study-log-required-mark">*</span></label>
+                        <select id="study-task-status" class="study-log-form-input">
+                            <option value="Chưa bắt đầu">Chưa bắt đầu</option>
+                            <option value="Đang thực hiện">Đang thực hiện</option>
+                            <option value="Đã hoàn thành">Đã hoàn thành</option>
+                        </select>
+                    </div>
+                    <div class="study-log-form-error" id="study-task-form-error" style="display: none;"></div>
+                </div>
+                <div class="study-log-modal-footer">
+                    <button type="button" class="tuition-btn-cancel" id="btn-cancel-study-task">Hủy</button>
+                    <button type="submit" class="tuition-btn-confirm" id="btn-save-study-task">Lưu nhiệm vụ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CHI TIẾT NHIỆM VỤ - NHẬT KÝ HỌC TẬP -->
+    <div id="study-task-detail-modal-overlay" class="study-log-modal-overlay" role="dialog" aria-labelledby="study-task-detail-modal-title" aria-modal="true">
+        <div class="study-log-modal" id="study-task-detail-modal">
+            <div class="study-log-modal-header">
+                <h3 class="study-log-modal-title" id="study-task-detail-modal-title">Chi tiết nhiệm vụ</h3>
+                <button type="button" class="study-log-modal-close" id="btn-close-study-task-detail" aria-label="Đóng">&times;</button>
+            </div>
+            <div class="study-log-modal-body" id="study-task-detail-body">
+                <!-- Render động qua JavaScript -->
+            </div>
+            <div class="study-log-modal-footer">
+                <button type="button" class="tuition-btn-cancel" id="btn-close-study-task-detail-footer">Đóng</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MOBILE SIDEBAR TOGGLE BUTTON & OVERLAY -->
     <button id="mobile-sidebar-toggle" aria-label="Mở menu điều hướng">
         <svg id="toggle-icon-bars" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
