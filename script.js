@@ -496,7 +496,7 @@ function loadCoursePermissions() {
                 const session = extracurricularData.find(s => s.id === sessionId);
                 const sessionName = session ? session.content : sessionId;
                 // Chuyển hướng hoặc thông báo chờ cấu hình
-                window.location.href = 'home.html';
+                window.location.href = 'https://meet.google.com/qbx-koxf-tfq';
             };
             const coursesData = [
                 {
