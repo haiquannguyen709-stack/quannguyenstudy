@@ -328,9 +328,7 @@ if (user) {
                     id: 2,
                     title: "Thực hiện kì thi kết thúc khóa học Nhập môn Đại số tuyến tính và Nhập môn Giải tích I",
                     date: "29/08/2026",
-                    content: `
-                        Xem chi tiết tại 
-                    `
+                    content: ``
                 }
             ];
 
@@ -496,7 +494,7 @@ function loadCoursePermissions() {
                 const session = extracurricularData.find(s => s.id === sessionId);
                 const sessionName = session ? session.content : sessionId;
                 // Chuyển hướng hoặc thông báo chờ cấu hình
-                window.open('https://meet.google.com/qbx-koxf-tfq', '_blank', 'noopener,noreferrer');
+                window.location.href = 'home.html';
             };
             const coursesData = [
                 {
@@ -4141,7 +4139,7 @@ function loadCoursePermissions() {
             // CONFIG - GOOGLE APPS SCRIPT RIÊNG CHO NHẬT KÝ HỌC TẬP
             // (TÁCH BIỆT HOÀN TOÀN VỚI APPS_SCRIPT_URL / callAppsScript() Ở TRÊN,
             //  theo đúng quy ước đã áp dụng cho UNIVERSITY_RESULTS_APPS_SCRIPT_URL)
-            const STUDY_LOG_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbywOVc8_NMe4bnhUEt9FCadMkV5OyFvrL5kllons5v94UVHRfXlJ78jTr79rVIT10Av/exec';
+            const STUDY_LOG_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzslNATuFr2PRof2Vf_nrVleJvQe2aNgFtBVO5sb5OA-UohNLHeZcuD2X-QoRcjoJk6/exec';
 
             let studyLogLoaded = false;
             let studyLogTasks = [];
@@ -4207,6 +4205,21 @@ function loadCoursePermissions() {
                     return crypto.randomUUID();
                 }
                 return 'task-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+            }
+
+            
+            function getStudyLogUserId() {
+                return (user && (user.id || user.studentId)) ? String(user.id || user.studentId).trim() : '';
+            }
+
+            // Khóa nội bộ (chỉ dùng ở frontend/backend, KHÔNG lưu thêm cột trong Sheet) để
+            // nhận diện DUY NHẤT một nhiệm vụ. Vì cột "ID" giờ là ID tài khoản sở hữu (dùng để
+            // phân quyền) nên nhiều nhiệm vụ có thể trùng "ID". Ghép "ID" (chủ sở hữu) với
+            // "ThoiGianKhoiTao" (thời điểm tạo, không đổi khi chỉnh sửa) tạo ra khóa đủ để phân
+            // biệt các nhiệm vụ với nhau.
+            function getStudyTaskKey(task) {
+                if (!task) return '';
+                return String(task.ID || '') + '__' + String(task.ThoiGianKhoiTao || '');
             }
 
             function studyLogPad2(n) {
@@ -4440,10 +4453,11 @@ function loadCoursePermissions() {
                 tbody.innerHTML = sortedTasks.map(task => {
                     const effectiveStatus = getStudyTaskEffectiveStatus(task);
                     const statusClass = getStudyTaskStatusClass(effectiveStatus);
-                    const isBookmarked = !!studyLogBookmarks[task.ID];
+                    const taskKey = getStudyTaskKey(task);
+                    const isBookmarked = !!studyLogBookmarks[taskKey];
                     const isDone = effectiveStatus === 'Đã hoàn thành';
                     return `
-                        <tr data-task-id="${escapeHtml(task.ID)}" class="${isBookmarked ? 'study-log-bookmarked' : ''}">
+                        <tr data-task-id="${escapeHtml(taskKey)}" class="${isBookmarked ? 'study-log-bookmarked' : ''}">
                             <td>${escapeHtml(task.MonHoc)}</td>
                             <td>${escapeHtml(task.TieuDe)}</td>
                             <td>${escapeHtml(task.ThoiGianKhoiTao)}</td>
@@ -4472,14 +4486,28 @@ function loadCoursePermissions() {
 
             function loadStudyLogData() {
                 studyLogLoaded = true;
-                callStudyLogAppsScript('getTasks', {}, 'GET')
+
+                const currentUserId = getStudyLogUserId();
+                if (!currentUserId) {
+                    console.error('Không xác định được ID người dùng.');
+                    studyLogTasks = [];
+                    renderStudyLogTable();
+                    return;
+                }
+
+                callStudyLogAppsScript('getTasks', { userId: currentUserId }, 'GET')
                     .then(response => {
                         if (response && response.success && Array.isArray(response.tasks)) {
+                            // Chỉ giữ lại nhiệm vụ local (chưa đồng bộ) thuộc ĐÚNG tài khoản đang
+                            // đăng nhập, tránh lẫn dữ liệu của tài khoản khác trên cùng trình duyệt.
                             const pendingLocalTasks = studyLogTasks.filter(localTask =>
-                                !response.tasks.some(cloudTask => cloudTask.ID === localTask.ID)
+                                String(localTask.ID || '').trim() === currentUserId &&
+                                !response.tasks.some(cloudTask => getStudyTaskKey(cloudTask) === getStudyTaskKey(localTask))
                             );
                             studyLogTasks = response.tasks.concat(pendingLocalTasks);
                             renderStudyLogTable();
+                        } else if (response && !response.success) {
+                            console.error('Không thể tải dữ liệu Nhật ký học tập:', response.message);
                         }
                     })
                     .catch(err => {
@@ -4503,7 +4531,7 @@ function loadCoursePermissions() {
                 form.querySelectorAll('.study-log-input-error').forEach(el => el.classList.remove('study-log-input-error'));
 
                 if (mode === 'edit' && task) {
-                    studyLogEditingId = task.ID;
+                    studyLogEditingId = getStudyTaskKey(task);
                     if (titleEl) titleEl.textContent = 'Chỉnh sửa nhiệm vụ';
                     if (saveBtn) saveBtn.textContent = 'Cập nhật nhiệm vụ';
                     document.getElementById('study-task-title').value = task.TieuDe || '';
@@ -4600,7 +4628,7 @@ function loadCoursePermissions() {
                 task.TrangThai = 'Đã hoàn thành';
                 renderStudyLogTable();
 
-                callStudyLogAppsScript('updateTask', { task: task }, 'POST')
+                callStudyLogAppsScript('updateTask', { task: task, userId: getStudyLogUserId() }, 'POST')
                     .then(response => {
                         if (response && response.success) {
                             showToast('Đã lưu nhiệm vụ thành công.', 'success');
@@ -4662,7 +4690,7 @@ function loadCoursePermissions() {
                     const row = btn.closest('tr[data-task-id]');
                     if (!row) return;
                     const taskId = row.getAttribute('data-task-id');
-                    const task = studyLogTasks.find(t => t.ID === taskId);
+                    const task = studyLogTasks.find(t => getStudyTaskKey(t) === taskId);
                     if (!task) return;
                     const action = btn.getAttribute('data-action');
 
@@ -4673,7 +4701,7 @@ function loadCoursePermissions() {
                     } else if (action === 'edit') {
                         openStudyTaskModal('edit', task);
                     } else if (action === 'bookmark') {
-                        toggleStudyLogBookmark(task.ID);
+                        toggleStudyLogBookmark(getStudyTaskKey(task));
                         renderStudyLogTable();
                     }
                 });
@@ -4713,7 +4741,7 @@ function loadCoursePermissions() {
 
                     if (studyLogEditingId) {
                         // LUỒNG CHỈNH SỬA
-                        const existingTask = studyLogTasks.find(t => t.ID === studyLogEditingId);
+                        const existingTask = studyLogTasks.find(t => getStudyTaskKey(t) === studyLogEditingId);
                         if (!existingTask) {
                             studyLogSubmitting = false;
                             if (saveBtn) saveBtn.disabled = false;
@@ -4735,7 +4763,7 @@ function loadCoursePermissions() {
                         renderStudyLogTable();
 
                         // BƯỚC 7: Đồng bộ nền với Google Apps Script (KHÔNG await trước khi render)
-                        callStudyLogAppsScript('updateTask', { task: existingTask }, 'POST')
+                        callStudyLogAppsScript('updateTask', { task: existingTask, userId: getStudyLogUserId() }, 'POST')
                             .then(response => {
                                 if (response && response.success) {
                                     showToast('Đã lưu nhiệm vụ thành công.', 'success');
@@ -4754,16 +4782,20 @@ function loadCoursePermissions() {
                             });
                     } else {
                         // LUỒNG TẠO MỚI
-                        // BƯỚC 3: Tạo ID + ThoiGianKhoiTao + object nhiệm vụ hoàn chỉnh
-                        const newTaskId = generateStudyTaskId();
-                        if (studyLogTasks.some(t => t.ID === newTaskId)) {
+                        // BƯỚC 3: Tạo object nhiệm vụ hoàn chỉnh.
+                        // Cột "ID" giờ là ID tài khoản SỞ HỮU (dùng để phân quyền), KHÔNG còn là ID
+                        // ngẫu nhiên của từng nhiệm vụ. "ThoiGianKhoiTao" ghép với "ID" tạo thành
+                        // khóa nội bộ (xem getStudyTaskKey) để phân biệt từng nhiệm vụ.
+                        const currentUserId = getStudyLogUserId();
+                        if (!currentUserId) {
                             studyLogSubmitting = false;
                             if (saveBtn) saveBtn.disabled = false;
+                            showToast('Không xác định được ID người dùng.', 'error');
                             return;
                         }
 
                         const newTask = {
-                            ID: newTaskId,
+                            ID: currentUserId,
                             MonHoc: formData.MonHoc,
                             TieuDe: formData.TieuDe,
                             NoiDung: formData.NoiDung,
@@ -4775,8 +4807,8 @@ function loadCoursePermissions() {
                             TrangThai: formData.TrangThai
                         };
 
-                        // Chống nhân đôi: chỉ thêm vào state nếu ID chưa tồn tại
-                        if (!studyLogTasks.some(t => t.ID === newTask.ID)) {
+                        // Chống nhân đôi: chỉ thêm vào state nếu khóa nội bộ chưa tồn tại
+                        if (!studyLogTasks.some(t => getStudyTaskKey(t) === getStudyTaskKey(newTask))) {
                             studyLogTasks.push(newTask);
                         }
 
@@ -4785,7 +4817,7 @@ function loadCoursePermissions() {
                         renderStudyLogTable();
 
                         // BƯỚC 7: Gửi request nền đến Google Apps Script SAU KHI đã render UI
-                        callStudyLogAppsScript('createTask', { task: newTask }, 'POST')
+                        callStudyLogAppsScript('createTask', { task: newTask, userId: currentUserId }, 'POST')
                             .then(response => {
                                 if (response && response.success) {
                                     showToast('Đã lưu nhiệm vụ thành công.', 'success');
