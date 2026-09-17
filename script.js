@@ -543,14 +543,14 @@ function loadCoursePermissions() {
                     url: "course-math-12.html" // TODO: thay bằng URL thật của khóa học
                 },
                 {
-                    id: "course-chemistry-12",
-                    title: "Hóa học 12",
+                    id: "course-chemistry-8",
+                    title: "Hóa học 8",
                     level: "THPT",
                     teacher: "Nguyễn Thị Mai Phương",
                     duration: "",
-                    students: 1,
+                    students: 6,
                     image: "CHEM12.jpg",
-                    url: "course-chemistry-12.html" // TODO: thay bằng URL thật của khóa học
+                    url: "course-chemistry-8.html" // TODO: thay bằng URL thật của khóa học
                 },
                 {
                     id: "course-math221a",
