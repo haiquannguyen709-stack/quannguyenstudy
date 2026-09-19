@@ -543,7 +543,7 @@ function loadCoursePermissions() {
                 {
                     id: "course-chemistry-8",
                     title: "Hóa học 8",
-                    level: "THPT",
+                    level: "THCS",
                     teacher: "Nguyễn Thị Mai Phương",
                     duration: "",
                     students: 6,
