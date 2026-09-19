@@ -325,11 +325,16 @@ if (user) {
                     `
                 },
                 {
-                    id: 2,
+                    id: 3,
                     title: "Thực hiện kì thi kết thúc khóa học Nhập môn Đại số tuyến tính và Nhập môn Giải tích I",
                     date: "29/08/2026",
-                    content: ``
-                }
+                    content: `Đã có thông tin chi tiết`
+                },
+                        {id: 4,
+                    title: "Khảo sát phát triển chất lượng dạy học về màu bảng khi học online",
+                    date: "19/09/2026",
+                    content: `Xem thông tin chi tiết <a href="https://forms.gle/WCZh6eFYJczX7UFRA" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>`}
+                        
             ];
 
             function renderNotifications() {
