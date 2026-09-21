@@ -333,7 +333,12 @@ if (user) {
                         {id: 4,
                     title: "Khảo sát phát triển chất lượng dạy học về màu bảng khi học online",
                     date: "19/09/2026",
-                    content: `Xem thông tin chi tiết <a href="https://forms.gle/WCZh6eFYJczX7UFRA" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>`}
+                    content: `Xem thông tin chi tiết <a href="https://forms.gle/WCZh6eFYJczX7UFRA" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>`},
+                    {id: 5,
+                    title: "Thư mời tham gia học lớp học Toán 8 thực hành theo phương pháp Polya",
+                    date: "21/09/2026",
+                    content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/1px6f6tJx4eLbb2lfs2-tcNbzBHhs43o8/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>`}
+                        
                         
             ];
 
@@ -4111,11 +4116,15 @@ function loadCoursePermissions() {
                 if (isOpen) {
                     sidebarEl.classList.add('mobile-open');
                     mobileOverlay.classList.add('active');
+                    document.documentElement.classList.add('mobile-sidebar-open');
+                    document.body.classList.add('mobile-sidebar-open');
                     if (iconBars) iconBars.style.display = 'none';
                     if (iconClose) iconClose.style.display = 'block';
                 } else {
                     sidebarEl.classList.remove('mobile-open');
                     mobileOverlay.classList.remove('active');
+                    document.documentElement.classList.remove('mobile-sidebar-open');
+                    document.body.classList.remove('mobile-sidebar-open');
                     if (iconBars) iconBars.style.display = 'block';
                     if (iconClose) iconClose.style.display = 'none';
                 }
@@ -4137,6 +4146,14 @@ function loadCoursePermissions() {
                     }
                 });
             });
+            // Ngăn chặn touchmove truyền từ overlay / background khi mobile sidebar đang mở
+            document.addEventListener('touchmove', (e) => {
+                if (sidebarEl && sidebarEl.classList.contains('mobile-open')) {
+                    if (!sidebarEl.contains(e.target)) {
+                        e.preventDefault();
+                    }
+                }
+            }, { passive: false });
 
             /* ==========================================
                8. CHỨC NĂNG NHẬT KÝ HỌC TẬP (STUDY LOG)
