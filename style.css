@@ -465,6 +465,14 @@
                 overflow-y: auto;
             }
 
+            /* Khóa scroll trang nền khi sidebar mobile đang mở */
+            html.mobile-sidebar-open,
+            body.mobile-sidebar-open {
+                overflow: hidden !important;
+                height: 100% !important;
+                touch-action: none;
+            }
+
             /* 1. Reset layout Grid & mở khóa chiều cao app-container trên Mobile */
             .app-container {
                 display: block;
@@ -474,18 +482,24 @@
                 overflow: visible;
             }
 
-            /* 2. Biến Sidebar thành Drawer trượt từ bên trái */
+            /* 2. Biến Sidebar thành Drawer trượt từ bên trái & Là vùng scroll độc lập */
             .sidebar {
                 position: fixed;
                 top: var(--status-bar-height);
                 left: 0;
-                bottom: 0;
                 width: 280px;
                 max-width: 80vw;
+                height: calc(100vh - var(--status-bar-height));
+                height: calc(100dvh - var(--status-bar-height));
                 z-index: 1050;
                 transform: translateX(-100%);
                 transition: transform var(--transition-speed) ease-in-out;
                 box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                touch-action: pan-y;
             }
 
             .sidebar.mobile-open {
