@@ -565,7 +565,7 @@ function loadCoursePermissions() {
                     title: "Dạy thực hành Toán 8 theo phương pháp Polya",
                     level: "THCS",
                     teacher: "Nguyễn Hải Quân",
-                    duration: "",
+                    duration: "28/09/2026 - 15/12/2026",
                     students: 2,
                     image: "Polya.jpg",
                     url: "course-chemistry-8.html" // TODO: thay bằng URL thật của khóa học
