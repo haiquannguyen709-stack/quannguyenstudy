@@ -567,7 +567,7 @@ function loadCoursePermissions() {
                     teacher: "Nguyễn Hải Quân",
                     duration: "",
                     students: 2,
-                    image: "Polya.png",
+                    image: "Polya.jpg",
                     url: "course-chemistry-8.html" // TODO: thay bằng URL thật của khóa học
                 },
                 {
