@@ -337,7 +337,7 @@ if (user) {
                     {id: 5,
                     title: "Thư mời tham gia học lớp học Toán 8 thực hành theo phương pháp Polya",
                     date: "21/09/2026",
-                    content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/1px6f6tJx4eLbb2lfs2-tcNbzBHhs43o8/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>. Hạn cuối nhận đơn: 17h00 ngày 28/09/2026`}
+                    content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/1px6f6tJx4eLbb2lfs2-tcNbzBHhs43o8/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>. Hạn cuối nhận đơn: 12h00 ngày 29/09/2026`}
                         
                         
             ];
