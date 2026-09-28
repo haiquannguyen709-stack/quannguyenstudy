@@ -568,7 +568,7 @@ function loadCoursePermissions() {
                     duration: "28/09/2026 - 15/12/2026",
                     students: 2,
                     image: "Polya.jpg",
-                    url: "course-chemistry-8.html" // TODO: thay bằng URL thật của khóa học
+                    url: "Polya.html" // TODO: thay bằng URL thật của khóa học
                 },
                 {
                     id: "course-math221a",
