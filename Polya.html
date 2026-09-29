@@ -1135,7 +1135,54 @@
             <section id="section-1" class="chapter-card">
                 <div class="chapter-content" id="chapter-content-section-1">
                     <div class="lessons-list">
-                        <!-- Bài học duy nhất -->
+                        
+                        <!--Mục 4: Tài liệu PDF-->
+                            <div class="lesson-item" data-schedule-id="doc1" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Kế hoạch buổi dạy thực hành: Phân tích đa thức thành nhân tử</h3>
+                                        <span class="status-badge" data-badge-for="doc1"></span>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <i class="fa-regular fa-file-lines"></i>
+                                        <span>Tài liệu đính kèm (.pdf)</span>
+                                        <span class="countdown-text" data-countdown-for="doc1"></span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1T6vZoHp-qs8u4fjZWICknYRek5YnaPTi/view?usp=sharing" class="btn btn-primary btn-action" data-action-for="doc1" data-default-text="Lấy tài liệu" target="_blank" rel="noopener noreferrer">Lấy tài liệu</a>
+                                    <button class="btn btn-status btn-complete" data-key="course_new_algebra_factorization_doc1_completed">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!--Mục 4: Tài liệu PDF-->
+                            <div class="lesson-item" data-schedule-id="doc2" data-type="pdf">
+                                <div class="lesson-icon-wrapper lesson-type-pdf">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div class="lesson-details">
+                                    <div class="lesson-title-container">
+                                        <h3 class="lesson-title">Tài liệu bài học: Phân tích đa thức thành nhân tử</h3>
+                                        <span class="status-badge" data-badge-for="doc2"></span>
+                                    </div>
+                                    <div class="lesson-meta">
+                                        <i class="fa-regular fa-file-lines"></i>
+                                        <span>Tài liệu đính kèm (.pdf)</span>
+                                        <span class="countdown-text" data-countdown-for="doc2"></span>
+                                    </div>
+                                </div>
+                                <div class="lesson-actions">
+                                    <a href="https://drive.google.com/file/d/1W3RlmlsO4B7IvpjghuJfZMMCik-7xlEH/view?usp=sharing" class="btn btn-primary btn-action" data-action-for="doc2" data-default-text="Lấy tài liệu" target="_blank" rel="noopener noreferrer">Lấy tài liệu</a>
+                                    <button class="btn btn-status btn-complete" data-key="course_new_algebra_factorization_doc2_completed">
+                                        <span class="btn-complete-text">Hoàn thành</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Bài học duy nhất -->
                         <div class="lesson-item" data-schedule-id="lesson1" data-type="lesson">
                             <div class="lesson-icon-wrapper lesson-type-video">
                                 <i class="fa-solid fa-video"></i>
@@ -1147,7 +1194,7 @@
                                 </div>
                                 <div class="lesson-meta">
                                     <i class="fa-regular fa-clock"></i>
-                                    <span>Thời gian: 13:45 - 14:15, 01/10/2026</span>
+                                    <span>Thời gian mở: 13:45, 01/10/2026</span>
                                     <span class="countdown-text" data-countdown-for="lesson1"></span>
                                 </div>
                             </div>
@@ -1173,6 +1220,14 @@
             lesson1: {
                 open: "2026-10-01T13:45:00",
                 close: "2026-10-01T14:15:00"
+            },
+            doc1: {
+                open: "2026-10-01T13:45:00",
+                close: null
+            },
+            doc2: {
+                open: null,
+                close: null
             }
         };
         // Hàm chuyển đổi chuỗi YYYY-MM-DDTHH:mm:ss thành Date Object chính xác theo múi giờ Việt Nam (+07:00)
