@@ -337,12 +337,11 @@ if (user) {
                     {id: 5,
                     title: "Thư mời tham gia học lớp học Toán 8 thực hành theo phương pháp Polya",
                     date: "21/09/2026",
-                    content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/1px6f6tJx4eLbb2lfs2-tcNbzBHhs43o8/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>. Hạn cuối nhận đơn: 10h00 ngày 29/09/2026`},
-                        {id: 6,
+                    content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/1px6f6tJx4eLbb2lfs2-tcNbzBHhs43o8/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>. Hạn cuối nhận đơn: 17h00 ngày 28/09/2026`},
+                      {id: 6,
                     title: "Danh sách học viên chính thức lớp học Toán 8 thực hành theo phương pháp Polya",
                     date: "29/09/2026",
-                    content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/1-J01weUmtA-RYlgQBFzBmIzXSJLVwxCx/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>.`}
-                        
+                    content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/1-J01weUmtA-RYlgQBFzBmIzXSJLVwxCx/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>.`}   
                         
             ];
 
@@ -392,7 +391,7 @@ if (user) {
                /* ==========================================
    CONFIG - KẾT NỐI GOOGLE APPS SCRIPT
    ========================================== */
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbysKbabtrPxcYLV26N5wY_XHWhxrOG-Rvb0M73eHBRF5bWwhmoIMmPJPf4V4Hoj2P6l/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQCll67Kouwj7uEFD7o549h4m2fMl-rr_Ssf5qjDJhziKODN6bANTtGgI5JSlHdBPE/exec';
 
 const COURSE_STATUS = {
     ALLOWED: 'O',
@@ -569,8 +568,8 @@ function loadCoursePermissions() {
                     title: "Dạy thực hành Toán 8 theo phương pháp Polya",
                     level: "THCS",
                     teacher: "Nguyễn Hải Quân",
-                    duration: "28/09/2026 - 15/12/2026",
-                    students: 2,
+                    duration: "",
+                    students: 1,
                     image: "Polya.jpg",
                     url: "Polya.html" // TODO: thay bằng URL thật của khóa học
                 },
@@ -915,6 +914,21 @@ function loadCoursePermissions() {
                ========================================== */
             let tuitionData = [];
             let tuitionLoaded = false;
+            const TUITION_STATUS_PENDING = 'Đang xác nhận';
+            const TUITION_ALLOWED_DESTINATIONS = ['hocphi1.html', 'hocphi2.html'];
+            let selectedTuitionItem = null;
+            let isSubmittingTuition = false;
+
+            // Lấy text i18n cho phần học phí (có fallback tiếng Việt)
+            function getTuitionText(key, fallback) {
+                try {
+                    const lang = localStorage.getItem('qn-study-language') || 'vi';
+                    const dict = translations[lang] || translations['vi'];
+                    return (dict && dict[key]) || fallback;
+                } catch (e) {
+                    return fallback;
+                }
+            }
             /* ==========================================
                HÀM DÙNG CHUNG: FORMAT NGÀY THEO DẠNG dd/mm/yyyy
                ========================================== */
@@ -967,15 +981,23 @@ function loadCoursePermissions() {
                 tbody.innerHTML = rows.map((item, index) => {
                     const status = String(item.status || '').trim();
                     const isPaid = status === 'Đã nộp';
-                    const rowClass = isPaid ? 'tuition-row-paid' : '';
+                    const isPending = status === TUITION_STATUS_PENDING;
+                    const rowClass = isPaid ? 'tuition-row-paid' : (isPending ? 'tuition-row-pending' : '');
 
                     const actionHtml = isPaid
                         ? `<span class="tuition-status-paid">Đã nộp</span>`
-                        : `
+                        : (isPending
+                            ? `
+                            <button type="button" class="tuition-btn-pending" onclick="goToTuitionPayment(${index})">
+                                <span class="tuition-btn-label-default">${escapeHtml(getTuitionText('pendingConfirmBtn', 'Chờ xác nhận'))}</span>
+                                <span class="tuition-btn-label-hover">${escapeHtml(getTuitionText('payTuition', 'Nộp học phí'))}</span>
+                            </button>
+                        `
+                            : `
                             <button type="button" class="tuition-btn-pay" onclick="goToTuitionPayment(${index})">
                                  Nộp học phí
                             </button>
-                        `;
+                        `);
 
                     return `
                         <tr class="${rowClass}">
@@ -1067,6 +1089,7 @@ function loadCoursePermissions() {
                 };
 
                 sessionStorage.setItem('selectedTuitionPayment', JSON.stringify(selectedPayment));
+                selectedTuitionItem = item;
 
                 openTuitionModal(
                     `${formattedStartDate} - ${formattedEndDate}`,
@@ -1079,6 +1102,13 @@ function loadCoursePermissions() {
             // Gọi tải quyền khóa học và dữ liệu học phí từ Google Sheets ngay khi khởi tạo
             loadCoursePermissions();
             loadTuitionData();
+
+            // Khi quay lại trang từ cache trình duyệt (nút Back) → đọc lại trạng thái từ Google Sheets
+            window.addEventListener('pageshow', function (event) {
+                if (event.persisted) {
+                    loadTuitionData();
+                }
+            });
             /* ==========================================
                5c. CHỨC NĂNG LỊCH HỌC — LOGIC VÀ RENDER
                ========================================== */
@@ -1101,6 +1131,188 @@ function loadCoursePermissions() {
                 if (url && isSafeLessonUrl(url)) {
                     window.open(url, '_blank', 'noopener,noreferrer');
                 }
+            };
+            
+            /* ==========================================
+               MODAL XIN VẮNG (Lịch học): nhập lý do → copy clipboard → mở Zalo
+               ========================================== */
+            const ABSENCE_ZALO_URL = 'https://zalo.me/0355748108';
+            let absenceModalEl = null;
+            let absenceCurrentLesson = null;
+
+            function copyTextSafe(text) {
+                return new Promise(function (resolve) {
+                    const fallback = function () {
+                        try {
+                            const ta = document.createElement('textarea');
+                            ta.value = text;
+                            ta.setAttribute('readonly', '');
+                            ta.style.cssText = 'position:fixed;top:-1000px;left:-1000px;opacity:0;';
+                            document.body.appendChild(ta);
+                            ta.select();
+                            ta.setSelectionRange(0, ta.value.length);
+                            const ok = document.execCommand('copy');
+                            document.body.removeChild(ta);
+                            resolve(!!ok);
+                        } catch (e) {
+                            resolve(false);
+                        }
+                    };
+                    try {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(text).then(function () { resolve(true); }).catch(fallback);
+                        } else {
+                            fallback();
+                        }
+                    } catch (e) {
+                        fallback();
+                    }
+                });
+            }
+
+            function closeAbsenceModal() {
+                if (!absenceModalEl) return;
+                absenceModalEl.classList.remove('show');
+                const ta = absenceModalEl.querySelector('#absence-reason');
+                if (ta) {
+                    ta.value = '';
+                    ta.classList.remove('is-invalid');
+                }
+                const submitBtn = absenceModalEl.querySelector('#absence-submit');
+                if (submitBtn) submitBtn.disabled = false;
+                absenceCurrentLesson = null;
+            }
+
+            function submitAbsence() {
+                if (!absenceModalEl || !absenceCurrentLesson) return;
+                const ta = absenceModalEl.querySelector('#absence-reason');
+                const submitBtn = absenceModalEl.querySelector('#absence-submit');
+                const reason = ta.value.trim();
+
+                if (!reason) {
+                    ta.classList.add('is-invalid');
+                    ta.focus();
+                    showToast('Vui lòng nhập nội dung xin vắng.', 'error');
+                    return;
+                }
+
+                const lesson = absenceCurrentLesson;
+                const studentName = user ? (user.hoTen || user.fullName || user.name || 'Chưa xác định') : 'Chưa xác định';
+                const studentId = user ? (user.id || user.studentId || 'Chưa xác định') : 'Chưa xác định';
+                const username = user ? (user.username || 'Chưa xác định') : 'Chưa xác định';
+
+                const message = [
+                    'XIN VẮNG BUỔI HỌC',
+                    '',
+                    'Học sinh: ' + studentName,
+                    'Mã học sinh: ' + studentId,
+                    'Tài khoản: ' + username,
+                    '',
+                    'Khóa học: ' + lesson.course,
+                    'Ngày học: ' + lesson.date,
+                    'Thời gian: ' + lesson.time,
+                    'Thời lượng: ' + lesson.duration,
+                    'Nội dung: ' + lesson.content,
+                    '',
+                    'Nội dung xin vắng:',
+                    reason
+                ].join('\n');
+
+                if (submitBtn) submitBtn.disabled = true;
+
+                copyTextSafe(message).then(function (copied) {
+                    if (copied) {
+                        showToast('Đã sao chép nội dung xin vắng. Đang mở Zalo...', 'success');
+                    } else {
+                        showToast('Không thể tự động sao chép. Đang mở Zalo...', 'info');
+                    }
+                    try {
+                        window.open(ABSENCE_ZALO_URL, '_blank', 'noopener,noreferrer');
+                    } catch (e) {
+                        console.error('Không mở được Zalo:', e);
+                    }
+                    closeAbsenceModal();
+                });
+            }
+
+            function buildAbsenceModal() {
+                if (absenceModalEl) return absenceModalEl;
+
+                const overlay = document.createElement('div');
+                overlay.className = 'absence-modal-overlay';
+                overlay.setAttribute('role', 'dialog');
+                overlay.setAttribute('aria-modal', 'true');
+                overlay.setAttribute('aria-labelledby', 'absence-modal-title');
+                overlay.innerHTML = `
+                    <div class="absence-modal">
+                        <div class="absence-modal-header">
+                            <h3 class="absence-modal-title" id="absence-modal-title">Xin vắng buổi học</h3>
+                            <button type="button" class="absence-modal-close" data-absence-close aria-label="Đóng">&times;</button>
+                        </div>
+                        <div class="absence-modal-info">
+                            <div class="absence-info-course" id="absence-info-course"></div>
+                            <div class="absence-info-meta" id="absence-info-meta"></div>
+                            <div class="absence-info-content" id="absence-info-content"></div>
+                        </div>
+                        <label class="absence-modal-label" for="absence-reason">Nội dung xin vắng</label>
+                        <textarea id="absence-reason" class="absence-modal-textarea" rows="4" placeholder="Nhập nội dung xin vắng của bạn..."></textarea>
+                        <div class="absence-modal-actions">
+                            <button type="button" class="absence-btn-cancel" data-absence-close>Hủy bỏ</button>
+                            <button type="button" class="absence-btn-submit" id="absence-submit">Xin vắng</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+
+                // Click ra vùng overlay → đóng
+                overlay.addEventListener('mousedown', function (e) {
+                    if (e.target === overlay) closeAbsenceModal();
+                });
+                // Nút X và Hủy bỏ
+                overlay.querySelectorAll('[data-absence-close]').forEach(function (btn) {
+                    btn.addEventListener('click', closeAbsenceModal);
+                });
+                overlay.querySelector('#absence-submit').addEventListener('click', submitAbsence);
+                overlay.querySelector('#absence-reason').addEventListener('input', function () {
+                    this.classList.remove('is-invalid');
+                });
+                // Phím Escape
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && absenceModalEl && absenceModalEl.classList.contains('show')) {
+                        closeAbsenceModal();
+                    }
+                });
+
+                absenceModalEl = overlay;
+                return overlay;
+            }
+
+            window.openAbsenceModal = function (btn) {
+                if (!btn || !btn.dataset) return;
+                const modal = buildAbsenceModal();
+
+                absenceCurrentLesson = {
+                    course: btn.dataset.course || '',
+                    date: btn.dataset.date || '',
+                    time: btn.dataset.time || '',
+                    duration: btn.dataset.duration || '',
+                    content: btn.dataset.content || ''
+                };
+
+                modal.querySelector('#absence-info-course').textContent = absenceCurrentLesson.course;
+                modal.querySelector('#absence-info-meta').textContent =
+                    [absenceCurrentLesson.date, absenceCurrentLesson.time, absenceCurrentLesson.duration]
+                        .filter(function (s) { return s && s !== '-'; })
+                        .join(' · ');
+                modal.querySelector('#absence-info-content').textContent = absenceCurrentLesson.content;
+
+                const ta = modal.querySelector('#absence-reason');
+                ta.value = '';
+                ta.classList.remove('is-invalid');
+                modal.querySelector('#absence-submit').disabled = false;
+
+                modal.classList.add('show');
+                setTimeout(function () { ta.focus(); }, 50);
             };
             // Xử lý chuỗi Ngày + Giờ về Date Object theo giờ Việt Nam (GMT+7)
             function parseDateTimeVN(dateStr, timeStr) {
@@ -1130,6 +1342,43 @@ function loadCoursePermissions() {
                 }
 
                 return new Date(year, month, day, hour, minute, 0);
+            }
+
+            
+            // Chuyển thời lượng ("1 giờ", "1 giờ 30 phút", "45 phút", "1h30", "1,5 giờ"...) thành số phút. Không hợp lệ → null
+            function parseDurationToMinutes(value) {
+                if (value === null || value === undefined) return null;
+                const s = String(value).normalize('NFC').trim().toLowerCase().replace(/,/g, '.');
+                if (!s || !/\d/.test(s)) return null;
+
+                let total = 0;
+                const hm = s.match(/(\d+(?:\.\d+)?)\s*(?:giờ|tiếng|gio|h)\s*(\d+)?/);
+                if (hm) {
+                    total += parseFloat(hm[1]) * 60;
+                    if (hm[2]) total += parseInt(hm[2], 10);
+                } else {
+                    const mm = s.match(/(\d+)\s*(?:phút|phut|min|p|m)/);
+                    if (!mm) return null;
+                    total = parseInt(mm[1], 10);
+                }
+                total = Math.round(total);
+                return total > 0 ? total : null;
+            }
+
+            // "Bây giờ" theo giờ Việt Nam (GMT+7), cùng kiểu giá trị với parseDateTimeVN để so sánh trực tiếp
+            function getNowVN() {
+                try {
+                    const p = {};
+                    new Intl.DateTimeFormat('en-GB', {
+                        timeZone: 'Asia/Ho_Chi_Minh',
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit', second: '2-digit',
+                        hour12: false
+                    }).formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
+                    return new Date(+p.year, +p.month - 1, +p.day, (+p.hour) % 24, +p.minute, +p.second);
+                } catch (e) {
+                    return new Date();
+                }
             }
 
             function renderScheduleTable(rows) {
@@ -1162,17 +1411,42 @@ function loadCoursePermissions() {
                     const lessonUrl = item.lessonUrl || item.meetingUrl || item.url || '';
 
                     // Tính toán thời điểm bắt đầu học để kiểm tra tự động
-                    const lessonStartTime = parseDateTimeVN(ngayHocFormatted, thoiGianBatDau);
-                    const isTimeReached = lessonStartTime ? (now >= lessonStartTime) : false;
+                    // Nút ở cột Thao tác chỉ phụ thuộc cột "Chuyên cần" từ Google Sheets (không dùng giờ hiện tại).
 
                     // Trạng thái buổi học lấy TRỰC TIẾP từ cột "Chuyên cần" trong Google Sheets
-                    const chuyenCanLower = chuyenCan.toLowerCase();
-                    const isUpcoming = (chuyenCanLower === 'chưa diễn ra');
-                    const isAttended = (chuyenCanLower === 'đã học');
+                    const sheetAttendance = chuyenCan.normalize('NFC').trim().toLowerCase();
+                    const isAttended = (sheetAttendance === 'đã học');
+
+                    // "Đang diễn ra" / "Kết thúc" chỉ là trạng thái hiển thị tạm thời, KHÔNG ghi vào Sheets.
+                    // Chỉ tính theo thời gian khi Sheets = "Chưa diễn ra".
+                    let lessonStartTime = null;
+                    let lessonEndTime = null;
+                    let isLessonOngoing = false;
+                    let isLessonEnded = false;
+                    if (sheetAttendance === 'chưa diễn ra') {
+                        const hasValidDate = /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(ngayHocFormatted);
+                        const hasValidTime = /^\d{1,2}\s*[h:]\s*\d{0,2}/i.test(String(thoiGianBatDau).trim());
+                        const durationMinutes = parseDurationToMinutes(thoiLuong);
+                        if (hasValidDate && hasValidTime && durationMinutes) {
+                            lessonStartTime = parseDateTimeVN(ngayHocFormatted, thoiGianBatDau);
+                            if (lessonStartTime && !isNaN(lessonStartTime.getTime())) {
+                                lessonEndTime = new Date(lessonStartTime.getTime() + durationMinutes * 60000);
+                                const nowVN = getNowVN();
+                                isLessonOngoing = (nowVN >= lessonStartTime && nowVN < lessonEndTime);
+                                isLessonEnded = (nowVN >= lessonEndTime);
+                            }
+                        }
+                    }
+                    // isUpcoming = Sheets "Chưa diễn ra" và chưa đến giờ bắt đầu
+                    const isUpcoming = (sheetAttendance === 'chưa diễn ra') && !isLessonOngoing && !isLessonEnded;
 
                     // Xác định Class màu dòng theo thứ tự ưu tiên
                     let rowClass = '';
-                    if (isUpcoming) {
+                    if (isLessonOngoing) {
+                        rowClass = 'schedule-row-ongoing';  // Đang diễn ra: vàng nhạt
+                    } else if (isLessonEnded) {
+                        rowClass = 'schedule-row-ended';    // Kết thúc: xanh lục
+                    } else if (isUpcoming) {
                         rowClass = 'schedule-row-upcoming'; // Ưu tiên 1: #E7F1FF
                     } else if (!isAttended) {
                         rowClass = 'schedule-row-absent';   // Ưu tiên 2: #FDECEC
@@ -1182,7 +1456,11 @@ function loadCoursePermissions() {
 
                     // Badge chuyên cần
                     let chuyenCanBadge = '';
-                    if (isUpcoming) {
+                    if (isLessonOngoing) {
+                        chuyenCanBadge = `<span class="chuyencan-badge chuyencan-ongoing">Đang diễn ra</span>`;
+                    } else if (isLessonEnded) {
+                        chuyenCanBadge = `<span class="chuyencan-badge chuyencan-ended">Kết thúc</span>`;
+                    } else if (isUpcoming) {
                         chuyenCanBadge = `<span class="chuyencan-badge chuyencan-upcoming">Chưa diễn ra</span>`;
                     } else if (isAttended) {
                         chuyenCanBadge = `<span class="chuyencan-badge chuyencan-attended">Đã học</span>`;
@@ -1197,20 +1475,37 @@ function loadCoursePermissions() {
                         if (foundCourse) targetCourseId = foundCourse.id;
                     }
 
-                    // Tự động cho phép bấm "Vào học" khi đến thời gian bắt đầu (dù trạng thái ghi nhận là Chưa diễn ra)
-                    const canJoin = !isUpcoming || isTimeReached;
+                    const chuyenCanKey = chuyenCan.normalize('NFC').trim().toLowerCase();
 
-                    // Button Vào học
+                    // Cột "Thao tác": quyết định hoàn toàn theo "Chuyên cần"
                     let actionBtn = '';
-                    if (!canJoin) {
-                        actionBtn = `<button type="button" class="schedule-btn-join" disabled title="Chưa đến giờ học">Vào học</button>`;
-                    } else if (lessonUrl && isSafeLessonUrl(lessonUrl)) {
-                        const urlIndex = scheduleLessonUrls.push(lessonUrl) - 1;
-                        actionBtn = `<button type="button" class="schedule-btn-join" onclick="openScheduleLesson(${urlIndex})">Vào học</button>`;
-                    } else if (targetCourseId) {
-                        actionBtn = `<button type="button" class="schedule-btn-join" onclick="goToCourseFromSchedule('${targetCourseId}')">Vào học</button>`;
+                    if (isLessonOngoing) {
+                        // Đang diễn ra → nút Vào học (ưu tiên lessonUrl, sau đó khóa học theo cột "Khóa học")
+                        if (lessonUrl && isSafeLessonUrl(lessonUrl)) {
+                            scheduleLessonUrls[index] = lessonUrl;
+                            actionBtn = `<button type="button" class="schedule-btn-join"
+                                onclick="openScheduleLesson(${index})">Vào học</button>`;
+                        } else {
+                            actionBtn = `<button type="button" class="schedule-btn-join"
+                                onclick="goToCourseFromSchedule('${escapeHtml(String(targetCourseId || ''))}')">Vào học</button>`;
+                        }
+                    } else if (isLessonEnded) {
+                        actionBtn = ''; // Kết thúc → không có nút
+                    } else if (chuyenCanKey === 'chưa diễn ra') {
+                        // Buổi sắp diễn ra → chỉ hiện nút Xin vắng (dữ liệu lấy từ item đang render)
+                        actionBtn = `<button type="button" class="schedule-btn-absence"
+                            data-course="${escapeHtml(khoaHoc)}"
+                            data-date="${escapeHtml(ngayHocFormatted)}"
+                            data-time="${escapeHtml(thoiGianBatDau)}"
+                            data-duration="${escapeHtml(thoiLuong)}"
+                            data-content="${escapeHtml(noiDung)}"
+                            onclick="openAbsenceModal(this)">Xin vắng</button>`;
+                    } else if (chuyenCanKey === 'đã học') {
+                        actionBtn = ''; // Đã học → không có nút
+                    } else if (chuyenCanKey === 'chưa học') {
+                        actionBtn = ''; // Chưa học → không có nút
                     } else {
-                        actionBtn = `<button type="button" class="schedule-btn-join" onclick="navigateToPage('course-page')">Vào học</button>`;
+                        actionBtn = ''; // Trạng thái khác → mặc định không hiện nút
                     }
 
                     return `
@@ -1287,13 +1582,18 @@ function loadCoursePermissions() {
             
 
             loadScheduleData();
+            // Tự cập nhật Chưa diễn ra → Đang diễn ra → Kết thúc theo giờ (chỉ vẽ lại bảng, không gọi API, không ghi Sheets)
+            setInterval(function () {
+                if (scheduleLoaded) renderScheduleTable(scheduleData);
+            }, 30000);
+
             // Hàm chuyển hướng từ Lịch học sang trang Khóa học tương ứng
             window.goToCourseFromSchedule = function(courseId) {
                 // 1. Chuyển sang tab/trang Khóa học
                 navigateToPage('course-page');
                 
                 // 2. Mở thông tin / truy cập khóa học
-                if (typeof window.openCourse === 'function') {
+                if (courseId && typeof window.openCourse === 'function') {
                     window.openCourse(courseId);
                 }
             };
@@ -3109,8 +3409,74 @@ function loadCoursePermissions() {
             };
 
             window.submitTuitionPayment = function() {
-                closeTuitionModal();
-                window.location.href = 'hocphi.html';
+                if (isSubmittingTuition) return;
+
+                const item = selectedTuitionItem;
+                if (!item) {
+                    showToast('Không tìm thấy khoản học phí.', 'error');
+                    return;
+                }
+
+                const status = String(item.status || '').trim();
+                if (status === 'Đã nộp') {
+                    showToast('Khoản học phí này đã được nộp.', 'info');
+                    closeTuitionModal();
+                    return;
+                }
+
+                // Chỉ cho phép 2 điểm đến — không dùng URL tùy ý
+                const destination = String(item.destination || '').trim();
+                if (!TUITION_ALLOWED_DESTINATIONS.includes(destination)) {
+                    showToast('Điểm đến thanh toán chưa được cấu hình hoặc không hợp lệ.', 'error');
+                    return;
+                }
+
+                // Đã "Đang xác nhận" → KHÔNG gửi lại yêu cầu, chỉ chuyển tới trang thanh toán
+                if (status === TUITION_STATUS_PENDING) {
+                    closeTuitionModal();
+                    window.location.href = destination;
+                    return;
+                }
+
+                const userId = user ? user.id : '';
+                const username = user ? user.username : '';
+                const sheetRow = Number(item.sheetRow);
+                if (!userId || !username || !Number.isInteger(sheetRow) || sheetRow < 2) {
+                    showToast('Không thể cập nhật trạng thái học phí. Vui lòng thử lại.', 'error');
+                    return;
+                }
+
+                const confirmBtn = tuitionModal ? tuitionModal.querySelector('.tuition-btn-confirm') : null;
+                isSubmittingTuition = true;
+                if (confirmBtn) confirmBtn.disabled = true;
+
+                callAppsScript({
+                    action: 'updateTuitionStatus',
+                    id: userId,
+                    username: username,
+                    sheetRow: sheetRow,
+                    status: TUITION_STATUS_PENDING
+                })
+                    .then(response => {
+                        if (!response || response.success !== true) {
+                            throw new Error((response && response.message) || 'Không thể cập nhật trạng thái học phí. Vui lòng thử lại.');
+                        }
+                        // Server đã xác nhận → mới cập nhật giao diện và chuyển trang
+                        item.status = TUITION_STATUS_PENDING;
+                        const liveItem = tuitionData.find(r => r.sheetRow === item.sheetRow);
+                        if (liveItem) liveItem.status = TUITION_STATUS_PENDING;
+                        renderTuitionTable(tuitionData);
+                        closeTuitionModal();
+                        window.location.href = destination;
+                    })
+                    .catch(error => {
+                        console.error('Lỗi cập nhật trạng thái học phí:', error);
+                        showToast(error.message || 'Không thể cập nhật trạng thái học phí. Vui lòng thử lại.', 'error');
+                    })
+                    .finally(() => {
+                        isSubmittingTuition = false;
+                        if (confirmBtn) confirmBtn.disabled = false;
+                    });
             };
 
             // Đóng Modal khi click ngoài vùng nội dung modal
@@ -3259,6 +3625,8 @@ function loadCoursePermissions() {
                     discountLabel: "Miễn giảm:",
                     finalAmountLabel: "Số tiền cần thanh toán:",
                     proceedPayment: "Tiếp tục thanh toán",
+                    pendingStatus: "Đang xác nhận",
+                    pendingConfirmBtn: "Chờ xác nhận",
 
                     notificationsTitle: "THÔNG BÁO",
                     notificationsBreadcrumb: "Trang chủ / Trang cá nhân / Thông báo",
@@ -3386,6 +3754,8 @@ function loadCoursePermissions() {
                     discountLabel: "Discount:",
                     finalAmountLabel: "Amount Due:",
                     proceedPayment: "Proceed to Payment",
+                    pendingStatus: "Confirming",
+                    pendingConfirmBtn: "Awaiting Confirmation",
 
                     notificationsTitle: "NOTIFICATIONS",
                     notificationsBreadcrumb: "Home / Personal Profile / Notifications",
