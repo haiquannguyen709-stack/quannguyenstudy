@@ -331,6 +331,8 @@
             padding: 28px 36px;
             overflow-y: auto;
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Section chuyển đổi trang (SPA) */
@@ -1337,6 +1339,65 @@
             white-space: nowrap;
         }
 
+        /* ==========================================
+           HỌC PHÍ — TRẠNG THÁI "ĐANG XÁC NHẬN"
+           ========================================== */
+        .tuition-table tbody tr.tuition-row-pending td {
+            background-color: #FFF8E1;
+            color: #6d4c00;
+        }
+
+        .tuition-table tbody tr.tuition-row-pending:hover td {
+            background-color: #FFECB3;
+        }
+
+        .tuition-btn-pending {
+            background-color: #F9A825;
+            color: #3b2a00;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(249, 168, 37, 0.3);
+            display: inline-grid;
+            align-items: center;
+            justify-items: center;
+        }
+
+        .tuition-btn-pending .tuition-btn-label-default,
+        .tuition-btn-pending .tuition-btn-label-hover {
+            grid-area: 1 / 1;
+        }
+
+        .tuition-btn-pending .tuition-btn-label-hover {
+            visibility: hidden;
+        }
+
+        .tuition-btn-pending:hover,
+        .tuition-btn-pending:focus-visible {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(21, 101, 192, 0.3);
+        }
+
+        .tuition-btn-pending:hover .tuition-btn-label-default,
+        .tuition-btn-pending:focus-visible .tuition-btn-label-default {
+            visibility: hidden;
+        }
+
+        .tuition-btn-pending:hover .tuition-btn-label-hover,
+        .tuition-btn-pending:focus-visible .tuition-btn-label-hover {
+            visibility: visible;
+        }
+
+        .tuition-btn-pending:active {
+            transform: translateY(0);
+        }
+
         .tuition-table-loading,
         .tuition-table-error {
             color: var(--text-sub);
@@ -1602,6 +1663,27 @@
             color: #0A438A;
         }
 
+        
+        /* Đang diễn ra (trạng thái hiển thị tạm thời) */
+        .schedule-row-ongoing td {
+            background-color: #FFF8DC !important;
+        }
+
+        .chuyencan-ongoing {
+            background-color: #FFE9A8;
+            color: #7A5200;
+        }
+
+        /* Kết thúc (trạng thái hiển thị tạm thời, Sheets vẫn "Chưa diễn ra") */
+        .schedule-row-ended td {
+            background-color: #D6EFDC !important;
+        }
+
+        .chuyencan-ended {
+            background-color: #A9DDB8;
+            color: #14532D;
+        }
+
         /* NÚT VÀO HỌC */
         .schedule-btn-join {
             background-color: var(--primary-blue);
@@ -1632,6 +1714,253 @@
             color: #64748b;
             cursor: not-allowed;
             box-shadow: none;
+        }
+        
+        /* NÚT XIN VẮNG (Lịch học) */
+        .schedule-btn-absence {
+            background-color: transparent;
+            color: #c2410c;
+            border: 1.5px solid #fdba74;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 95px;
+        }
+
+        .schedule-btn-absence:hover {
+            background-color: #fff7ed;
+            border-color: #fb923c;
+            transform: translateY(-1px);
+        }
+
+        .schedule-btn-absence:active {
+            transform: translateY(0);
+            background-color: #ffedd5;
+        }
+
+        .schedule-btn-absence:focus-visible {
+            outline: 2px solid #fb923c;
+            outline-offset: 2px;
+        }
+
+        html.dark-mode .schedule-btn-absence {
+            color: #fdba74;
+            border-color: #9a3412;
+        }
+
+        html.dark-mode .schedule-btn-absence:hover,
+        html.dark-mode .schedule-btn-absence:active {
+            background-color: rgba(251, 146, 60, 0.15);
+            border-color: #fb923c;
+        }
+
+        /* MODAL XIN VẮNG */
+        .absence-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 2500;
+        }
+
+        .absence-modal-overlay.show {
+            display: flex;
+            animation: absenceFadeIn 0.2s ease-out;
+        }
+
+        @keyframes absenceFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .absence-modal {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            width: 100%;
+            max-width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 22px 24px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+            animation: absenceSlideUp 0.25s ease-out;
+        }
+
+        @keyframes absenceSlideUp {
+            from { transform: translateY(14px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .absence-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .absence-modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .absence-modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1.8rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0 6px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .absence-modal-close:hover {
+            color: var(--text-main);
+            background-color: var(--table-hover-bg);
+        }
+
+        .absence-modal-info {
+            background-color: var(--table-header-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+        }
+
+        .absence-info-course {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .absence-info-meta {
+            margin-top: 4px;
+            font-size: 0.9rem;
+            color: var(--primary-blue);
+            font-weight: 600;
+        }
+
+        .absence-info-content {
+            margin-top: 4px;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+        }
+
+        .absence-modal-label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .absence-modal-textarea {
+            width: 100%;
+            box-sizing: border-box;
+            min-height: 110px;
+            resize: vertical;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--input-bg);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .absence-modal-textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+        }
+
+        .absence-modal-textarea.is-invalid {
+            border-color: #c62828;
+            box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.15);
+        }
+
+        .absence-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .absence-btn-cancel,
+        .absence-btn-submit {
+            padding: 9px 20px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .absence-btn-cancel {
+            background-color: transparent;
+            color: var(--text-main);
+            border: 1.5px solid var(--border-color);
+        }
+
+        .absence-btn-cancel:hover {
+            background-color: var(--table-hover-bg);
+        }
+
+        .absence-btn-submit {
+            background-color: var(--primary-blue);
+            color: #ffffff;
+            border: 1.5px solid var(--primary-blue);
+        }
+
+        .absence-btn-submit:hover:not(:disabled) {
+            background-color: var(--primary-blue-hover);
+            border-color: var(--primary-blue-hover);
+        }
+
+        .absence-btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .absence-btn-cancel:focus-visible,
+        .absence-btn-submit:focus-visible,
+        .absence-modal-close:focus-visible {
+            outline: 2px solid var(--primary-blue);
+            outline-offset: 2px;
+        }
+
+        @media (max-width: 600px) {
+            .schedule-btn-absence {
+                font-size: 0.78rem;
+                padding: 5px 8px;
+                max-width: 80px;
+            }
+            .absence-modal {
+                padding: 18px 16px;
+                border-radius: 12px;
+            }
+            .absence-modal-actions {
+                gap: 8px;
+            }
+            .absence-btn-cancel,
+            .absence-btn-submit {
+                flex: 1;
+            }
         }
         /* ==========================================
            10. PROFILE PAGE STYLES (ĐỘC LẬP & TỰ ĐỘNG ẨN TRỐNG)
@@ -2085,9 +2414,17 @@
         html.dark-mode .schedule-row-upcoming td { background-color: #1a2a3a !important; }
         html.dark-mode .schedule-row-absent td { background-color: #3a1a1a !important; }
         html.dark-mode .schedule-row-attended td { background-color: #1a3a1a !important; }
+        html.dark-mode .schedule-row-ongoing td { background-color: #3a3418 !important; }
+        html.dark-mode .schedule-row-ended td { background-color: #17402b !important; }
 
         html.dark-mode .tuition-row-paid td { background-color: #1a3a2a; color: #81c784; }
         html.dark-mode .tuition-status-paid { background-color: #2e7d32; color: #ffffff; }
+
+        html.dark-mode .tuition-table tbody tr.tuition-row-pending td { background-color: #3b3318; color: #ffd54f; }
+        html.dark-mode .tuition-table tbody tr.tuition-row-pending:hover td { background-color: #4a4020; }
+        html.dark-mode .tuition-btn-pending { background-color: #F9A825; color: #2a1f00; }
+        html.dark-mode .tuition-btn-pending:hover,
+        html.dark-mode .tuition-btn-pending:focus-visible { background-color: var(--primary-blue); color: #ffffff; }
 
         html.dark-mode .course-level-tag {
             background-color: rgba(30, 136, 229, 0.2);
@@ -3554,4 +3891,55 @@ html.dark-mode .course-type-radio-option.active .course-type-radio-label {
 html.dark-mode .course-type-radio-option input[type="radio"]:checked ~ .custom-radio {
     border-color: #64b5f6;
     background-color: #64b5f6;
+}
+
+/* ==========================================
+   14. SITE BRAND FOOTER (WATERMARK STYLE)
+   ========================================== */
+.site-brand-footer {
+    margin-top: auto;
+    padding-top: 24px;
+    padding-bottom: 8px;
+    text-align: center;
+    user-select: none;
+    opacity: 0.55;
+    transition: opacity 0.2s ease;
+}
+
+.site-brand-footer:hover {
+    opacity: 0.85;
+}
+
+.site-brand-footer .site-brand-title {
+    font-size: 12.5px;
+    color: #64748b;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.2px;
+}
+
+.site-brand-footer .site-brand-title strong {
+    font-weight: 700;
+    color: #475569;
+}
+
+.site-brand-footer .site-brand-subtitle {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 400;
+    margin-top: 2px;
+    line-height: 1.2;
+}
+
+/* Dark Mode Adaptation */
+html.dark-mode .site-brand-footer .site-brand-title {
+    color: #94a3b8;
+}
+
+html.dark-mode .site-brand-footer .site-brand-title strong {
+    color: #cbd5e1;
+}
+
+html.dark-mode .site-brand-footer .site-brand-subtitle {
+    color: #64748b;
 }
