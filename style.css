@@ -1073,6 +1073,16 @@
             gap: 6px;
         }
 
+        .course-action-icon {
+            width: 17px;
+            height: 17px;
+            flex: 0 0 17px;
+            display: inline-block;
+            vertical-align: middle;
+            color: #ffffff;
+            stroke: #ffffff;
+        }
+
         .course-btn:active {
             transform: scale(0.98);
         }
