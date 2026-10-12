@@ -691,7 +691,11 @@ function loadCoursePermissions() {
                     let badgeText = 'Chưa đăng ký';
                     let buttonHtml = `
                         <button class="course-btn course-btn-enroll" onclick="handleCourseRegistration('${course.id}')">
-                            Đăng ký
+                            <svg class="course-action-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            <span>Đăng ký</span>
                         </button>
                     `;
 
@@ -711,7 +715,11 @@ function loadCoursePermissions() {
                         badgeText = dict.enrolledBadge || 'Đã tham gia';
                         buttonHtml = `
                             <button class="course-btn course-btn-enter" onclick="openCourse('${course.id}')">
-                                ${dict.enterCourseBtn || 'Vào học →'}
+                                <svg class="course-action-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M12 20h9"></path>
+                                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                                </svg>
+                                <span>${dict.enterCourseBtn || 'Vào học'}</span>
                             </button>
                         `;
                     } else if (status === COURSE_STATUS.REQUESTED) {
@@ -726,7 +734,11 @@ function loadCoursePermissions() {
                         badgeText = dict.unregisteredBadge || 'Chưa đăng ký';
                         buttonHtml = `
                             <button class="course-btn course-btn-enroll" onclick="handleCourseRegistration('${course.id}')">
-                                ${dict.registerBtn || 'Đăng ký'}
+                                <svg class="course-action-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                <span>${dict.registerBtn || 'Đăng ký'}</span>
                             </button>
                         `;
                     }
@@ -3545,7 +3557,7 @@ function loadCoursePermissions() {
                     requestedBadge: "Đang yêu cầu",
                     endedBadge: "Kết thúc",
                     registerBtn: "Đăng ký",
-                    enterCourseBtn: "Vào học →",
+                    enterCourseBtn: "Vào học",
                     requestedBtn: "Đã gửi yêu cầu",
                     endedBtn: "Kết thúc",
                     retryBtn: "Thử lại",
@@ -3674,7 +3686,7 @@ function loadCoursePermissions() {
                     requestedBadge: "Requested",
                     endedBadge: "Ended",
                     registerBtn: "Register",
-                    enterCourseBtn: "Enter →",
+                    enterCourseBtn: "Enter",
                     requestedBtn: "Requested",
                     endedBtn: "Ended",
                     retryBtn: "Retry",
