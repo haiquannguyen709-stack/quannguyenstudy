@@ -603,7 +603,6 @@ function loadCoursePermissions() {
                     image: "MATH211A.png",
                     url: "course-math211a.html" // TODO: thay bằng URL thật của khóa học
                 },
-                
                 {
                     id: "course-math352a",
                     title: "Lí luận, phương pháp dạy học và phương pháp dạy học bộ môn Toán học I (MATH352A)",
