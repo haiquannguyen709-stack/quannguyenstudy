@@ -511,6 +511,16 @@ function loadCoursePermissions() {
             };
             const coursesData = [
                 {
+                    id: "course-thptqg2027",
+                    title: "Luyện thi THPTQG năm 2027",
+                    level: "THPT",
+                    teacher: "Nguyễn Hải Quân",
+                    duration: "",
+                    students: 1,
+                    image: "THPTQG2027.png",
+                    url: "course-thptqg2027.html" // TODO: thay bằng URL thật của khóa học
+                },
+                {
                     id: "course-linear-algebra",
                     title: "Nhập môn Đại số tuyến tính",
                     level: "Đại học",
@@ -593,6 +603,7 @@ function loadCoursePermissions() {
                     image: "MATH211A.png",
                     url: "course-math211a.html" // TODO: thay bằng URL thật của khóa học
                 },
+                
                 {
                     id: "course-math352a",
                     title: "Lí luận, phương pháp dạy học và phương pháp dạy học bộ môn Toán học I (MATH352A)",
