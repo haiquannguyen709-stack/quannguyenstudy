@@ -623,7 +623,7 @@ function loadCoursePermissions() {
                     image: "HNUE.png", // TODO: đổi ảnh thật cho khóa học này
                     url: "course-tinchi-hnue.html" ,// TODO: thay bằng URL thật của khóa học
                     status: "ENDED"
-                }
+                },
             ];  
 
             function getCurrentUserId() {
