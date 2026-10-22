@@ -570,19 +570,14 @@
                     <div class="page-breadcrumb" data-i18n="notificationsBreadcrumb">Trang chủ / Trang cá nhân / Thông báo</div>
                 </div>
                 <div class="notification-container">
-                    <!-- Danh sách thông báo dạng bảng -->
-                    <div id="notification-list-view" class="notification-card">
-                        <table class="notification-table">
-                            <thead>
-                                <tr>
-                                    <th class="notification-th-title" data-i18n="notifTitle">Tiêu đề</th>
-                                    <th class="notification-th-date" data-i18n="notifDate">Ngày đăng</th>
-                                </tr>
-                            </thead>
-                            <tbody id="notification-table-body">
-                                <!-- Render từ JavaScript -->
-                            </tbody>
-                        </table>
+                    <!-- Danh sách thông báo dạng thẻ -->
+                    <div id="notification-list-view" class="notification-list-wrapper">
+                        <div id="notification-grid" class="notification-grid">
+                            <!-- Render từ JavaScript -->
+                        </div>
+                        <div id="notification-indicators" class="notification-indicators">
+                            <!-- Chấm chỉ báo trang sẽ được render ở đây -->
+                        </div>
                     </div>
 
                     <!-- Chi tiết thông báo -->
