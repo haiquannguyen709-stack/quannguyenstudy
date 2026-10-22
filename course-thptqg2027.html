@@ -1186,6 +1186,28 @@
                                     </button>
                                 </div>
                             </div>
+                        <div class="lesson-item" data-schedule-id="lesson2" data-type="lesson">
+                            <div class="lesson-icon-wrapper lesson-type-video">
+                                <i class="fa-solid fa-video"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">1. Buổi học ngày 22/10/2026</h3>
+                                    <span class="status-badge" data-badge-for="lesson1"></span>
+                                </div>
+                                <div class="lesson-meta">
+                                    <i class="fa-regular fa-clock"></i>
+                                    <span> Thời gian mở: 21h00, 22/10/2026 </span>
+                                    <span class="countdown-text" data-countdown-for="lesson2"></span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://meet.google.com/hdq-rptx-war" class="btn btn-primary btn-action" data-action-for="lesson2" data-default-text="Vào học" target="_blank" rel="noopener noreferrer">Vào học</a>
+                                <button class="btn btn-status btn-complete" data-key="course_thptqg_lesson2_completed">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -1205,6 +1227,10 @@
              doc2: {
                 open: null,
                 close: null
+            },
+             lesson2: {
+                open: "2026-10-22T21:00:00",
+                close: "2026-10-22T23:00:00"
             }
         };
         // Hàm chuyển đổi chuỗi YYYY-MM-DDTHH:mm:ss thành Date Object chính xác theo múi giờ Việt Nam (+07:00)
