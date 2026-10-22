@@ -345,30 +345,112 @@ if (user) {
                         
             ];
 
-            function renderNotifications() {
-                const tbody = document.getElementById('notification-table-body');
-                if (!tbody) return;
+            // Sắp xếp TOÀN BỘ danh sách: mới nhất trước (ngày DD/MM/YYYY -> số), cùng ngày thì id lớn hơn đứng trước
+            (function sortNotificationsNewestFirst() {
+                const toTime = (d) => {
+                    const m = String(d).trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                    if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1])).getTime();
+                    const t = new Date(d).getTime();
+                    return isNaN(t) ? 0 : t;
+                };
+                notifications.sort((a, b) => (toTime(b.date) - toTime(a.date)) || (b.id - a.id));
+            })();
 
-                tbody.innerHTML = notifications.map(item => `
-                    <tr class="notification-row" onclick="openNotification(${item.id})">
-                        <td class="notification-cell-title">
-                            <span class="notification-item-icon">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            let currentNotifGroupIndex = 0;
+            let notifAutoPlayInterval = null;
+            let isNotifHovered = false;
+            let isNotifDetailOpen = false;
+
+            function renderNotifications() {
+                const grid = document.getElementById('notification-grid');
+                const indicators = document.getElementById('notification-indicators');
+                if (!grid || !indicators) return;
+
+                const itemsPerPage = 3;
+                const totalGroups = Math.ceil(notifications.length / itemsPerPage);
+
+                if (notifications.length === 0) {
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-sub); padding: 40px;">Không có thông báo nào.</div>';
+                    indicators.innerHTML = '';
+                    stopNotifAutoPlay();
+                    return;
+                }
+
+                if (currentNotifGroupIndex >= totalGroups) {
+                    currentNotifGroupIndex = 0;
+                }
+
+                const startIdx = currentNotifGroupIndex * itemsPerPage;
+                const currentItems = notifications.slice(startIdx, startIdx + itemsPerPage);
+
+                grid.innerHTML = currentItems.map(item => `
+                    <div class="notif-card-item" tabindex="0" role="button" aria-label="Xem thông báo: ${escapeHtml(item.title)}" onclick="openNotification(${item.id})">
+                        <div class="notif-image-wrapper">
+                            <img src="nofitications.png" alt="Ảnh thông báo" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100%\\' height=\\'100%\\'><rect width=\\'100%\\' height=\\'100%\\' fill=\\'%23e2e8f0\\'/></svg>';">
+                        </div>
+                        <div class="notif-card-body">
+                            <div class="notif-card-title" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</div>
+                            <div class="notif-card-date">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
                                 </svg>
-                            </span>
-                            <span>${item.title}</span>
-                        </td>
-                        <td class="notification-cell-date">${item.date}</td>
-                    </tr>
+                                <span>${item.date}</span>
+                            </div>
+                        </div>
+                    </div>
                 `).join('');
+
+                if (totalGroups > 1) {
+                    let dotsHtml = '';
+                    for (let i = 0; i < totalGroups; i++) {
+                        dotsHtml += `<div class="notif-dot ${i === currentNotifGroupIndex ? 'active' : ''}" onclick="goToNotifGroup(${i})"></div>`;
+                    }
+                    indicators.innerHTML = dotsHtml;
+                    startNotifAutoPlay();
+                } else {
+                    indicators.innerHTML = '';
+                    stopNotifAutoPlay();
+                }
+            }
+
+            window.goToNotifGroup = function(index) {
+                currentNotifGroupIndex = index;
+                renderNotifications();
+                if (notifAutoPlayInterval) {
+                    stopNotifAutoPlay();
+                    startNotifAutoPlay();
+                }
+            };
+
+            function startNotifAutoPlay() {
+                stopNotifAutoPlay();
+                if (notifications.length <= 3) return;
+                notifAutoPlayInterval = setInterval(() => {
+                    const notifPage = document.getElementById('notification-page');
+                    // Chỉ chuyển đổi khi đang ở tab Thông báo, không mở chi tiết, và chuột không di chuyển vào khu vực thẻ
+                    if (notifPage && notifPage.classList.contains('active') && !isNotifHovered && !isNotifDetailOpen) {
+                        const totalGroups = Math.ceil(notifications.length / 3);
+                        currentNotifGroupIndex = (currentNotifGroupIndex + 1) % totalGroups;
+                        renderNotifications();
+                    }
+                }, 5000);
+            }
+
+            function stopNotifAutoPlay() {
+                if (notifAutoPlayInterval) {
+                    clearInterval(notifAutoPlayInterval);
+                    notifAutoPlayInterval = null;
+                }
             }
 
             window.openNotification = function(id) {
                 const notif = notifications.find(n => n.id === id);
                 if (!notif) return;
 
+                isNotifDetailOpen = true; // Tạm dừng chuyển nhóm tự động
                 document.getElementById('notification-detail-title').innerText = notif.title;
                 document.getElementById('notification-detail-date').innerText = 'Ngày đăng: ' + notif.date;
                 document.getElementById('notification-detail-content').innerHTML = notif.content;
@@ -378,12 +460,21 @@ if (user) {
             };
 
             window.closeNotification = function() {
+                isNotifDetailOpen = false; // Phục hồi chuyển nhóm
                 document.getElementById('notification-detail-view').style.display = 'none';
                 document.getElementById('notification-list-view').style.display = 'block';
+                startNotifAutoPlay(); 
             };
 
             // Khởi tạo danh sách thông báo khi tải trang
             renderNotifications();
+
+            // Tạm dừng bộ đếm tự động khi hover vào vùng thông báo để tránh nhảy trang khi đang định nhấn
+            const notifListView = document.getElementById('notification-list-view');
+            if (notifListView) {
+                notifListView.addEventListener('mouseenter', () => { isNotifHovered = true; });
+                notifListView.addEventListener('mouseleave', () => { isNotifHovered = false; });
+            }
 
             /* ==========================================
                5. CHỨC NĂNG QUẢN LÝ & PHÂN QUYỀN KHÓA HỌC
