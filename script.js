@@ -164,9 +164,9 @@ if (user) {
             // Gắn sự kiện Click cho tất cả các item menu trong Sidebar
             menuItems.forEach(item => {
                 item.addEventListener('click', (e) => {
-                    e.preventDefault();
                     const pageId = item.getAttribute('data-page');
                     if (pageId) {
+                        e.preventDefault();
                         navigateToPage(pageId);
                     }
                 });
@@ -590,6 +590,13 @@ function loadCoursePermissions() {
                     date: "15/09/2026",
                     time: "08h00",
                     students: 1
+                },
+                {
+                    id: "extra-3",
+                    content: "Hướng dẫn sử dụng Word - Excel - Powerpoint",
+                    date: "24/10/2026",
+                    time: "22h00",
+                    students: 1
                 }
             ];
 
@@ -598,7 +605,7 @@ function loadCoursePermissions() {
                 const session = extracurricularData.find(s => s.id === sessionId);
                 const sessionName = session ? session.content : sessionId;
                 // Chuyển hướng hoặc thông báo chờ cấu hình
-                window.location.href = 'home.html';
+                window.location.href = 'https://meet.google.com/hqi-hayv-zdx';
             };
             const coursesData = [
                 {
