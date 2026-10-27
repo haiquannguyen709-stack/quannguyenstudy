@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#020611">
+    <title>Nộp Học Phí Trực Tuyến - Quân Nguyễn Study</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Three.js & GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        /* ==========================================================================
+           1. BIẾN MÀU & RESET
+           ========================================================================== */
+        :root {
+            --space-950: #020611;
+            --space-900: #06152B;
+            --blue: #1565C0;
+            --blue-hover: #1976D2;
+            --cyan: #00D9FF;
+            --ice: #8BEAFF;
+            --white: #F4FBFF;
+            --muted: #A9C5DF;
+
+            --card-bg: rgba(6, 21, 43, 0.74);
+            --card-border: rgba(139, 234, 255, 0.18);
+            --inner-bg: rgba(2, 6, 17, 0.45);
+            --inner-border: rgba(139, 234, 255, 0.12);
+
+            --ok: #86EFAC;
+            --warn: #FDE68A;
+            --danger: #FCA5A5;
+
+            --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+            --transition: all 0.3s var(--ease);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            color-scheme: dark;
+            background-color: var(--space-950);
+        }
+
+        body {
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+            background-color: var(--space-950);
+            color: var(--white);
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--space-950); }
+        ::-webkit-scrollbar-thumb { background: rgba(139, 234, 255, 0.25); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(139, 234, 255, 0.45); }
+
+        :focus-visible {
+            outline: 2px solid var(--cyan);
+            outline-offset: 3px;
+        }
+
+        /* ==========================================================================
+           2. NỀN VŨ TRỤ (CSS THUẦN - chưa dùng Three.js / WebGL)
+           ========================================================================== */
+        .space-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background:
+                radial-gradient(ellipse 80% 55% at 50% -8%, rgba(21, 101, 192, 0.5), transparent 70%),
+                radial-gradient(ellipse 60% 45% at 90% 100%, rgba(0, 217, 255, 0.14), transparent 70%),
+                linear-gradient(180deg, var(--space-900) 0%, var(--space-950) 65%);
+        }
+
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.35;
+            animation: nebulaDrift 36s infinite alternate ease-in-out;
+        }
+        .nebula-1 {
+            top: -15%; left: -12%;
+            width: 55vw; height: 55vw;
+            background: radial-gradient(circle, var(--blue) 0%, transparent 70%);
+        }
+        .nebula-2 {
+            bottom: -20%; right: -12%;
+            width: 60vw; height: 60vw;
+            background: radial-gradient(circle, var(--cyan) 0%, transparent 70%);
+            opacity: 0.18;
+            animation-delay: -12s;
+        }
+
+        .stars,
+        .stars-far {
+            position: absolute;
+            inset: 0;
+        }
+        .stars {
+            background-image:
+                radial-gradient(1px 1px at 20px 30px, rgba(244, 251, 255, 0.9), transparent),
+                radial-gradient(1px 1px at 90px 120px, rgba(139, 234, 255, 0.8), transparent),
+                radial-gradient(1.5px 1.5px at 150px 60px, rgba(244, 251, 255, 0.75), transparent),
+                radial-gradient(1px 1px at 60px 180px, rgba(244, 251, 255, 0.6), transparent),
+                radial-gradient(1px 1px at 180px 160px, rgba(139, 234, 255, 0.7), transparent);
+            background-size: 200px 200px;
+        }
+        .stars-far {
+            background-image:
+                radial-gradient(1.5px 1.5px at 40px 70px, rgba(139, 234, 255, 0.9), transparent),
+                radial-gradient(1px 1px at 210px 40px, rgba(244, 251, 255, 0.8), transparent),
+                radial-gradient(2px 2px at 130px 230px, rgba(244, 251, 255, 0.7), transparent),
+                radial-gradient(1px 1px at 270px 150px, rgba(139, 234, 255, 0.7), transparent);
+            background-size: 310px 310px;
+            animation: starGlow 9s infinite alternate ease-in-out;
+        }
+
+        @keyframes nebulaDrift {
+            0%   { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, 30px) scale(1.08); }
+        }
+        @keyframes starGlow {
+            0%   { opacity: 0.55; }
+            100% { opacity: 1; }
+        }
+
+        /* ==========================================================================
+           3. BỐ CỤC CHÍNH
+           ========================================================================== */
+        .app-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.25rem;
+        }
+
+        main {
+            width: 100%;
+            max-width: 600px;
+            margin: 2rem auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ==========================================================================
+           4. HEADER
+           ========================================================================== */
+        header {
+            width: 100%;
+            max-width: 1100px;
+            margin: 1.25rem auto 0;
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(6, 21, 43, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 100px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--white);
+            min-width: 0;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, var(--blue), var(--cyan));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 16px rgba(0, 217, 255, 0.4);
+        }
+        .brand-icon svg { width: 20px; height: 20px; fill: #ffffff; }
+
+        .brand-name {
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            color: var(--white);
+            white-space: nowrap;
+        }
+
+        .header-tag {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--ice);
+            background: rgba(0, 217, 255, 0.08);
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 217, 255, 0.25);
+            white-space: nowrap;
+        }
+        .header-tag svg { width: 14px; height: 14px; fill: currentColor; }
+
+        /* ==========================================================================
+           5. TIÊU ĐỀ TRANG
+           ========================================================================== */
+        .page-title-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .main-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            margin-bottom: 0.6rem;
+            color: var(--white);
+            background: linear-gradient(135deg, #ffffff 20%, var(--ice) 60%, var(--cyan) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 0.98rem;
+            color: var(--muted);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        /* ==========================================================================
+           6. THẺ THANH TOÁN (GLASSMORPHISM & SPATIAL DECENTRALIZATION)
+           ========================================================================== */
+        .payment-card {
+            width: 100%;
+            background: transparent !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            border: none !important;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none !important;
+            transition: none;
+        }
+        .payment-card:hover {
+            border-color: transparent;
+            box-shadow: none !important;
+        }
+
+        /* Tách rời thông tin học viên ra nền vũ trụ */
+        .spatial-student-info {
+            background: rgba(6, 21, 43, 0.25);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(139, 234, 255, 0.1);
+            border-radius: 18px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .spatial-student-info .info-row {
+            border-bottom: 1px dashed rgba(139, 234, 255, 0.2);
+            padding-bottom: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .spatial-student-info .info-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        /* Làm nổi bật các khối thành phần con độc lập dạng Glassmorphism */
+        .tuition-highlight-block,
+        .qr-wrapper,
+        .account-details,
+        .security-note {
+            background: rgba(6, 21, 43, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(139, 234, 255, 0.2);
+            border-radius: 22px;
+            padding: 1.75rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4),
+                        0 0 30px rgba(21, 101, 192, 0.15);
+        }
+
+        .tuition-highlight-block {
+            position: relative;
+            background: linear-gradient(135deg, rgba(21, 101, 192, 0.35) 0%, rgba(6, 21, 43, 0.75) 100%);
+            border: 1px solid rgba(0, 217, 255, 0.4);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 0 35px rgba(0, 217, 255, 0.2) inset,
+                        0 16px 40px rgba(0, 0, 0, 0.4),
+                        0 0 15px rgba(0, 217, 255, 0.15);
+            transition: box-shadow 0.35s var(--ease), border-color 0.35s var(--ease);
+        }
+
+        /* 1. Dải sáng cyan chạy quanh viền thẻ học phí */
+        .tuition-highlight-block::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 20px;
+            background: conic-gradient(from 0deg at 50% 50%, 
+                transparent 0deg, 
+                transparent 270deg, 
+                rgba(139, 234, 255, 0.4) 315deg, 
+                #00D9FF 340deg, 
+                #F4FBFF 360deg
+            );
+            z-index: 0;
+            pointer-events: none;
+            animation: borderRotate 6s linear infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            opacity: 0.85;
+        }
+
+        @keyframes borderRotate {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 2. Vùng sáng mềm phía sau số tiền học phí */
+        .tuition-highlight-block::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            height: 110px;
+            background: radial-gradient(ellipse at center, rgba(0, 217, 255, 0.28) 0%, rgba(139, 234, 255, 0.12) 50%, transparent 75%);
+            filter: blur(18px);
+            z-index: 0;
+            pointer-events: none;
+            animation: softGlowPulse 5.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes softGlowPulse {
+            0%   { opacity: 0.6; transform: translate(-50%, -50%) scale(0.95); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        /* Đảm bảo toàn bộ nội dung chữ luôn nằm trên lớp ánh sáng nền và sắc nét */
+        .tuition-highlight-block > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 3. Hiệu ứng hover tinh tế khi rê chuột vào khối học phí */
+        @media (hover: hover) and (pointer: fine) {
+            .tuition-highlight-block:hover {
+                border-color: rgba(0, 217, 255, 0.75);
+                box-shadow: 0 0 45px rgba(0, 217, 255, 0.35) inset,
+                            0 20px 45px rgba(0, 0, 0, 0.5),
+                            0 0 25px rgba(0, 217, 255, 0.3);
+            }
+            .tuition-highlight-block:hover::before {
+                opacity: 1;
+            }
+        }
+
+        .qr-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .qr-frame {
+            background: #ffffff;
+            padding: 1rem;
+            border-radius: 20px;
+            width: min(100%, 280px);
+            box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.3),
+                        0 0 40px rgba(0, 217, 255, 0.35),
+                        0 16px 36px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-section-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Thông tin học viên + học phí */
+        .info-grid-custom {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            width: 100%;
+            margin-bottom: 1.75rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding-bottom: 0.7rem;
+            border-bottom: 1px dashed rgba(139, 234, 255, 0.14);
+            font-size: 0.92rem;
+        }
+        .info-label { color: var(--muted); flex-shrink: 0; }
+        .info-value-right {
+            font-weight: 700;
+            color: var(--white);
+            text-align: right;
+            font-size: 1.02rem;
+            word-break: break-word;
+        }
+
+        .tuition-highlight-block {
+            margin-top: 0.4rem;
+            padding: 1.25rem 1rem;
+            background: linear-gradient(135deg, rgba(21, 101, 192, 0.28) 0%, rgba(0, 217, 255, 0.1) 100%);
+            border: 1px solid rgba(0, 217, 255, 0.35);
+            border-radius: 18px;
+            text-align: center;
+            box-shadow: 0 0 28px rgba(0, 217, 255, 0.12) inset,
+                        0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        .tuition-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--ice);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+        }
+        .tuition-amount-display {
+            font-size: clamp(1.7rem, 7vw, 2.5rem);
+            font-weight: 800;
+            color: var(--white);
+            text-shadow: 0 0 22px rgba(0, 217, 255, 0.55);
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        /* QR */
+        .qr-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.75rem;
+        }
+        .qr-instruction-top {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            text-align: center;
+        }
+        .qr-frame {
+            background: #ffffff;
+            padding: 1rem;
+            border-radius: 22px;
+            width: min(100%, 300px);
+            box-shadow: 0 0 0 4px rgba(0, 217, 255, 0.25),
+                        0 0 36px rgba(0, 217, 255, 0.3),
+                        0 16px 36px rgba(0, 0, 0, 0.4);
+        }
+        .qr-frame img {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+        .qr-instruction-bottom {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-top: 1.1rem;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* Thông tin ngân hàng */
+        .account-details {
+            background: var(--inner-bg);
+            border: 1px solid var(--inner-border);
+            border-radius: 18px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: grid;
+            gap: 1.1rem;
+        }
+        .detail-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.6rem 0.75rem;
+        }
+        .detail-left {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            flex: 1 1 190px;
+            min-width: 0;
+        }
+        .detail-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: rgba(0, 217, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cyan);
+            flex-shrink: 0;
+        }
+        .detail-icon svg { width: 16px; height: 16px; fill: currentColor; }
+        .detail-text-group { display: flex; flex-direction: column; min-width: 0; }
+        .detail-label { font-size: 0.75rem; color: var(--muted); }
+        .detail-val {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--white);
+            word-break: break-word;
+        }
+        #payContentVal { color: var(--ice); }
+
+        /* Nút sao chép */
+        .btn-copy {
+            background: rgba(139, 234, 255, 0.08);
+            border: 1px solid rgba(139, 234, 255, 0.25);
+            color: var(--white);
+            padding: 0 0.95rem;
+            min-height: 40px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+        .btn-copy:hover {
+            background: rgba(139, 234, 255, 0.18);
+            border-color: rgba(139, 234, 255, 0.5);
+        }
+        .btn-copy.copied {
+            background: rgba(34, 197, 94, 0.18);
+            border-color: rgba(134, 239, 172, 0.5);
+            color: var(--ok);
+        }
+
+        /* Lưu ý bảo mật */
+        .security-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            background: rgba(21, 101, 192, 0.14);
+            border: 1px solid rgba(21, 101, 192, 0.4);
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .security-note svg { width: 16px; height: 16px; fill: var(--ice); flex-shrink: 0; }
+        .security-text { font-size: 0.78rem; color: var(--muted); line-height: 1.45; }
+        .security-text strong { color: var(--white); }
+
+        /* Trạng thái thanh toán */
+        .status-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.35);
+            color: var(--warn);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            flex-shrink: 0;
+            background-color: #eab308;
+            border-radius: 50%;
+            position: relative;
+        }
+        .status-dot::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            background-color: #eab308;
+            animation: pulseDot 2.2s infinite ease-out;
+        }
+        .status-badge.is-confirmed {
+            background: rgba(34, 197, 94, 0.12);
+            border-color: rgba(134, 239, 172, 0.4);
+            color: var(--ok);
+        }
+        .status-badge.is-confirmed .status-dot,
+        .status-badge.is-confirmed .status-dot::after { background-color: #22c55e; }
+
+        @keyframes pulseDot {
+            0%   { transform: scale(1); opacity: 0.7; }
+            100% { transform: scale(2.8); opacity: 0; }
+        }
+
+        /* Nút hành động */
+        .btn-send-proof,
+        .btn-confirm-pay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            width: 100%;
+            min-height: 54px;
+            border-radius: 14px;
+            font-size: 1.02rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-send-proof {
+            margin-bottom: 0.8rem;
+            background: transparent;
+            border: 2px solid var(--cyan);
+            color: var(--ice);
+            text-decoration: none;
+        }
+        .btn-send-proof:hover {
+            background: rgba(0, 217, 255, 0.1);
+            box-shadow: 0 0 22px rgba(0, 217, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        .btn-send-proof:active { transform: translateY(0); }
+
+        .btn-confirm-pay {
+            position: relative;
+            overflow: hidden;
+            border: none;
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--blue) 0%, #0097C7 100%);
+            box-shadow: 0 10px 26px rgba(21, 101, 192, 0.45);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, background 0.3s ease;
+        }
+        .btn-confirm-pay:hover {
+            background: linear-gradient(135deg, var(--blue-hover) 0%, #00B4E6 100%);
+            box-shadow: 0 14px 32px rgba(0, 217, 255, 0.45), 0 0 20px rgba(0, 217, 255, 0.25);
+            transform: translateY(-2px);
+        }
+        .btn-confirm-pay:active { 
+            transform: scale(0.97) translateY(0); 
+            box-shadow: 0 6px 18px rgba(0, 217, 255, 0.4);
+        }
+
+        /* Hiệu ứng vòng sáng lan tỏa (Ripple Effect) chuẩn Cyan cao cấp */
+        .ripple {
+            position: absolute;
+            background: radial-gradient(circle, rgba(0, 217, 255, 0.75) 0%, rgba(139, 234, 255, 0.35) 50%, transparent 100%);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: rippleAnim 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            pointer-events: none;
+        }
+        @keyframes rippleAnim {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(3.5);
+                opacity: 0;
+            }
+        }
+
+        /* ==========================================================================
+           7. MODAL
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 17, 0.78);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+
+        .modal-card {
+            width: 100%;
+            max-width: 440px;
+            max-height: calc(100vh - 2.5rem);
+            max-height: calc(100dvh - 2.5rem);
+            overflow-y: auto;
+            background: var(--space-900);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6),
+                        0 0 40px rgba(21, 101, 192, 0.25);
+            transform: scale(0.92) translateY(20px);
+            opacity: 0;
+            transition: var(--transition);
+            position: relative;
+        }
+        .modal-overlay.active .modal-card { transform: scale(1) translateY(0); opacity: 1; }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(139, 234, 255, 0.08);
+            border: none;
+            color: var(--muted);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .modal-close-btn:hover { background: rgba(139, 234, 255, 0.2); color: var(--white); }
+
+        .modal-header { text-align: center; margin-bottom: 1.25rem; }
+        .modal-icon-wrap {
+            width: 56px;
+            height: 56px;
+            background: rgba(0, 217, 255, 0.12);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: var(--cyan);
+        }
+        .modal-title { font-size: 1.3rem; font-weight: 700; color: var(--white); }
+        .modal-body {
+            font-size: 0.92rem;
+            color: var(--muted);
+            text-align: center;
+            line-height: 1.55;
+            margin-bottom: 1.75rem;
+        }
+        .modal-actions { display: flex; gap: 0.85rem; }
+
+        .btn-modal {
+            flex: 1;
+            min-height: 48px;
+            padding: 0.8rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+        .btn-cancel {
+            background: rgba(139, 234, 255, 0.08);
+            color: var(--muted);
+            border: 1px solid rgba(139, 234, 255, 0.2);
+        }
+        .btn-cancel:hover { background: rgba(139, 234, 255, 0.16); color: var(--white); }
+        .btn-proceed {
+            background: var(--blue);
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(21, 101, 192, 0.5);
+        }
+        .btn-proceed:hover { background: var(--blue-hover); }
+
+        .modal-success-state { display: none; text-align: center; }
+        .success-icon-wrap {
+            width: 64px;
+            height: 64px;
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--ok);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        /* ==========================================================================
+           8. TOAST
+           ========================================================================== */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            max-width: calc(100vw - 2rem);
+            background: rgba(6, 21, 43, 0.95);
+            border: 1px solid rgba(0, 217, 255, 0.35);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 0.75rem 1.25rem;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        .toast-container.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast-icon { color: var(--ok); display: flex; align-items: center; flex-shrink: 0; }
+        .toast-container.is-error { border-color: rgba(252, 165, 165, 0.5); }
+        .toast-container.is-error .toast-icon { color: var(--danger); }
+        .toast-message { font-size: 0.88rem; font-weight: 600; color: var(--white); line-height: 1.35; }
+
+        /* ==========================================================================
+           9. FOOTER
+           ========================================================================== */
+        footer {
+            margin: 2rem 0 1.5rem;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+        footer strong { color: var(--white); font-weight: 600; }
+
+        /* ==========================================================================
+           10. HIỆU ỨNG XUẤT HIỆN BAN ĐẦU (CSS)
+           ========================================================================== */
+        .animate-fade-in { animation: fadeInUp 0.8s var(--ease) backwards; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(18px); }
+        }
+
+        /* ==========================================================================
+           11. RESPONSIVE
+           ========================================================================== */
+        @media (max-width: 640px) {
+            header { padding: 0.7rem 1rem; border-radius: 22px; }
+            .brand-name { font-size: 0.88rem; letter-spacing: 0.04em; }
+            .main-title { font-size: 1.9rem; }
+            .payment-card { padding: 1.5rem 1.15rem; border-radius: 24px; }
+            .info-row { font-size: 0.88rem; }
+            .modal-card { padding: 1.5rem 1.25rem; }
+        }
+
+        @media (max-width: 420px) {
+            .app-container { padding: 0 0.75rem; }
+            .header-tag { display: none; }
+            .payment-card { padding: 1.25rem 1rem; }
+            .detail-item .btn-copy { width: 100%; justify-content: center; }
+            .modal-actions { flex-direction: column-reverse; }
+        }
+
+        /* ==========================================================================
+           12. GIẢM CHUYỂN ĐỘNG
+           ========================================================================== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= NỀN KHÔNG GIAN 3D & SAO BĂNG ================= -->
+    <canvas id="universe" aria-hidden="true" style="position: fixed; inset: 0; z-index: 0; pointer-events: none;"></canvas>
+    <canvas id="shootingStars" aria-hidden="true" style="position: fixed; inset: 0; z-index: 1; pointer-events: none;"></canvas>
+
+    <!-- ================= KHUNG CHÍNH ================= -->
+    <div class="app-container">
+
+        <!-- ================= HEADER ================= -->
+        <header class="animate-fade-in delay-1">
+            <a href="#" class="brand-logo">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 3L1 9L12 15L21 10.09V17H23V9M5 13.18V17.18L12 21L19 17.18V13.18L12 17L5 13.18Z"/>
+                    </svg>
+                </div>
+                <span class="brand-name">QUÂN NGUYỄN STUDY</span>
+            </a>
+            <div class="header-tag">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                </svg>
+                Nộp học phí
+            </div>
+        </header>
+
+        <!-- ================= NỘI DUNG CHÍNH ================= -->
+        <main>
+            <div class="page-title-section animate-fade-in delay-2">
+                <h1 class="main-title">CỔNG THANH TOÁN HỌC PHÍ</h1>
+                <p class="subtitle">Xây nền tri thức - Kiến tạo tương lai</p>
+            </div>
+
+            <!-- ================= THẺ THANH TOÁN (GLASSMORPHISM SPATIAL LAYOUT) ================= -->
+            <div class="payment-card animate-fade-in delay-3" id="interactiveCard">
+
+                <!-- Thông tin học viên hòa vào không gian nền (Bỏ hộp nền chung) -->
+                <div class="info-grid-custom spatial-student-info">
+                    <div class="info-row">
+                        <span class="info-label">Họ và tên</span>
+                        <span class="info-value-right" id="paymentStudentName">Chưa xác định</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Mã học viên</span>
+                        <span class="info-value-right" id="paymentStudentId">Chưa xác định</span>
+                    </div>
+                </div>
+
+                <div class="tuition-highlight-block">
+                        <div class="tuition-title">Học phí</div>
+                        <div class="tuition-amount-display" id="paymentTuitionAmount">Chưa xác định</div>
+                    </div>
+                </div>
+
+                <!-- ================= MÃ QR ================= -->
+                <div class="qr-wrapper">
+                    <div class="card-section-title" style="margin-bottom: 0.75rem; width: 100%; justify-content: center;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M3 3h8v8H3zm2 2v4h4V5H5zm8-2h8v8h-8zm2 2v4h4V5h-4zM3 13h8v8H3zm2 2v4h4v-4H5zm13-2h3v2h-3zm-3 0h2v3h-2zm3 3h3v3h-3zm-3 3h2v2h-2zm3 2h3v3h-3z"/>
+                        </svg>
+                        Quét mã QR để thanh toán
+                    </div>
+                    <div class="qr-frame" id="qrContainer">
+                        <!-- Giữ nguyên ảnh QR thật của hệ thống: qr-code.png (đặt cùng thư mục với file HTML) -->
+                        <img src="QRMP.png" alt="QR thanh toán học phí" id="paymentQR">
+                    </div>
+                    <div class="qr-instruction-bottom">Sử dụng ứng dụng ngân hàng hoặc ví điện tử để quét mã</div>
+                </div>
+
+                <!-- ================= THÔNG TIN NGÂN HÀNG ================= -->
+                <div class="account-details">
+                    <div class="card-section-title" style="margin-bottom: 0.75rem;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M4 10h16v2H4zm0 4h16v2H4zm0 4h16v2H4zm0-12h16v2H4z"/>
+                        </svg>
+                        Thông tin nhận thanh toán
+                    </div>
+
+                <div class="account-details">
+                    <!-- Ngân hàng -->
+                    <div class="detail-item">
+                        <div class="detail-left">
+                            <div class="detail-icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.5 1L2 6v2h19V6l-9.5-5zm-7 7v9h3V8h-3zm5 0v9h3V8h-3zm5 0v9h3V8h-3zM2 19v3h19v-3H2z"/></svg>
+                            </div>
+                            <div class="detail-text-group">
+                                <span class="detail-label">Ngân hàng</span>
+                                <span class="detail-val">BIDV</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chủ tài khoản -->
+                    <div class="detail-item">
+                        <div class="detail-left">
+                            <div class="detail-icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            </div>
+                            <div class="detail-text-group">
+                                <span class="detail-label">Chủ tài khoản</span>
+                                <span class="detail-val">NGUYEN THI MAI PHUONG</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Số tài khoản -->
+                    <div class="detail-item">
+                        <div class="detail-left">
+                            <div class="detail-icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+                            </div>
+                            <div class="detail-text-group">
+                                <span class="detail-label">Số tài khoản</span>
+                                <span class="detail-val" id="accNumberVal">8804481769</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-copy" onclick="copyText('accNumberVal', 'số tài khoản', this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            Sao chép
+                        </button>
+                    </div>
+
+                    <!-- Nội dung chuyển khoản -->
+                    <div class="detail-item">
+                        <div class="detail-left">
+                            <div class="detail-icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+                            </div>
+                            <div class="detail-text-group">
+                                <span class="detail-label">Nội dung chuyển khoản</span>
+                                <span class="detail-val" id="payContentVal"></span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-copy" onclick="copyText('payContentVal', 'nội dung chuyển khoản', this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            Sao chép
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ================= LƯU Ý BẢO MẬT ================= -->
+                <div class="security-note">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                    <div class="security-text">
+                        <strong>Thông tin thanh toán được bảo mật.</strong> Vui lòng kiểm tra kỹ thông tin người nhận trước khi thực hiện chuyển khoản.
+                    </div>
+                </div>
+
+                <!-- ================= TRẠNG THÁI ================= -->
+                <div class="status-container">
+                    <div class="status-badge" id="statusBadge" role="status">
+                        <span class="status-dot"></span>
+                        <span id="statusText">Trạng thái: Chờ xác nhận thanh toán</span>
+                    </div>
+                </div>
+
+                <!-- ================= NÚT HÀNH ĐỘNG ================= -->
+                <a href="https://zalo.me/0355748108" target="_blank" rel="noopener noreferrer" class="btn-send-proof">
+                    <span class="btn-icon">📤</span>
+                    <span>Gửi minh chứng</span>
+                </a>
+
+                <button type="button" class="btn-confirm-pay" id="btnConfirmPay">
+                    <span class="btn-icon">✓</span>
+                    <span>Tôi đã thanh toán</span>
+                </button>
+
+            </div>
+        </main>
+
+        <!-- ================= FOOTER ================= -->
+        <footer>
+            <p>© 2026 <strong>Quân Nguyễn Study</strong></p>
+            <p>Hệ thống quản lý và thanh toán học phí trực tuyến</p>
+        </footer>
+
+    </div>
+
+    <!-- ================= MODAL XÁC NHẬN THANH TOÁN ================= -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitleText">
+            <button type="button" class="modal-close-btn" id="btnCloseModal" aria-label="Đóng">✕</button>
+
+            <!-- Trạng thái hỏi xác nhận -->
+            <div id="modalPromptState">
+                <div class="modal-header">
+                    <div class="modal-icon-wrap">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                    </div>
+                    <h3 class="modal-title" id="modalTitleText">Xác nhận thanh toán</h3>
+                </div>
+                <div class="modal-body">
+                    Bạn xác nhận rằng mình đã hoàn tất chuyển khoản học phí qua ngân hàng hoặc ví điện tử?
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-modal btn-cancel" id="btnModalCancel">Hủy</button>
+                    <button type="button" class="btn-modal btn-proceed" id="btnModalSubmit">Đã thanh toán</button>
+                </div>
+            </div>
+
+            <!-- Trạng thái thành công -->
+            <div class="modal-success-state" id="modalSuccessState">
+                <div class="success-icon-wrap">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <h3 class="modal-title" style="margin-bottom: 0.5rem;">Cảm ơn bạn!</h3>
+                <p class="modal-body">
+                    Hệ thống đã ghi nhận thông tin. Chúng tôi sẽ xác nhận giao dịch của bạn trong thời gian sớm nhất.
+                </p>
+                <button type="button" class="btn-modal btn-proceed" style="width: 100%;" id="btnSuccessClose">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= TOAST ================= -->
+    <div class="toast-container" id="toast" role="status" aria-live="polite">
+        <div class="toast-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
+        <span class="toast-message" id="toastMsg">Đã sao chép vào bộ nhớ tạm!</span>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        /* ==========================================================================
+           1. TOAST
+           ========================================================================== */
+        let toastTimeout;
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.innerText = message;
+
+            toast.classList.toggle('is-error', type === 'error');
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2600);
+        }
+
+        /* ==========================================================================
+           2. SAO CHÉP
+           ========================================================================== */
+        function copyText(elementId, labelName, btnEl) {
+            // Lấy nút ngay lúc bấm (đồng bộ), không đọc lại sau khi clipboard trả về
+            const btn = btnEl || (window.event && window.event.currentTarget) || null;
+            const textToCopy = (document.getElementById(elementId).textContent || '').trim();
+
+            if (!textToCopy) {
+                showToast(`Chưa có ${labelName} để sao chép.`, 'error');
+                return;
+            }
+
+            function onCopied() {
+                showToast(`Đã sao chép ${labelName}!`);
+                if (!btn || btn.dataset.copying === '1') return;
+
+                btn.dataset.copying = '1';
+                const originalHTML = btn.innerHTML;
+                btn.classList.add('copied');
+                btn.innerHTML = '✓ Đã sao chép';
+
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = originalHTML;
+                    delete btn.dataset.copying;
+                }, 2000);
+            }
+
+            function legacyCopy() {
+                const ta = document.createElement('textarea');
+                ta.value = textToCopy;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                let ok = false;
+                try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+                document.body.removeChild(ta);
+                return ok;
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textToCopy).then(onCopied).catch(err => {
+                    console.error('Không thể sao chép: ', err);
+                    if (legacyCopy()) onCopied();
+                    else showToast('Không thể sao chép. Vui lòng sao chép thủ công.', 'error');
+                });
+            } else if (legacyCopy()) {
+                onCopied();
+            } else {
+                showToast('Không thể sao chép. Vui lòng sao chép thủ công.', 'error');
+            }
+        }
+
+        /* ==========================================================================
+           3. NÚT "TÔI ĐÃ THANH TOÁN" (RIPPLE + MỞ MODAL)
+           ========================================================================== */
+        const confirmBtn = document.getElementById('btnConfirmPay');
+        confirmBtn.addEventListener('click', function (e) {
+            // Tạo vòng sáng lan tỏa (Ripple) chuẩn xác theo tọa độ click hoặc tâm nút khi dùng bàn phím
+            const circle = document.createElement('span');
+            const diameter = Math.max(this.clientWidth, this.clientHeight) * 1.5;
+            const radius = diameter / 2;
+
+            const rect = this.getBoundingClientRect();
+            
+            // Xử lý tọa độ chuột/cảm ứng hoặc tự động căn giữa nếu kích hoạt bằng bàn phím (Enter/Space)
+            const clientX = e.clientX || (rect.left + rect.width / 2);
+            const clientY = e.clientY || (rect.top + rect.height / 2);
+
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${clientX - rect.left - radius}px`;
+            circle.style.top = `${clientY - rect.top - radius}px`;
+            circle.classList.add('ripple');
+
+            // Xóa bỏ vòng sáng cũ để tránh chồng chéo DOM
+            const existingRipple = this.getElementsByClassName('ripple')[0];
+            if (existingRipple) existingRipple.remove();
+
+            this.appendChild(circle);
+
+            // Tự động dọn dẹp phần tử sau khi animation hoàn thành
+            circle.addEventListener('animationend', () => {
+                circle.remove();
+            });
+
+            // Mở modal xác nhận (Bảo toàn hoàn toàn nghiệp vụ gốc)
+            openModal();
+        });
+
+        /* ==========================================================================
+           4. MODAL
+           ========================================================================== */
+        const modal = document.getElementById('paymentModal');
+        const btnCloseModal = document.getElementById('btnCloseModal');
+        const btnModalCancel = document.getElementById('btnModalCancel');
+        const btnModalSubmit = document.getElementById('btnModalSubmit');
+        const btnSuccessClose = document.getElementById('btnSuccessClose');
+        const modalPromptState = document.getElementById('modalPromptState');
+        const modalSuccessState = document.getElementById('modalSuccessState');
+
+        function openModal() {
+            modalPromptState.style.display = 'block';
+            modalSuccessState.style.display = 'none';
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        btnCloseModal.addEventListener('click', closeModal);
+        btnModalCancel.addEventListener('click', closeModal);
+
+        // Đóng khi bấm ra ngoài thẻ modal
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Đóng bằng phím ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Xác nhận trong modal (kết hợp kích hoạt hiệu ứng đổi màu sao sang vàng và giữ nguyên logic nghiệp vụ)
+        btnModalSubmit.addEventListener('click', () => {
+            modalPromptState.style.display = 'none';
+            modalSuccessState.style.display = 'block';
+
+            const statusBadge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+
+            statusBadge.classList.add('is-confirmed');
+            statusText.innerText = 'Trạng thái: Đã xác nhận đã chuyển khoản';
+
+            // Kích hoạt trạng thái đổi màu sao sang vàng toàn hệ thống
+            window.paymentEffectActive = true;
+            window.dispatchEvent(new CustomEvent('paymentConfirmed'));
+        });
+
+        btnSuccessClose.addEventListener('click', closeModal);
+
+        /* ==========================================================================
+           5. NẠP THÔNG TIN HỌC VIÊN & KHOẢN HỌC PHÍ TỪ HOME.HTML
+              (logic giữ nguyên như file gốc)
+           ========================================================================== */
+        (function loadPaymentData() {
+            let currentUser = null;
+            let selectedTuition = null;
+
+            try {
+                const userRaw = sessionStorage.getItem('currentUser') || localStorage.getItem('currentUser');
+                if (userRaw) currentUser = JSON.parse(userRaw);
+            } catch (e) {
+                console.error('Lỗi parse currentUser:', e);
+            }
+
+            try {
+                const tuitionRaw = sessionStorage.getItem('selectedTuitionPayment');
+                if (tuitionRaw) selectedTuition = JSON.parse(tuitionRaw);
+            } catch (e) {
+                console.error('Lỗi parse selectedTuitionPayment:', e);
+            }
+
+            const nameEl = document.getElementById('paymentStudentName');
+            const idEl = document.getElementById('paymentStudentId');
+            const amountEl = document.getElementById('paymentTuitionAmount');
+            const payContentValEl = document.getElementById('payContentVal');
+
+            if (!currentUser) {
+                if (typeof showToast === 'function') {
+                    showToast('Không xác định được thông tin học sinh. Vui lòng đăng nhập lại.', 'error');
+                }
+                if (nameEl) nameEl.textContent = 'Chưa xác định';
+                if (idEl) idEl.textContent = 'Chưa xác định';
+            } else {
+                const fullName = currentUser.fullName || currentUser.hoTen || 'Chưa xác định';
+                const studentId = currentUser.studentId || currentUser.id || 'Chưa xác định';
+
+                if (nameEl) nameEl.textContent = fullName;
+                if (idEl) idEl.textContent = studentId;
+
+                if (payContentValEl) {
+                    payContentValEl.textContent = `${studentId} HOC PHI`;
+                }
+            }
+
+            if (!selectedTuition || selectedTuition.amount === undefined || selectedTuition.amount === null) {
+                if (typeof showToast === 'function') {
+                    showToast('Không tìm thấy khoản học phí được chọn.', 'error');
+                }
+                if (amountEl) amountEl.textContent = 'Chưa xác định';
+            } else {
+                const numericAmount = Number(selectedTuition.amount);
+                if (isNaN(numericAmount)) {
+                    if (amountEl) amountEl.textContent = 'Chưa xác định';
+                } else {
+                    const formattedAmount = new Intl.NumberFormat('vi-VN').format(numericAmount);
+                    if (amountEl) amountEl.textContent = `${formattedAmount} VNĐ`;
+                }
+            }
+        })();
+    </script>
+    <!-- ================= KHỞI TẠO 3D & ANIMATION ================= -->
+    <script>
+        /**
+ * QUÂN NGUYỄN STUDY — SPACE PAYMENT EXPERIENCE (Three.js 3D Scene - Nâng cấp)
+ * Tạo hệ thống sao hình thoi cạnh cong (sparkle) lung linh, đa lớp chiều sâu và tinh vân sống động.
+ */
+(function () {
+    const canvas = document.getElementById('universe');
+    if (!canvas || typeof THREE === 'undefined') return;
+
+    // 1. Khởi tạo Scene, Camera, Renderer
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x020611, 0.0012);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2500);
+    camera.position.z = 500;
+
+    const renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "high-performance"
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // 2. Hàm tạo Texture hình ngôi sao thoi cạnh cong (Sparkle / Curved Diamond Star)
+    function createStarTexture() {
+        const c = document.createElement('canvas');
+        c.width = 128;
+        c.height = 128;
+        const ctx = c.getContext('2d');
+
+        ctx.clearRect(0, 0, 128, 128);
+
+        // Vẽ hào quang tỏa sáng mềm mại phía sau
+        const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        gradient.addColorStop(0.2, 'rgba(139, 234, 255, 0.8)');
+        gradient.addColorStop(0.5, 'rgba(0, 217, 255, 0.25)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 128, 128);
+
+        // Vẽ hình thoi cạnh cong (Sparkle Star với đường cong Bezier mềm mại)
+        ctx.beginPath();
+        ctx.moveTo(64, 4);   // Đỉnh trên
+        ctx.bezierCurveTo(64, 48, 124, 64, 124, 64); // Cạnh cong phải
+        ctx.bezierCurveTo(124, 64, 64, 80, 64, 124); // Đỉnh dưới
+        ctx.bezierCurveTo(64, 80, 4, 64, 4, 64);   // Cạnh cong trái
+        ctx.bezierCurveTo(4, 64, 64, 48, 64, 4);   // Đỉnh về lại
+        ctx.closePath();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = '#00D9FF';
+        ctx.shadowBlur = 18;
+        ctx.fill();
+
+        return new THREE.CanvasTexture(c);
+    }
+
+    // 3. Xây dựng hệ thống hạt sao đa lớp (Multi-layer Star Field)
+    const particleCount = 2500;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+
+    const colorPalette = [
+        new THREE.Color(0xFFFFFF), // Trắng ánh sao
+        new THREE.Color(0x8BEAFF), // Xanh băng
+        new THREE.Color(0x00D9FF), // Cyan phát sáng
+        new THREE.Color(0x93C5FD)  // Xanh dương nhạt
+    ];
+
+    const yellowPalette = [
+        new THREE.Color(0xFFD700), // Vàng chủ đạo
+        new THREE.Color(0xFFF176), // Vàng sáng
+        new THREE.Color(0xFFC107), // Vàng ánh kim
+        new THREE.Color(0xFFF9C4)  // Trắng vàng
+    ];
+
+    for (let i = 0; i < particleCount * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 2000;     // X
+        positions[i + 1] = (Math.random() - 0.5) * 2000; // Y
+        positions[i + 2] = (Math.random() - 0.5) * 2000; // Z
+
+        const randomColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+        colors[i] = randomColor.r;
+        colors[i + 1] = randomColor.g;
+        colors[i + 2] = randomColor.b;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    // Lắng nghe sự kiện bấm nút thanh toán để chuyển màu sao sang vàng mượt mà
+    window.addEventListener('paymentConfirmed', () => {
+        const colorAttr = geometry.attributes.color;
+        const startTime = performance.now();
+        const duration = 1000; // 1 giây chuyển màu
+
+        // Lưu lại màu hiện tại làm điểm xuất phát
+        const startColors = new Float32Array(colorAttr.array);
+        const targetColors = new Float32Array(particleCount * 3);
+
+        for (let i = 0; i < particleCount * 3; i += 3) {
+            const targetColor = yellowPalette[Math.floor(Math.random() * yellowPalette.length)];
+            targetColors[i] = targetColor.r;
+            targetColors[i + 1] = targetColor.g;
+            targetColors[i + 2] = targetColor.b;
+        }
+
+        function animateColor(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Interpolate (LERP) màu sắc
+            for (let i = 0; i < colorAttr.array.length; i++) {
+                colorAttr.array[i] = startColors[i] + (targetColors[i] - startColors[i]) * progress;
+            }
+            colorAttr.needsUpdate = true;
+
+            if (progress < 1) {
+                requestAnimationFrame(animateColor);
+            }
+        }
+        requestAnimationFrame(animateColor);
+
+        // Chuyển màu tinh vân sang ánh vàng nhẹ
+        if (nebulaMaterial) {
+            gsap.to(nebulaMaterial.color, { r: 1, g: 0.9, b: 0.4, duration: 1 });
+        }
+    });
+
+    const starMaterial = new THREE.PointsMaterial({
+        size: 14,
+        map: createStarTexture(),
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.9,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+
+    const starField = new THREE.Points(geometry, starMaterial);
+    scene.add(starField);
+
+    // 4. Thêm lớp tinh vân nền (Nebula Cloud Layers) tạo không gian sâu thẳm
+    const nebulaGeometry = new THREE.BufferGeometry();
+    const nebulaCount = 400;
+    const nebulaPositions = new Float32Array(nebulaCount * 3);
+
+    for (let i = 0; i < nebulaCount * 3; i += 3) {
+        nebulaPositions[i] = (Math.random() - 0.5) * 1800;
+        nebulaPositions[i + 1] = (Math.random() - 0.5) * 1800;
+        nebulaPositions[i + 2] = (Math.random() - 0.5) * 1800;
+    }
+    nebulaGeometry.setAttribute('position', new THREE.BufferAttribute(nebulaPositions, 3));
+
+    const nebulaMaterial = new THREE.PointsMaterial({
+        size: 65,
+        map: createStarTexture(),
+        color: 0x1565C0,
+        transparent: true,
+        opacity: 0.25,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false
+    });
+
+    const nebulaField = new THREE.Points(nebulaGeometry, nebulaMaterial);
+    scene.add(nebulaField);
+
+    // 5. Tương tác Parallax theo chuyển động chuột
+    let mouseX = 0, mouseY = 0;
+    let targetX = 0, targetY = 0;
+    const windowHalfX = window.innerWidth / 2;
+    const windowHalfY = window.innerHeight / 2;
+
+    document.addEventListener('mousemove', (event) => {
+        mouseX = (event.clientX - windowHalfX) * 0.001;
+        mouseY = (event.clientY - windowHalfY) * 0.001;
+    });
+
+    // 6. Vòng lặp Animation (Render Loop)
+    let animationFrameId;
+    function animate() {
+        animationFrameId = requestAnimationFrame(animate);
+
+        targetX += (mouseX - targetX) * 0.05;
+        targetY += (mouseY - targetY) * 0.05;
+
+        camera.position.x += (targetX * 200 - camera.position.x) * 0.05;
+        camera.position.y += (-targetY * 200 - camera.position.y) * 0.05;
+        camera.lookAt(scene.position);
+
+        // Xoay chậm các tầng không gian
+        starField.rotation.y += 0.0003;
+        starField.rotation.x += 0.0001;
+
+        nebulaField.rotation.y -= 0.0002;
+
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    // 7. Xử lý Resize cửa sổ trình duyệt
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // 8. Tối ưu hiệu năng khi chuyển tab
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            cancelAnimationFrame(animationFrameId);
+        } else {
+            animate();
+        }
+    });
+})();
+    </script>
+    <script>
+        /**
+ * QUÂN NGUYỄN STUDY — GSAP Motion Control
+ * Điều khiển trình tự xuất hiện giao diện mượt mà và hỗ trợ prefers-reduced-motion.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof gsap === 'undefined') return;
+
+    // Kiểm tra cấu hình giảm chuyển động của hệ thống
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) return;
+
+    // Timeline xuất hiện giao diện theo thứ tự có chủ đích
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    tl.from('header', {
+        y: -30,
+        opacity: 0,
+        duration: 0.8,
+        delay: 0.2
+    })
+    .from('.page-title-section', {
+        y: 20,
+        opacity: 0,
+        duration: 0.7
+    }, '-=0.4')
+    .from('.payment-card', {
+        y: 40,
+        opacity: 0,
+        scale: 0.96,
+        duration: 0.9
+    }, '-=0.3');
+});
+    </script>
+    <script>
+       /**
+ * QUÂN NGUYỄN STUDY — SHOOTING STARS EFFECT
+ * Tạo các vệt sao băng xẹt qua màn hình ngẫu nhiên với ánh sáng cyan/trắng.
+ */
+(function () {
+    const canvas = document.getElementById('shootingStars');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    });
+
+    class ShootingStar {
+        constructor() {
+            this.reset();
+        }
+
+        reset() {
+            // Vị trí xuất phát ngẫu nhiên ở nửa trên màn hình
+            this.x = Math.random() * width * 1.5 - width * 0.25;
+            this.y = Math.random() * height * 0.5;
+            this.length = Math.random() * 80 + 60; // Chiều dài vệt sao băng
+            this.speed = Math.random() * 12 + 8;   // Tốc độ bay
+            this.angle = Math.PI / 4;              // Góc nghiêng 45 độ
+            this.opacity = Math.random() * 0.7 + 0.3;
+            this.active = false;
+            this.timer = Math.random() * 150 + 50; // Thời gian chờ xuất hiện
+        }
+
+        update() {
+            if (!this.active) {
+                this.timer--;
+                if (this.timer <= 0) {
+                    this.active = true;
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * (height * 0.4);
+                }
+                return;
+            }
+
+            this.x += Math.cos(this.angle) * this.speed;
+            this.y += Math.sin(this.angle) * this.speed;
+            this.opacity -= 0.015; // Mờ dần khi di chuyển hết vệt
+
+            if (this.opacity <= 0 || this.x > width || this.y > height) {
+                this.reset();
+            }
+        }
+
+        draw() {
+            if (!this.active) return;
+
+            ctx.save();
+            // Kiểm tra trạng thái nếu đã bấm thanh toán thì đổi sang tông vàng
+            const isYellow = window.paymentEffectActive || false;
+            const strokeColor = isYellow ? `rgba(255, 215, 0, ${this.opacity})` : `rgba(139, 234, 255, ${this.opacity})`;
+            const shadowColorHex = isYellow ? '#FFD700' : '#00D9FF';
+
+            ctx.strokeStyle = strokeColor;
+            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = shadowColorHex;
+
+            // Vẽ vệt sáng sao băng
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y);
+            ctx.lineTo(
+                this.x - Math.cos(this.angle) * this.length,
+                this.y - Math.sin(this.angle) * this.length
+            );
+            ctx.stroke();
+
+            // Vẽ đầu ngôi sao băng rực sáng
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+    }
+
+    // Khởi tạo danh sách sao băng (3-5 tia chạy song song)
+    const stars = Array.from({ length: 4 }, () => new ShootingStar());
+
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+        stars.forEach(star => {
+            star.update();
+            star.draw();
+        });
+        requestAnimationFrame(animate);
+    }
+    animate();
+})();
+    </script>
+</body>
+</html>
