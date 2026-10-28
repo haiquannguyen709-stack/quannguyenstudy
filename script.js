@@ -679,7 +679,7 @@ function loadCoursePermissions() {
                     duration: "",
                     students: 1,
                     image: "Polya.jpg",
-                    url: "Polya.html" // TODO: thay bằng URL thật của khóa học
+                    url: "Polya.html", // TODO: thay bằng URL thật của khóa học
                     status: "ENDED"
                 },
                  {
