@@ -680,6 +680,7 @@ function loadCoursePermissions() {
                     students: 1,
                     image: "Polya.jpg",
                     url: "Polya.html" // TODO: thay bằng URL thật của khóa học
+                    status: "ENDED"
                 },
                 {
                     id: "course-math221a",
