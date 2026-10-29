@@ -218,111 +218,13 @@ if (user) {
                     id: 1,
                     title: "Mở lớp Nhập môn Toán Cao Cấp theo chương trình đào tạo kỹ sư tại Đại học Bách Khoa Hà Nội",
                     date: "10/07/2026",
-                    content: `
-                        <p>Lớp học tập trung giảng dạy 2 học phần cốt lõi:</p>
-                        
-                        <h3>1. Nhập môn Đại số Tuyến tính</h3>
-                        <ul>
-                            <li>Logic, tập hợp, ánh xạ, số phức.</li>
-                            <li>Ma trận, định thức và hệ phương trình tuyến tính.</li>
-                            <li>Không gian vectơ, ánh xạ tuyến tính.</li>
-                        </ul>
-
-                        <h3>2. Nhập môn Giải tích I</h3>
-                        <ul>
-                            <li>Giới hạn, tính liên tục của hàm số một biến.</li>
-                            <li>Phép tính vi phân hàm một biến.</li>
-                            <li>Phép tính tích phân hàm một biến.</li>
-                        </ul>
-
-                        <h3>Thông tin đăng ký & lịch học</h3>
-                        <ul>
-                            <li><strong>Hình thức học:</strong> Online (học trực tuyến có tương tác trực tiếp với giảng viên).</li>
-                            <li><strong>Thời lượng đào tạo:</strong> 6 buổi, mỗi buổi 3 giờ.</li>
-                            <li><strong>Đối tượng tham gia:</strong> Sinh viên năm nhất, sinh viên chuẩn bị vào Đại học Bách Khoa hoặc các bạn có định hướng theo khối ngành Kỹ thuật/Khoa học tự nhiên.</li>
-                            <li><strong>Thời gian đóng đăng ký:</strong> 10/08/2026.</li>
-                        </ul>
-                    `
+                    content: `Đã có thông tin chi tiết`
                 },
                 {
                     id: 2,
                     title: "Mở lớp Toán học 12 theo chương trình mới",
                     date: "29/07/2026",
-                    content: `
-                        <h3>TẬP 1: ỨNG DỤNG ĐẠO HÀM, VECTƠ VÀ CÁC SỐ ĐẶC TRƯNG</h3>
-                        
-                        <h4>Chương 1: Ứng dụng đạo hàm để khảo sát và vẽ đồ thị hàm số</h4>
-                        <ul>
-                            <li>Bài 1: Tính đơn điệu và cực trị của hàm số.</li>
-                            <li>Bài 2: Giá trị lớn nhất và giá trị nhỏ nhất của hàm số.</li>
-                            <li>Bài 3: Đường tiệm cận của đồ thị hàm số (tiệm cận đứng, tiệm cận ngang, tiệm cận xiên).</li>
-                            <li>Bài 4: Khảo sát sự biến thiên và vẽ đồ thị của hàm số.</li>
-                            <li>Bài 5: Ứng dụng đạo hàm để giải quyết một số bài toán thực tế (bài toán tối ưu hóa).</li>
-                        </ul>
-
-                        <h4>Chương 2: Tọa độ của vectơ trong không gian</h4>
-                        <ul>
-                            <li>Bài 1: Vectơ và các phép toán vectơ trong không gian.</li>
-                            <li>Bài 2: Tọa độ của vectơ trong không gian Oxyz.</li>
-                            <li>Bài 3: Biểu thức tọa độ của các phép toán vectơ.</li>
-                        </ul>
-
-                        <h4>Chương 3: Các số đặc trưng đo độ tập trung và đo độ phân tán cho mẫu số liệu ghép nhóm</h4>
-                        <ul>
-                            <li>Bài 1: Khoảng biến thiên và khoảng tứ phân vị của mẫu số liệu ghép nhóm.</li>
-                            <li>Bài 2: Phương sai và độ lệch chuẩn của mẫu số liệu ghép nhóm.</li>
-                        </ul>
-
-                        <h3>TẬP 2: TÍCH PHÂN, HÌNH HỌC OXYZ VÀ XÁC SUẤT</h3>
-
-                        <h4>Chương 4: Nguyên hàm và tích phân</h4>
-                        <ul>
-                            <li>Bài 1: Nguyên hàm và các tính chất cơ bản.</li>
-                            <li>Bài 2: Tích phân và tính chất của tích phân.</li>
-                            <li>Bài 3: Ứng dụng hình học của tích phân.</li>
-                            <li>Bài 4: Ứng dụng tích phân trong thực tế.</li>
-                        </ul>
-
-                        <h4>Chương 5: Phương pháp tọa độ trong không gian</h4>
-                        <ul>
-                            <li>Bài 1: Phương trình mặt phẳng.</li>
-                            <li>Bài 4: Góc và khoảng cách trong không gian Oxyz.</li>
-                        </ul>
-
-                        <h4>Chương 6: Xác suất có điều kiện và công thức xác suất toàn phần</h4>
-                        <ul>
-                            <li>Bài 1: Xác suất có điều kiện.</li>
-                            <li>Bài 2: Công thức xác suất toàn phần và công thức Bayes.</li>
-                        </ul>
-
-                        <h3>Cấu trúc mỗi bài học và lộ trình giảng dạy</h3>
-                        <table class="notification-inner-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 30%;">Hạng mục</th>
-                                    <th style="width: 70%;">Nội dung thực hiện</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Lý thuyết trọng tâm</strong></td>
-                                    <td>Tóm tắt công thức, khái niệm chuẩn theo SGK mới</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Dạng toán điển hình</strong></td>
-                                    <td>Phân loại từ cơ bản đến nâng cao</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Thực hành Casio/Phần mềm</strong></td>
-                                    <td>Bấm máy tính nhanh, trực quan hóa hình học qua GeoGebra</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Kiểm tra & Đánh giá</strong></td>
-                                    <td>Bài tập rèn luyện định kỳ bám sát cấu trúc đề thi tốt nghiệp THPT mới</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    `
+                    content: ` Đã có thông tin chi tiết`
                 },
                 {
                     id: 3,
@@ -341,7 +243,11 @@ if (user) {
                       {id: 6,
                     title: "Danh sách học viên chính thức lớp học Toán 8 thực hành theo phương pháp Polya",
                     date: "29/09/2026",
-                    content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/1-J01weUmtA-RYlgQBFzBmIzXSJLVwxCx/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>.`}   
+                    content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/1-J01weUmtA-RYlgQBFzBmIzXSJLVwxCx/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>.`},
+                        {id: 6,
+                    title: "Thông báo mở lớp Toán học 8 bắt đầu thực hiện vào ngày 12/01/2027",
+                    date: "29/10/2026",
+                    content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/12KDU5XfzXoQ4FgaKgF6ZnIAEOjyO4-8K/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>.`}   
                         
             ];
 
