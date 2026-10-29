@@ -244,7 +244,7 @@ if (user) {
                     title: "Danh sách học viên chính thức lớp học Toán 8 thực hành theo phương pháp Polya",
                     date: "29/09/2026",
                     content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/1-J01weUmtA-RYlgQBFzBmIzXSJLVwxCx/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>.`},
-                        {id: 6,
+                        {id: 7,
                     title: "Thông báo mở lớp Toán học 8 bắt đầu thực hiện vào ngày 12/01/2027",
                     date: "29/10/2026",
                     content: `Xem thông tin chi tiết <a href="https://drive.google.com/file/d/12KDU5XfzXoQ4FgaKgF6ZnIAEOjyO4-8K/view?usp=sharing" target="_blank" style="color: #0066cc; text-decoration: underline;">tại đây</a>.`}   
