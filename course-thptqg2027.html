@@ -1130,6 +1130,62 @@
                 <p>Không tìm thấy bài học phù hợp.</p>
             </div>
 
+            <!-- Section Luyện đề thi TN THPT năm 2027 -->
+            <section class="chapter-card">
+                <div class="chapter-header">
+                    <h2 class="chapter-title">Luyện đề thi TN THPT năm 2027</h2>
+                    <button class="chapter-toggle" aria-expanded="true" aria-label="Thu gọn/Mở rộng chuyên đề">
+                        <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                    </button>
+                </div>
+                <hr class="chapter-divider">
+                <div class="chapter-content">
+                    <div class="lessons-list">
+                        <div class="lesson-item" data-type="link">
+                            <div class="lesson-icon-wrapper lesson-type-link">
+                                <i class="fa-solid fa-file-pen"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Luyện đề thi TN THPT năm 2027</h3>
+                                </div>
+                                <div class="lesson-meta">
+                                    <i class="fa-solid fa-globe"></i>
+                                    <span>Hệ thống luyện đề trực tuyến độc lập</span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://haiquannguyen709-stack.github.io/TNTHPT/" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                                    <span>Truy cập ngay</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="lesson-item" data-schedule-id="lesson21" data-type="lesson">
+                            <div class="lesson-icon-wrapper lesson-type-video">
+                                <i class="fa-solid fa-video"></i>
+                            </div>
+                            <div class="lesson-details">
+                                <div class="lesson-title-container">
+                                    <h3 class="lesson-title">Buổi học ngày 01/11/2026</h3>
+                                    <span class="status-badge" data-badge-for="lesson21"></span>
+                                </div>
+                                <div class="lesson-meta">
+                                    <i class="fa-regular fa-clock"></i>
+                                    <span> Thời gian mở: 06h45, 01/11/2026 </span>
+                                    <span class="countdown-text" data-countdown-for="lesson21"></span>
+                                </div>
+                            </div>
+                            <div class="lesson-actions">
+                                <a href="https://meet.google.com/cst-aoaj-ory" class="btn btn-primary btn-action" data-action-for="lesson21" data-default-text="Vào học" target="_blank" rel="noopener noreferrer">Vào học</a>
+                                <button class="btn btn-status btn-complete" data-key="course_thptqg_lesson21_completed">
+                                    <span class="btn-complete-text">Hoàn thành</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
            <!-- Section Chuyên đề: Xác suất -->
             <section id="section-1" class="chapter-card">
                 <div class="chapter-header">
@@ -1258,6 +1314,10 @@
              lesson2: {
                 open: "2026-10-22T21:00:00",
                 close: "2026-10-22T23:00:00"
+            },
+             lesson21: {
+                open: "2026-11-01T06:45:00",
+                close: "2026-11-01T08:00:00"
             }
         };
         // Hàm chuyển đổi chuỗi YYYY-MM-DDTHH:mm:ss thành Date Object chính xác theo múi giờ Việt Nam (+07:00)
