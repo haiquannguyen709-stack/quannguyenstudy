@@ -1,0 +1,356 @@
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        
+        <!-- =========================================================
+            NƠI THAY URL TIÊN QUYẾT
+            =========================================================
+            Thay "URL_TIÊN_QUYẾT" bằng URL chính xác của trang
+            được phép dẫn vào trang khóa học này.
+
+            Ví dụ:
+            https://example.com/home.html
+
+            CHỈ THAY URL Ở DÒNG const URL_TIEN_QUYET.
+            ========================================================= -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title> Khóa học mẫu - Quân Nguyễn Study</title>
+        <!-- FontAwesome icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" href="logokscl.png">
+    
+    <!-- =========================================================
+             MODULE XÁC THỰC & PHÂN QUYỀN TẬP TRUNG – QNS_AUTH
+             =========================================================
+             LƯU Ý BẢO MẬT QUAN TRỌNG:
+             - Backend CHƯA được triển khai. Mọi kiểm tra bên dưới chỉ đọc dữ liệu
+               trong sessionStorage/localStorage và CHỈ là biện pháp hạn chế giao diện.
+             - Người dùng có thể sửa Storage để giả mạo tài khoản hoặc vai trò, nên module này
+               KHÔNG chống được giả mạo cho đến khi Backend xác thực phiên đăng nhập
+               và kiểm tra quyền ở phía máy chủ.
+             - Ẩn nút hoặc ẩn giao diện bằng JavaScript không phải là bảo mật thật.
+               Nội dung khóa học vẫn nằm trong mã nguồn của trang.
+             - URL_TIEN_QUYET, document.referrer và cờ allowed_course_access chỉ phục vụ
+               điều hướng thông thường, không phải cơ chế bảo mật.
+
+             CÁC ĐIỂM CẦN TÍCH HỢP BACKEND SAU NÀY ([BACKEND-TODO]):
+             1) verifySessionWithBackend(): xác thực phiên, lấy tài khoản và vai trò từ máy chủ.
+             2) CONFIG.REQUIRE_SERVER_VERIFIED_ROLE: chuyển sang true khi máy chủ đã xác minh vai trò.
+             3) Kiểm tra quyền truy cập khóa học ở máy chủ (thay cho Referrer / URL_TIEN_QUYET).
+             4) Dữ liệu LocalStorage cần chuyển sang API: qns_custom_lessons (bài học),
+                qns_all_submissions (bài nộp và điểm), grade_<lessonId>_<studentId> (điểm công bố).
+             5) Mọi thao tác ghi (lưu/xóa bài học, lưu/công bố điểm) phải được máy chủ kiểm tra quyền.
+             ========================================================= -->
+
+        <!-- CSS TRỰC TIẾP TRONG FILE HTML -->
+    <link rel="stylesheet" href="course.css">
+</head>
+    <body class="access-checking">
+
+        <!-- MÀN HÌNH THÔNG BÁO TỪ CHỐI TRUY CẬP (ACCESS DENIED) -->
+        <div id="access-denied-screen" class="access-denied-container">
+            <div class="access-denied-card">
+                <div class="access-denied-icon">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h1 class="access-denied-title">Không thể truy cập trang này</h1>
+                <p class="access-denied-message">Nội dung khóa học chỉ có thể được truy cập từ trang được chỉ định.</p>
+
+                <button id="btn-access-denied-back" class="btn-access-back">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Quay lại</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 1. STATUS BAR -->
+        <header class="status-bar">
+            <div class="status-bar-brand">
+                <span class="brand-title">Quân Nguyễn Study</span>
+            </div>
+            <div class="status-bar-system">
+                <span class="system-title">Hệ thống học tập trực tuyến</span>
+            </div>
+        </header>
+
+        <!-- LAYOUT BÊN DƯỚI STATUS BAR -->
+        <div class="course-layout">
+
+            <!-- 2. SIDEBAR -->
+            <aside class="sidebar collapsed">
+                <!-- Logo hệ thống -->
+                <div class="sidebar-logo-container">
+                    <img src="logo1.png" alt="Quân Nguyễn Study Logo" class="sidebar-logo">
+                </div>
+
+                
+                <!-- Thông tin học sinh -->
+    <div class="student-info">
+        <div class="avatar-wrapper">
+            <i class="fa-solid fa-user student-icon"></i>
+        </div>
+        <h3 class="student-name"><span id="current-user-fullname">Đang tải...</span></h3>
+        <div class="student-badge"><span id="current-user-student-id">Đang tải...</span></div>
+    </div>
+
+                <!-- Nút Quay lại -->
+                <a href="home.html" class="btn-back">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Quay lại</span>
+                </a>
+
+                <!-- Đường kẻ phân cách -->
+                <hr class="sidebar-divider">
+
+                <!-- Khu vực Nội dung khóa học -->
+                <div class="course-content-nav">
+                    <div class="nav-header">NỘI DUNG KHÓA HỌC</div>
+                    <!-- Danh sách chương chỉ xuất hiện khi có dữ liệu thật từ Backend -->
+                </div>
+
+                <!-- Nhóm chức năng quản lý dành riêng cho Giáo viên (Ẩn mặc định, hiển thị qua JS khi là Admin) -->
+                <div id="teacher-sidebar-management" class="admin-sidebar-group" style="display: none;">
+                    <div class="nav-header" style="color: #dc2626;">QUẢN LÝ KHÓA HỌC</div>
+                    <a href="#" class="nav-item admin-nav-item" id="nav-teacher-content-mgmt">
+                        <i class="fa-solid fa-folder-open nav-icon"></i>
+                        <span>Quản lý nội dung</span>
+                    </a>
+                    <button class="btn-add-lesson-sidebar" id="btn-sidebar-add-lesson">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Thêm bài học</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- 3. MAIN CONTENT -->
+        <main class="main-content">
+            <!-- Nút đóng/mở Sidebar trên Mobile -->
+            <button id="sidebar-toggle-btn" class="sidebar-toggle-btn" aria-label="Đóng/Mở danh sách bài học" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            
+            <!-- Vùng hiển thị nội dung động (danh sách khóa học hoặc chi tiết bài học) -->
+            <div id="dynamic-main-view">
+            
+            
+            
+            <!-- Header Khóa học / Banner -->
+                <!-- Header Khóa học / Banner -->
+                <section class="course-header-card">
+                    <div class="course-banner-container">
+                        <img src="MATH8.png" alt="Luyện thi THPTQG năm 2027" class="course-banner-img">
+                    </div>
+                    <div class="course-header-info">
+                        <h1 class="course-title">Nâng cao Toán học 8 - Ôn tập học kì 1</h1>
+                        <div class="teacher-info">
+                            <i class="fa-solid fa-user-tie"></i>
+                            <span>GV: Nguyễn Hải Quân</span>
+                        </div>
+                    </div>
+                </section>
+                <!-- Thanh tiến độ học tập (Progress Bar) -->
+                <section class="progress-card">
+                    <div class="progress-header">
+                        <span class="progress-title">
+                            <i class="fa-solid fa-graduation-cap"></i> Tiến độ học tập
+                        </span>
+                        <span class="progress-stats" id="course-progress-text">Đã hoàn thành 0/0 bài học (0%)</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="course-progress-bar" style="width: 0%;"></div>
+                    </div>
+                </section>
+                <!-- Thanh Tìm kiếm & Lọc bài học -->
+                <section class="search-filter-card">
+                    <div class="search-filter-container">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" id="course-search-input" class="search-input" placeholder="Tìm kiếm bài học...">
+                        </div>
+                        <div class="filter-box">
+                            <select id="course-filter-select" class="filter-select">
+                                <option value="all">Tất cả bài học</option>
+                                <option value="incomplete">Bài chưa hoàn thành</option>
+                                <option value="lesson">Buổi học</option>
+                                <option value="pdf">Tài liệu (.pdf)</option>
+                                <option value="test">Bài kiểm tra</option>
+                                <option value="assignment">Bài tập nộp file</option>
+                                <option value="video">Video ghi sẵn</option>
+                                <option value="survey">Khảo sát & Phản hồi</option>
+                                <option value="link">Liên kết tham khảo</option>
+                                <option value="forum">Diễn đàn thảo luận</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Thông báo khi không tìm thấy kết quả -->
+                <div id="no-results-message" class="no-results-card" style="display: none;">
+                    <i class="fa-solid fa-circle-exclamation no-results-icon"></i>
+                    <p>Không tìm thấy bài học phù hợp.</p>
+                </div>
+
+                <!-- Section Dữ liệu mẫu -->
+                <!-- Vùng nội dung khóa học: chỉ được điền bằng dữ liệu thật từ Backend (renderStudentLessons) -->
+<div id="qns-dynamic-sections">
+    <div id="qns-course-status" role="status" style="padding: 32px 16px; text-align: center; color: var(--text-color);">
+        <i class="fa-solid fa-spinner fa-spin"></i> Đang tải nội dung khóa học...
+    </div>
+</div>
+            </div>
+        </main>
+
+        </div>
+
+        <!-- ============================================================
+         CÁC MODAL CHỨC NĂNG CỦA HỆ THỐNG LMS
+         ============================================================ -->
+    <!-- Modal Nộp Bài Tập (Học sinh) -->
+    <div id="submission-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">Nộp bài tập</h3>
+                <button class="modal-close-btn" id="close-submission-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tệp bài làm</label>
+                <div class="file-upload-dropzone" id="dropzone-area">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--primary-color); margin-bottom: 8px;"></i>
+                    <p style="font-size: 0.9rem; font-weight: 500;">Nhấn để chọn tệp hoặc kéo thả tệp vào đây</p>
+                    <input type="file" id="submission-file-input" multiple style="display: none;">
+                </div>
+                <!-- Container hiển thị danh sách Card tài liệu đã chọn -->
+                <div id="selected-files-cards-container" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px; max-height: 240px; overflow-y: auto;"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ghi chú gửi kèm (không bắt buộc)</label>
+                <textarea id="submission-note" class="form-textarea" placeholder="Nhắn nhủ giáo viên..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" id="btn-cancel-submission" style="background-color: #e2e8f0; color: var(--text-color);">Hủy</button>
+                <button class="btn btn-primary" id="btn-confirm-submission">Nộp bài</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Chấm Điểm (Giáo viên) -->
+    <div id="teacher-grading-modal" class="modal-overlay">
+        <div class="modal-container" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-solid fa-pen-to-square" style="color: var(--primary-color);"></i> Chấm điểm bài làm thí sinh</h3>
+                <button class="modal-close-btn" id="close-teacher-grading-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="background: #f8f9fa; padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                    <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-color);" id="modal-student-name-display">Họ và tên: ...</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;" id="modal-student-id-display">Số báo danh: ...</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Danh sách tệp bài làm đã nộp</label>
+                    <div id="modal-student-files-list" style="padding: 10px; background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius-sm); min-height: 40px; font-size: 0.88rem;">
+                        Chưa có tệp nào.
+                    </div>
+                </div>
+                <div class="qns-form-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Điểm đạt được (*)</label>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" id="teacher-input-score" class="form-input" min="0" step="any" placeholder="Nhập điểm...">
+                            <span style="font-weight: 600; font-size: 0.9rem; color: var(--text-muted);" id="modal-max-score-label">/ 10 điểm</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nhận xét của giáo viên</label>
+                    <textarea id="teacher-input-comment" class="form-textarea" placeholder="Nhập nhận xét, góp ý cho bài làm của học sinh..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <button class="btn" id="btn-grading-close" style="background-color: #e2e8f0; color: var(--text-color);">Đóng</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="btn-grading-save">Lưu điểm</button>
+                    <button class="btn" id="btn-grading-save-next" style="background-color: #16a34a; color: #fff;">Lưu và chuyển tiếp</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal Comment (Bình luận bài học) -->
+    <div id="lesson-comment-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="comment-modal-title">
+        <div class="modal-container comment-modal-container" id="comment-modal-content">
+            <div class="comment-modal-header">
+                <div>
+                    <h3 id="comment-modal-title" class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-regular fa-comments" style="color: var(--primary-color);"></i>
+                        Trao đổi về bài học
+                    </h3>
+                    <div id="comment-modal-lesson-title" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">...</div>
+                </div>
+                <button class="modal-close-btn" id="close-comment-modal" aria-label="Đóng giao diện"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="comment-list-container" class="comment-list-container">
+                <!-- Danh sách bình luận render bằng JS -->
+            </div>
+
+            <div class="comment-input-area">
+                <div id="replying-to-indicator" class="replying-indicator" style="display: none;">
+                    <span>Đang trả lời: <strong id="replying-to-name">...</strong></span>
+                    <button id="btn-cancel-reply" aria-label="Hủy trả lời"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <textarea id="comment-input-textarea" class="form-textarea" placeholder="Viết bình luận của bạn (Nhấn Ctrl + Enter để gửi)..." style="min-height: 60px;" maxlength="5000"></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <span id="comment-char-count" style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">0 / 5000</span>
+                    <button class="btn btn-primary" id="btn-send-comment">
+                        <i class="fa-regular fa-paper-plane" style="margin-right: 6px;"></i> Gửi bình luận
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HỆ THỐNG HỘP THOẠI DÙNG CHUNG (MODAL SYSTEM) -->
+    <div id="app-dialog-overlay" class="app-dialog-overlay">
+        <div class="app-dialog-container">
+            <div class="app-dialog-header">
+                <div id="app-dialog-icon-wrapper" class="app-dialog-icon info">
+                    <i id="app-dialog-icon-i" class="fa-solid fa-circle-info"></i>
+                </div>
+                <h3 id="app-dialog-title" class="app-dialog-title">Thông báo</h3>
+            </div>
+            <div id="app-dialog-body" class="app-dialog-body">
+                Nội dung thông báo hệ thống...
+            </div>
+            <div id="app-dialog-extra-content"></div>
+            <div class="app-dialog-footer" id="app-dialog-footer">
+                <button type="button" class="btn" id="app-dialog-btn-cancel" style="background-color: #e2e8f0; color: var(--text-color); display: none;">Hủy</button>
+                <button type="button" class="btn btn-primary" id="app-dialog-btn-confirm">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</body>
+<!-- =========================================================
+     CẤU HÌNH ĐỊNH DANH KHÓA HỌC – CHỈ CẦN THAY ĐỔI TẠI ĐÂY
+     =========================================================
+     Mỗi file HTML = một khóa học = một COURSE_ID duy nhất.
+     Khi tạo khóa học mới (sao chép file này):
+       1) Thêm khóa học vào sheet Courses (courseId, title, status = active).
+       2) Ghi danh học sinh vào sheet Enrollments (cùng courseId, status = active).
+       3) Đổi COURSE_ID bên dưới đúng bằng courseId đã tạo ở sheet Courses.
+     Quy tắc: 3–64 ký tự, chỉ gồm chữ không dấu, số, "_" và "-", bắt đầu bằng chữ hoặc số
+     (ví dụ: COURSE_TOAN_12, COURSE_DAI_SO).
+     KHÔNG có ID mặc định: để trống hoặc sai thì trang từ chối hoạt động.
+     KHÔNG khai báo courseId ở nơi nào khác trong file này.
+     ========================================================= -->
+<script>
+    window.COURSE_CONFIG = Object.freeze({
+        COURSE_ID: "COURSE_MATH8"
+    });
+</script>
+<script src="course.js"></script>
+</html>
