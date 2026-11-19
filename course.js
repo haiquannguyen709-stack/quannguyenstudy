@@ -2,7 +2,7 @@
                 const URL_TIEN_QUYET = "home.html";
 
     // Thay URL này bằng URL Web App Google Apps Script của bạn
-            const API_BASE_URL = "https://script.google.com/macros/s/AKfycbxPXJ4GykhmE4bAfcnWxX0rmgl0hcOEsf8rSgfB6oK999rggteIC6itj5l4tvZpW3FzpA/exec";
+            const API_BASE_URL = "https://script.google.com/macros/s/AKfycbznlE3h-C7a1oR7YHRE35b_2rn-_T7f8PeL8l6Ra2XEuAgnwq3at32_c3jkekg-7GumzA/exec";
 
             // Trạng thái cấu hình API: CHỈ trả về true khi API_BASE_URL là URL thật đã được điền.
             // Không đủ nếu chỉ bắt đầu bằng 'http': URL mẫu (có '...', <>, {}, YOUR_, EXAMPLE...), URL sai định dạng
@@ -678,6 +678,7 @@
 
                 function setScheduleAction(btn, text, enabled) {
                     if (!btn) return;
+                    if (btn.hasAttribute('data-qns-idle-html')) return;   // [QNS_UI] nút đang Loading: không ghi đè spinner
                     setScheduleText(btn, text);
                     btn.classList.toggle('disabled', !enabled);
                     if (enabled) btn.removeAttribute('aria-disabled');
@@ -2352,9 +2353,22 @@
                             })()
                         };
 
+                            // [QNS_UI] Khóa theo bài học (tạo mới dùng khóa 'new'); spinner tại đúng nút đã bấm; requestId ổn định để Backend chống tạo trùng
+                            const isCreateLesson = !existingId;
+                            const lessonOp = QNS_UI.begin({
+                                key: 'lesson.save:' + (existingId || 'new'),
+                                btn: document.getElementById(status === 'draft' ? 'btn-save-draft' : 'btn-save-publish'),
+                                peers: [document.getElementById(status === 'draft' ? 'btn-save-publish' : 'btn-save-draft')],
+                                label: isCreateLesson ? 'Đang tạo bài học...' : 'Đang lưu bài học...',
+                                toast: { loading: isCreateLesson ? 'Đang tạo bài học...' : 'Đang lưu bài học...' },
+                                safeRetryAfterMs: isCreateLesson ? 60000 : 0
+                            });
+                            if (!lessonOp) return;   // đang xử lý: bỏ qua nhấn lặp
                             try {
                                 // Gọi Backend thay vì LocalStorage
-                                const savedRes = await API.request('lesson.save', { lesson: lessonData });
+                                const lessonPayload = { lesson: lessonData };
+                                if (isCreateLesson) lessonPayload.requestId = QNS_UI.requestId('lesson.create', JSON.stringify(lessonData));
+                                const savedRes = await API.request('lesson.save', lessonPayload);
                                 const savedLessonId = savedRes && (savedRes.lessonId || savedRes.id);
                                 if (!savedLessonId) throw new Error('Máy chủ không trả về ID bài học sau khi lưu.');
                                 lessonData.id = savedLessonId;
@@ -2366,8 +2380,18 @@
     if (!storeLessons.some(function (x) { return String(x.id) === String(savedLessonId); })) {
         throw new Error('Máy chủ báo đã lưu nhưng bài học chưa xuất hiện trong dữ liệu tải lại. Vui lòng tải lại trang và kiểm tra.');
     }
+                                if (isCreateLesson) QNS_UI.clearRequestId('lesson.create');
+                                lessonOp.end();   // [QNS_UI] kết thúc Loading trước hộp thoại thành công
                             } catch(e) {
-                                await window.showAppAlert({ type: 'error', title: 'Lỗi', message: e.message });
+                                lessonOp.end();   // [QNS_UI] luôn khôi phục nút, form giữ nguyên dữ liệu
+                                if (e && e.code === 'UNAUTHENTICATED') return;
+                                await window.showAppAlert({
+                                    type: 'error',
+                                    title: 'Lỗi',
+                                    message: (isCreateLesson && e && e.isNetworkError)
+                                        ? 'Mất kết nối với máy chủ nên chưa xác định được bài học đã được tạo hay chưa. Hãy bấm lưu lại: hệ thống sẽ đối soát và không tạo bài học trùng.'
+                                        : e.message
+                                });
                                 return;
                             }
 
@@ -2570,24 +2594,54 @@
                                     if (typeof localFallback === 'function') { localFallback(); renderContentManagementView(); }
                                     return true;
                                 }
-                                if (window.qnsStructureBusy) return false; // chống bấm đúp
-                                window.qnsStructureBusy = true;
+                                // [QNS_UI] Khóa theo phạm vi nghiệp vụ "cấu trúc nội dung" (mọi thao tác này cùng tác động một cây dữ liệu);
+                                // mỗi nút vẫn có spinner riêng. Nhấn lặp / nhấn nút khác khi đang xử lý => bị bỏ qua kèm thông báo.
+                                const isCreate = (action === 'section.save' && !payload.sectionId) || (action === 'subsection.save' && !payload.subsectionId);
+                                const isDelete = /\.delete$/.test(action);
+                                const isReorder = /\.reorder$/.test(action);
+                                const noun = /^section\./.test(action) ? 'Section' : 'Subsection';
+                                const label = isReorder ? 'Đang sắp xếp...' : ((isCreate ? 'Đang tạo ' : (isDelete ? 'Đang xóa ' : 'Đang lưu ')) + noun + '...');
+                                const op = QNS_UI.begin({
+                                    key: 'structure',
+                                    btn: QNS_UI.structureTrigger(),
+                                    label: label,
+                                    toast: { loading: label },
+                                    busyMessage: 'Đang xử lý thao tác trước đó, vui lòng chờ trong giây lát...',
+                                    safeRetryAfterMs: isCreate ? 60000 : 0
+                                });
+                                if (!op) return false; // chống bấm đúp
+                                const sendPayload = isCreate
+                                    ? Object.assign({}, payload, { requestId: QNS_UI.requestId('structure.create', action + '|' + JSON.stringify(payload)) })
+                                    : payload;
                                 try {
-                                    await API.request(action, payload);
+                                    await API.request(action, sendPayload);
+                                    if (isCreate) QNS_UI.clearRequestId('structure.create');
                                 } catch (e) {
+                                    op.end();
                                     if (e && e.code === 'UNAUTHENTICATED') return false; // đã xử lý tập trung
-                                    await window.showAppAlert({ type: 'error', title: 'Không thực hiện được', message: (e && e.message) ? e.message : 'Lỗi không xác định.' });
+                                    await window.showAppAlert({
+                                        type: 'error',
+                                        title: 'Không thực hiện được',
+                                        message: (isCreate && e && e.isNetworkError)
+                                            ? 'Mất kết nối với máy chủ nên chưa xác định được ' + noun + ' đã được tạo hay chưa. Hãy thử lại: hệ thống sẽ đối soát và không tạo trùng.'
+                                            : ((e && e.message) ? e.message : 'Lỗi không xác định.')
+                                    });
                                     return false;
-                                } finally {
-                                    window.qnsStructureBusy = false;
                                 }
-                                const reload = await window.loadCourseData();
-                                if (!reload || reload.ok === false) {
-                                    await window.showAppAlert({ type: 'warning', title: 'Đã lưu, chưa tải lại được', message: 'Thao tác đã được máy chủ chấp nhận nhưng chưa tải lại được dữ liệu. Vui lòng tải lại trang.' });
+                                try {
+                                    const reload = await window.loadCourseData();
+                                    if (!reload || reload.ok === false) {
+                                        op.fail('Đã lưu nhưng chưa tải lại được dữ liệu.');
+                                        await window.showAppAlert({ type: 'warning', title: 'Đã lưu, chưa tải lại được', message: 'Thao tác đã được máy chủ chấp nhận nhưng chưa tải lại được dữ liệu. Vui lòng tải lại trang.' });
+                                        return true;
+                                    }
+                                    renderContentManagementView();
+                                    if (isReorder) op.end();
+                                    else op.succeed(isCreate ? ('Đã tạo ' + noun + ' thành công!') : (isDelete ? ('Đã xóa ' + noun + '.') : ('Đã lưu ' + noun + '.')));
                                     return true;
+                                } finally {
+                                    op.end();   // đảm bảo luôn mở khóa, kể cả khi tải lại dữ liệu phát sinh exception
                                 }
-                                renderContentManagementView();
-                                return true;
                             }
 
                             // Hàm helper thay đổi thứ tự (chỉ còn dùng cho chế độ mô phỏng)
@@ -2827,6 +2881,277 @@
         }
         window.refreshUserHeader = refreshUserHeader;
         refreshUserHeader();
+
+        // ============================================================
+        // MODULE PHẢN HỒI THAO TÁC DÙNG CHUNG (QNS_UI)
+        // Spinner trực tiếp tại nút + toast góc trên bên phải + khóa chống nhấn lặp theo phạm vi nghiệp vụ + requestId ổn định.
+        // Không phụ thuộc thư viện ngoài; CSS tự chèn một lần; mọi nút dùng chung các hàm này.
+        // ============================================================
+        const QNS_UI = window.QNS_UI = (function () {
+            const IDLE_ATTRS = ['data-qns-idle-html', 'data-qns-idle-dis', 'data-qns-idle-aria', 'data-qns-idle-minw'];
+            const locks = new Map();        // khóa nghiệp vụ -> token (mỗi khóa độc lập, KHÔNG dùng một biến Boolean toàn cục)
+            const toasts = new Map();       // key -> toast đang hiển thị (chống tạo nhiều toast giống nhau)
+            const pendingIds = new Map();   // scope -> { fp, id } (requestId ổn định cho thao tác tạo dữ liệu)
+            const SLOW_MS = 12000;          // quá ngưỡng này: báo "phản hồi chậm", KHÔNG kết luận thất bại
+            let toastHost = null;
+            let lastStructureBtn = null;
+            let tokenSeq = 0;
+
+            (function injectStyle() {
+                if (document.getElementById('qns-ui-style')) return;
+                const st = document.createElement('style');
+                st.id = 'qns-ui-style';
+                st.textContent =
+                    '@keyframes qns-spin{to{transform:rotate(360deg)}}' +
+                    '@keyframes qns-toast-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}' +
+                    '.qns-spinner{display:inline-block;flex:0 0 auto;box-sizing:border-box;width:1em;height:1em;margin-right:8px;vertical-align:-0.15em;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:qns-spin .7s linear infinite}' +
+                    '.qns-spinner.only{margin-right:0}' +
+                    '.qns-btn-busy{cursor:progress!important;opacity:.88;pointer-events:none}' +
+                    '#qns-toast-host{position:fixed;top:16px;right:16px;z-index:20000;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100vw - 24px));pointer-events:none}' +
+                    '.qns-toast{pointer-events:auto;display:flex;align-items:flex-start;gap:10px;background:#fff;color:#1e293b;border:1px solid #e2e8f0;border-left:4px solid rgb(21,101,192);border-radius:10px;box-shadow:0 6px 18px rgba(15,23,42,.14);padding:11px 12px 11px 14px;font-size:.9rem;line-height:1.4;animation:qns-toast-in .18s ease-out}' +
+                    '.qns-toast.success{border-left-color:#16a34a}.qns-toast.error{border-left-color:#dc2626}' +
+                    '.qns-toast-icon{flex:0 0 auto;width:1.1em;text-align:center;color:rgb(21,101,192);margin-top:1px}' +
+                    '.qns-toast.success .qns-toast-icon{color:#16a34a}.qns-toast.error .qns-toast-icon{color:#dc2626}' +
+                    '.qns-toast-icon .qns-spinner{margin-right:0;vertical-align:middle}' +
+                    '.qns-toast-msg{flex:1 1 auto;min-width:0;word-break:break-word}' +
+                    '.qns-toast-x{flex:0 0 auto;border:0;background:transparent;color:#64748b;font-size:1.1rem;line-height:1;cursor:pointer;padding:0 2px}' +
+                    '@media (max-width:600px){#qns-toast-host{right:12px;left:12px;width:auto}}';
+                document.head.appendChild(st);
+                // Nhớ nút cấu trúc nội dung vừa bấm (để gắn spinner đúng nút dù thao tác đi qua hộp thoại nhập/xác nhận)
+                document.addEventListener('click', function (e) {
+                    const b = e.target && e.target.closest ? e.target.closest('.btn-teacher-act, #btn-mgmt-add-section') : null;
+                    if (b) lastStructureBtn = b;
+                }, true);
+            })();
+
+            // ---------- Nút: Loading ----------
+            function setBusy(btn, label) {
+                if (!btn || btn.hasAttribute(IDLE_ATTRS[0])) return;
+                btn.setAttribute(IDLE_ATTRS[0], btn.innerHTML);
+                btn.setAttribute(IDLE_ATTRS[1], btn.disabled ? '1' : '');
+                btn.setAttribute(IDLE_ATTRS[2], btn.hasAttribute('aria-disabled') ? '1' : '');
+                btn.setAttribute(IDLE_ATTRS[3], btn.style.minWidth || '');
+                const w = btn.getBoundingClientRect().width;
+                if (w) btn.style.minWidth = Math.ceil(w) + 'px';   // giữ chiều rộng, nút không co giãn
+                const iconOnly = !btn.textContent.trim();
+                btn.textContent = '';
+                const sp = document.createElement('span');
+                sp.className = 'qns-spinner' + ((iconOnly || !label) ? ' only' : '');
+                sp.setAttribute('aria-hidden', 'true');
+                btn.appendChild(sp);
+                if (label && !iconOnly) {
+                    const t = document.createElement('span');
+                    t.textContent = label;
+                    btn.appendChild(t);
+                }
+                btn.classList.add('qns-btn-busy');
+                btn.setAttribute('aria-busy', 'true');
+                btn.setAttribute('aria-disabled', 'true');
+                if ('disabled' in btn) btn.disabled = true;
+            }
+
+            function clearBusy(btn) {
+                if (!btn || !btn.hasAttribute(IDLE_ATTRS[0])) return;
+                btn.innerHTML = btn.getAttribute(IDLE_ATTRS[0]);
+                btn.style.minWidth = btn.getAttribute(IDLE_ATTRS[3]) || '';
+                if ('disabled' in btn && btn.getAttribute(IDLE_ATTRS[1]) !== '1') btn.disabled = false;
+                if (btn.getAttribute(IDLE_ATTRS[2]) !== '1') btn.removeAttribute('aria-disabled');
+                btn.classList.remove('qns-btn-busy');
+                btn.removeAttribute('aria-busy');
+                IDLE_ATTRS.forEach(function (a) { btn.removeAttribute(a); });
+            }
+
+            function lockPeer(el) {
+                if (!el || el.hasAttribute('data-qns-peer')) return;
+                el.setAttribute('data-qns-peer', el.disabled ? '1' : '');
+                if ('disabled' in el) el.disabled = true;
+            }
+            function unlockPeer(el) {
+                if (!el || !el.hasAttribute('data-qns-peer')) return;
+                if ('disabled' in el && el.getAttribute('data-qns-peer') !== '1') el.disabled = false;
+                el.removeAttribute('data-qns-peer');
+            }
+
+            // Bản chụp HTML luôn ở trạng thái nút BÌNH THƯỜNG (dùng khi lưu lại danh sách để quay về)
+            function snapshotHtml(container) {
+                if (!container) return '';
+                if (!container.querySelector('[' + IDLE_ATTRS[0] + ']')) return container.innerHTML;
+                const clone = container.cloneNode(true);
+                clone.querySelectorAll('[' + IDLE_ATTRS[0] + ']').forEach(clearBusy);
+                return clone.innerHTML;
+            }
+
+            // ---------- Toast ----------
+            function hostEl() {
+                if (!toastHost) {
+                    toastHost = document.createElement('div');
+                    toastHost.id = 'qns-toast-host';
+                    document.body.appendChild(toastHost);
+                }
+                const hdr = document.querySelector('header.status-bar');
+                const top = hdr ? Math.max(0, hdr.getBoundingClientRect().bottom) + 12 : 16;   // không che thanh trạng thái
+                toastHost.style.top = top + 'px';
+                return toastHost;
+            }
+            function paintToast(entry, type, message, duration) {
+                entry.el.className = 'qns-toast ' + type;
+                entry.el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+                entry.icon.textContent = '';
+                if (type === 'loading') {
+                    const sp = document.createElement('span');
+                    sp.className = 'qns-spinner';
+                    sp.setAttribute('aria-hidden', 'true');
+                    entry.icon.appendChild(sp);
+                } else {
+                    const i = document.createElement('i');
+                    i.className = 'fa-solid ' + (type === 'success' ? 'fa-circle-check' : (type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info'));
+                    entry.icon.appendChild(i);
+                }
+                entry.msg.textContent = message || '';
+                clearTimeout(entry.timer);
+                const ms = duration !== undefined ? duration : (type === 'success' ? 3000 : (type === 'error' ? 8000 : (type === 'info' ? 4000 : 0)));
+                if (ms > 0) entry.timer = setTimeout(function () { closeToast(entry); }, ms);
+            }
+            function closeToast(entry) {
+                if (!entry) return;
+                clearTimeout(entry.timer);
+                if (entry.el.parentNode) entry.el.parentNode.removeChild(entry.el);
+                if (entry.key && toasts.get(entry.key) === entry) toasts.delete(entry.key);
+            }
+            function toast(opts) {
+                opts = opts || {};
+                const host = hostEl();
+                let entry = opts.key ? toasts.get(opts.key) : null;
+                if (!entry || !entry.el.parentNode) {
+                    const el = document.createElement('div');
+                    const icon = document.createElement('span');
+                    icon.className = 'qns-toast-icon';
+                    const msg = document.createElement('span');
+                    msg.className = 'qns-toast-msg';
+                    const x = document.createElement('button');
+                    x.type = 'button';
+                    x.className = 'qns-toast-x';
+                    x.setAttribute('aria-label', 'Đóng thông báo');
+                    x.textContent = '\u00d7';
+                    el.appendChild(icon); el.appendChild(msg); el.appendChild(x);
+                    host.appendChild(el);
+                    entry = { el: el, icon: icon, msg: msg, timer: null, key: opts.key || null };
+                    x.addEventListener('click', function () { closeToast(entry); });
+                    if (entry.key) toasts.set(entry.key, entry);
+                    while (host.children.length > 4) {   // tối đa 4 toast, bỏ toast cũ nhất không phải Loading
+                        const old = Array.prototype.find.call(host.children, function (c) { return !c.classList.contains('loading'); });
+                        if (!old) break;
+                        host.removeChild(old);
+                    }
+                }
+                paintToast(entry, opts.type || 'info', opts.message, opts.duration);
+                return {
+                    update: function (type, message, duration) { paintToast(entry, type, message, duration); },
+                    close: function () { closeToast(entry); }
+                };
+            }
+
+            // ---------- Vòng đời một thao tác ----------
+            // begin(): trả null nếu cùng khóa đang chạy (nhấn lặp bị bỏ qua). Ngược lại trả handle { end, succeed, fail }.
+            function begin(opts) {
+                opts = opts || {};
+                const key = opts.key || '';
+                if (key && locks.has(key)) {
+                    if (!opts.silentBusy) toast({ type: 'info', key: 'busy:' + key, message: opts.busyMessage || 'Thao tác đang được xử lý, vui lòng chờ...', duration: 2500 });
+                    return null;
+                }
+                const token = ++tokenSeq;
+                if (key) locks.set(key, token);
+                const btn = opts.btn || null;
+                const peers = (opts.peers || []).filter(Boolean);
+                setBusy(btn, opts.label);
+                peers.forEach(lockPeer);
+                let tHandle = null, slowTimer = null, forceTimer = null, released = false;
+                const tcfg = opts.toast || {};
+                if (tcfg.loading) {
+                    tHandle = toast({ type: 'loading', key: key ? 'op:' + key : '', message: tcfg.loading });
+                    slowTimer = setTimeout(function () {
+                        if (!released && tHandle) tHandle.update('loading', tcfg.slow || 'Hệ thống phản hồi chậm, vui lòng chờ và KHÔNG nhấn lại...');
+                    }, SLOW_MS);
+                }
+                function release() {
+                    if (released) return;
+                    released = true;
+                    clearTimeout(slowTimer); clearTimeout(forceTimer);
+                    if (key && locks.get(key) === token) locks.delete(key);
+                    clearBusy(btn);
+                    peers.forEach(unlockPeer);
+                }
+                // Chỉ thao tác TẠO có requestId (an toàn gửi lại) mới được tự mở khóa sau khi chờ quá lâu
+                if (opts.safeRetryAfterMs) {
+                    forceTimer = setTimeout(function () {
+                        if (released) return;
+                        release();
+                        toast({ type: 'info', key: 'op:' + key, duration: 9000, message: 'Chưa nhận được phản hồi từ máy chủ. Bạn có thể thử lại: hệ thống sẽ đối soát và không tạo bản ghi trùng.' });
+                    }, opts.safeRetryAfterMs);
+                }
+                function finish(type, msg) {
+                    release();
+                    if (type && msg) {
+                        if (tHandle) tHandle.update(type, msg); else toast({ type: type, message: msg });
+                    } else if (tHandle) {
+                        tHandle.close();
+                    }
+                }
+                return {
+                    end: function () { finish(null); },
+                    succeed: function (msg) { finish('success', msg); },
+                    fail: function (msg) { finish('error', msg); }
+                };
+            }
+
+            function failText(err, base) {
+                base = base || 'Thao tác không thành công.';
+                if (err && (err.isNetworkError || err.code === 'NETWORK_ERROR')) return base + ' Mất kết nối nên chưa xác định được kết quả.';
+                return base + (err && err.message ? ' ' + err.message : '');
+            }
+
+            // run(): tiện ích cho thao tác bất đồng bộ đơn giản (try/catch/finally đầy đủ, không bao giờ để nút khóa vĩnh viễn)
+            async function run(opts, fn) {
+                opts = opts || {};
+                const op = begin(opts);
+                if (!op) return { ok: false, busy: true };
+                const tcfg = opts.toast || {};
+                try {
+                    const value = await fn(op);
+                    if (opts.requireTrue && value !== true) { op.end(); return { ok: false, handled: true, value: value }; }
+                    if (tcfg.success) op.succeed(tcfg.success); else op.end();
+                    return { ok: true, value: value };
+                } catch (err) {
+                    console.error('[QNS_UI] Thao tác lỗi:', err);
+                    if (err && err.code === 'UNAUTHENTICATED') { op.end(); return { ok: false, error: err, handled: true }; }
+                    op.fail(failText(err, tcfg.error));
+                    return { ok: false, error: err };
+                }
+            }
+
+            // requestId ổn định: cùng thao tác + cùng nội dung => cùng requestId (gửi lại sau lỗi mạng không tạo bản ghi trùng)
+            function requestId(scope, fingerprint) {
+                const cur = pendingIds.get(scope);
+                if (cur && cur.fp === fingerprint) return cur.id;
+                const id = 'req_' + String(scope).replace(/[^a-z0-9]/gi, '').slice(0, 12) + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+                pendingIds.set(scope, { fp: fingerprint, id: id });
+                return id;
+            }
+            function clearRequestId(scope) { pendingIds.delete(scope); }
+
+            return {
+                toast: toast,
+                begin: begin,
+                run: run,
+                failText: failText,
+                requestId: requestId,
+                clearRequestId: clearRequestId,
+                snapshotHtml: snapshotHtml,
+                isLocked: function (key) { return locks.has(key); },
+                structureTrigger: function () { return (lastStructureBtn && document.body.contains(lastStructureBtn)) ? lastStructureBtn : null; }
+            };
+        })();
 
         // ============================================================
         // LỚP GIAO TIẾP DỮ LIỆU TẬP TRUNG (API CLIENT)
@@ -3309,7 +3634,108 @@
             });
         }
 
+        // [P1] Thử lại có kiểm soát: chỉ lỗi tạm thời. chunk/finish idempotent nên được thử lại cả lỗi mạng; begin chỉ thử lại khi máy chủ báo bận
+        window.qnsRequestWithRetry = async function (action, payload, maxTries, retryNetwork) {
+            let lastErr = null;
+            for (let attempt = 1; attempt <= maxTries; attempt++) {
+                try {
+                    return await API.request(action, payload);
+                } catch (err) {
+                    lastErr = err;
+                    const code = err && err.code;
+                    const transient = !!err && (err.retryable === true || code === 'SERVER_BUSY' ||
+                        (retryNetwork === true && (code === 'NETWORK_ERROR' || code === 'INTERNAL')));
+                    if (!transient || attempt === maxTries) throw err;
+                    await new Promise(function (resolve) { setTimeout(resolve, 1000 * attempt); });
+                }
+            }
+            throw lastErr;
+        };
+
         window.uploadSubmissionFilesToBackend = async function (files, context) {
+            if (!QNS_AUTH.isBackendConfigured()) return { ok: false, reason: 'backend-not-configured', files: [] };
+            const list = Array.from(files || []);
+            const lessonId = context.lessonId;
+            const results = new Array(list.length).fill(null);
+
+            // (1) Lần nộp trước (cùng requestId) đã được máy chủ xử lý xong nhưng trình duyệt không nhận được phản hồi
+            if (context.requestId) {
+                try {
+                    const st = await API.request('submission.status', { lessonId: lessonId, requestId: context.requestId });
+                    const prev = (st && st.found && st.result && st.result.success) ? st.result.data : null;
+                    if (prev && Array.isArray(prev.files)) {
+                        const usedSrv = new Set();
+                        const aligned = list.map(function (f) {
+                            const idx = prev.files.findIndex(function (s, i) { return !usedSrv.has(i) && s.name === f.name && Number(s.sizeBytes) === f.size; });
+                            if (idx < 0) return null;
+                            usedSrv.add(idx);
+                            return prev.files[idx];
+                        });
+                        if (aligned.length > 0 && aligned.every(Boolean)) return { ok: true, files: aligned, replay: true };
+                    }
+                } catch (e) {
+                    if (e && e.code === 'UNAUTHENTICATED') return { ok: false, reason: e.message, files: [] };
+                }
+            }
+
+            // (2) Dùng lại tệp đã tải lên thành công ở lần thử trước (cùng tên + dung lượng, trong 3 giờ gần nhất)
+            try {
+                const sr = await API.request('upload.listStaged', { lessonId: lessonId });
+                const staged = (sr && Array.isArray(sr.files)) ? sr.files : [];
+                const usedStaged = new Set();
+                list.forEach(function (f, i) {
+                    const idx = staged.findIndex(function (s, j) { return !usedStaged.has(j) && s.name === f.name && Number(s.sizeBytes) === f.size; });
+                    if (idx >= 0) { usedStaged.add(idx); results[i] = staged[idx]; }
+                });
+            } catch (e) {
+                if (e && e.code === 'UNAUTHENTICATED') return { ok: false, reason: e.message, files: [] };
+            }
+
+            // (3) Tải các tệp còn lại; tệp đã xong KHÔNG bị mất khi tệp sau lỗi
+            for (let i = 0; i < list.length; i++) {
+                if (results[i]) continue;
+                const file = list[i];
+                try {
+                    const fileBase64 = await new Promise(function (resolve, reject) {
+                        const reader = new FileReader();
+                        reader.onload = function () { resolve(reader.result); };
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                    const base64Data = String(fileBase64).split(';base64,')[1] || '';
+                    if (!base64Data) throw new Error('Không đọc được nội dung tệp "' + file.name + '".');
+                    const chunkSize = 1024 * 1024;
+                    const expectedChunks = Math.ceil(base64Data.length / chunkSize);
+                    const formatName = getUploadedFileType(file).formatName;
+
+                    const beginRes = await window.qnsRequestWithRetry('upload.begin', {
+                        lessonId: lessonId, fileName: file.name, fileSize: file.size,
+                        mimeType: file.type, formatName: formatName, expectedChunks: expectedChunks
+                    }, 2, false);
+                    if (!beginRes || !beginRes.uploadId) throw new Error('Không thể khởi tạo phiên kết nối upload.');
+
+                    for (let c = 0; c < expectedChunks; c++) {
+                        const chunkRes = await window.qnsRequestWithRetry('upload.chunk', {
+                            uploadId: beginRes.uploadId, chunkIndex: c,
+                            data: base64Data.substring(c * chunkSize, (c + 1) * chunkSize)
+                        }, 4, true);
+                        if (!chunkRes || !chunkRes.received) throw new Error('Máy chủ không xác nhận phần ' + (c + 1) + '/' + expectedChunks + ' của tệp "' + file.name + '".');
+                    }
+
+                    const finishRes = await window.qnsRequestWithRetry('upload.finish', {
+                        uploadId: beginRes.uploadId, fileName: file.name, mimeType: file.type, formatName: formatName
+                    }, 3, true);
+                    if (!finishRes || !finishRes.fileId) throw new Error('Thao tác chốt Metadata Upload thất bại.');
+                    results[i] = finishRes;
+                } catch (err) {
+                    console.error('Lỗi upload file', file.name, err);
+                    return { ok: false, reason: (err && err.message) ? err.message : 'Lỗi upload', files: results.filter(Boolean), failedFile: file.name };
+                }
+            }
+            return { ok: true, files: results };
+        };
+
+        window.uploadSubmissionFilesToBackend_V1_DISABLED = async function (files, context) {
             if (!QNS_AUTH.isBackendConfigured()) return { ok: false, reason: 'backend-not-configured', files: [] };
             let results = [];
             for (let file of files) {
@@ -3397,9 +3823,13 @@
         }
 
         window.downloadQNSFile = async function(fileId, fileName) {
+            const dlOp = QNS_UI.begin({
+                key: 'file.download:' + fileId,
+                toast: { loading: 'Đang tải tệp' + (fileName ? ' "' + fileName + '"' : '') + '...', slow: 'Tệp có dung lượng lớn nên cần thêm thời gian, vui lòng chờ...' },
+                busyMessage: 'Tệp này đang được tải, vui lòng chờ...'
+            });
+            if (!dlOp) return;
             try {
-                window.showAppAlert({ type: 'info', title: 'Đang tải tệp', message: 'Đang kết nối đến máy chủ để tải tệp. Quá trình này có thể mất chút thời gian tùy theo dung lượng tệp...' });
-                
                 let res = await API.request('file.getDownload', { fileId: fileId });
                 if (!res || !res.base64Data) throw new Error("Không lấy được dữ liệu nhị phân của tệp.");
                 
@@ -3418,10 +3848,10 @@
                 a.remove();
                 URL.revokeObjectURL(url);
                 
-                document.getElementById('app-dialog-overlay').classList.remove('active');
+                dlOp.succeed('Đã tải tệp xong.');
             } catch(e) {
-                document.getElementById('app-dialog-overlay').classList.remove('active');
-                window.showAppAlert({ type: 'error', title: 'Lỗi tải tệp', message: e.message });
+                if (e && e.code === 'UNAUTHENTICATED') { dlOp.end(); return; }
+                dlOp.fail('Không tải được tệp: ' + ((e && e.message) ? e.message : 'lỗi không xác định.'));
             }
         };
 
@@ -3732,7 +4162,7 @@
 
             // Cập nhật bộ nhớ đệm nếu đây là lần mở đầu tiên
             if (document.querySelector('.course-header-card')) { // Chỉ chụp khi ĐANG hiển thị danh sách, không bao giờ chụp trang chi tiết
-                originalMainHtml = dynamicMainView.innerHTML;
+                originalMainHtml = QNS_UI.snapshotHtml(dynamicMainView);   // [QNS_UI] bản chụp luôn ở trạng thái nút bình thường
             }
 
     // [L3] Nội dung bài học (link, tài nguyên, mô tả chi tiết) CHỈ lấy từ Backend qua lesson.get
@@ -3928,7 +4358,7 @@
                                         <td>${idx + 1}</td>
                                         <td><strong>${window.qnsEscapeHtml(st.fullName)}</strong></td>
                                         <td>${window.qnsEscapeHtml(st.studentId)}</td>
-                                        <td><span class="submission-status-pill ${hasSubmitted ? (subInfo.statusLabel === 'Nộp muộn' || subInfo.status === 'Nộp muộn' || subInfo.status === 'late' ? 'late' : 'submitted') : ''}">${hasSubmitted ? (subInfo.statusLabel || subInfo.status) : 'Chưa nộp'}</span></td>
+                                        <td><span class="submission-status-pill ${hasSubmitted ? (subInfo.statusLabel === 'Nộp muộn' || subInfo.status === 'Nộp muộn' || subInfo.status === 'late' ? 'late' : 'submitted') : ''}">${hasSubmitted ? (subInfo.statusLabel || subInfo.status) : 'Chưa nộp'}</span>${hasSubmitted ? window.qnsSubmitMetaHtml(subInfo) : ''}</td>
                                         <td>${filesHtml}</td>
                                         <td><strong>${isGraded ? `${window.qnsEscapeHtml(gradeInfo.score)} / ${lessonMaxScore}` : 'Chưa chấm'}</strong></td>
                                         <td><div class="grade-status-cell"><span class="submission-status-pill ${isGraded ? 'submitted' : ''}">${isGraded ? 'Đã chấm' : 'Chưa chấm'}</span>${isGraded ? `<span class="submission-status-pill grade-publish-pill ${isPublished ? 'published' : 'unpublished'}">${isPublished ? 'Đã công bố' : 'Chưa công bố'}</span>` : ''}
@@ -4411,11 +4841,21 @@
                             confirmText: 'Xóa bình luận'
                         });
                         if (confirmed) {
+                            const delCmtOp = QNS_UI.begin({
+                                key: 'comment.delete:' + targetId,
+                                btn: btn,
+                                label: 'Đang xóa...',
+                                toast: { loading: 'Đang xóa bình luận...' },
+                                silentBusy: true
+                            });
+                            if (!delCmtOp) return;
                             try {
                                 await QNS_COMMENT_MANAGER.deleteComment(targetId);
                                 await renderCommentThread(true);
                                 await updateCommentCount(true);
+                                delCmtOp.succeed('Đã xóa bình luận.');
                             } catch (error) {
+                                delCmtOp.end();
                                 window.showAppAlert({ type: 'error', title: 'Không thể xóa', message: error.message });
                             }
                         }
@@ -4512,15 +4952,24 @@
 
                     if (!QNS_AUTH.isBackendConfigured()) { await window.showAppAlert({ type: 'error', title: 'Chưa kết nối máy chủ', message: 'Không thể thực hiện khi chưa cấu hình API_BASE_URL.' }); return; }
                     const st = gradingStudents.find(s => String(s.studentId) === String(studentId));
+                    const pubOp = QNS_UI.begin({
+                        key: 'grading.publish:' + lessonId + ':' + studentId,
+                        btn: btn,
+                        label: 'Đang công bố...',
+                        toast: { loading: 'Đang công bố điểm...' }
+                    });
+                    if (!pubOp) return;
                     try {
                         const token = QNS_AUTH.getToken();
                         await API.request('grading.publish', {
                             token: token,
                             payload: { lessonId: lessonId, studentId: studentId, expectedVersion: st?.grading?.version || 0, requestId: 'req_pub_' + Date.now() }
                         });
+                        pubOp.end();
                         await window.showAppAlert({ type: 'success', title: 'Đã công bố điểm', message: `Thí sinh ${studentName} đã có thể xem điểm.` });
                         openLessonDetail(lessonId, lessonType, lessonTitle, lessonMeta, lessonDesc, lessonLink, attachmentType);
                     } catch (error) {
+                        pubOp.end();
                         await window.showAppAlert({ type: 'error', title: 'Công bố thất bại', message: error.message });
                     }
                 });
@@ -4537,15 +4986,24 @@
 
                     if (!QNS_AUTH.isBackendConfigured()) { await window.showAppAlert({ type: 'error', title: 'Chưa kết nối máy chủ', message: 'Không thể thực hiện khi chưa cấu hình API_BASE_URL.' }); return; }
                     const st = gradingStudents.find(s => String(s.studentId) === String(studentId));
+                    const unpOp = QNS_UI.begin({
+                        key: 'grading.unpublish:' + lessonId + ':' + studentId,
+                        btn: btn,
+                        label: 'Đang thu hồi...',
+                        toast: { loading: 'Đang thu hồi điểm...' }
+                    });
+                    if (!unpOp) return;
                     try {
                         const token = QNS_AUTH.getToken();
                         await API.request('grading.unpublish', {
                             token: token,
                             payload: { lessonId: lessonId, studentId: studentId, expectedVersion: st?.grading?.version || 0, reason: 'Giáo viên điều chỉnh', requestId: 'req_unp_' + Date.now() }
                         });
+                        unpOp.end();
                         await window.showAppAlert({ type: 'success', title: 'Thành công', message: `Đã thu hồi điểm của thí sinh ${studentName}.` });
                         openLessonDetail(lessonId, lessonType, lessonTitle, lessonMeta, lessonDesc, lessonLink, attachmentType);
                     } catch (error) {
+                        unpOp.end();
                         await window.showAppAlert({ type: 'error', title: 'Thu hồi thất bại', message: error.message });
                     }
                 });
@@ -4598,8 +5056,14 @@
                     return false;
                 }
 
-                if (btnGradingSave) btnGradingSave.disabled = true;
-                if (btnGradingSaveNext) btnGradingSaveNext.disabled = true;
+                const gradeOp = QNS_UI.begin({
+                    key: 'grading.save:' + lessonId + ':' + activeGradingStudentId,
+                    btn: isNext ? btnGradingSaveNext : btnGradingSave,
+                    peers: [isNext ? btnGradingSave : btnGradingSaveNext],
+                    label: isNext ? 'Đang lưu và chuyển tiếp...' : 'Đang lưu điểm...',
+                    toast: { loading: 'Đang lưu điểm...' }
+                });
+                if (!gradeOp) return false;   // đang lưu: bỏ qua nhấn lặp
 
                 try {
                     const token = QNS_AUTH.getToken();
@@ -4617,6 +5081,7 @@
 
                     gradingDirty = true;
                     if (!res || !res.grading) throw new Error('Máy chủ không xác nhận việc lưu điểm.');
+                    if (isNext) gradeOp.succeed('Đã lưu điểm.'); else gradeOp.end();   // [QNS_UI]
                     const gradingData = res.grading;
                     const stSaved = gradingStudents.find(s => String(s.studentId) === String(activeGradingStudentId));
                     if (stSaved) stSaved.grading = gradingData;
@@ -4644,8 +5109,7 @@
                     window.showAppAlert({ type: 'error', title: 'Từ chối lưu điểm', message: error.message });
                     return false;
                 } finally {
-                    if (btnGradingSave) btnGradingSave.disabled = false;
-                    if (btnGradingSaveNext) btnGradingSaveNext.disabled = false;
+                    gradeOp.end();   // [QNS_UI] luôn khôi phục nút; gọi lặp là vô hại
                 }
             }
 
@@ -4880,7 +5344,16 @@
                 actionBtn.addEventListener('click', function(e) {
                     if (actionBtn.classList.contains('disabled')) return;
                     e.preventDefault();
-                    openLessonDetail(lessonId, lessonType, lessonTitle, lessonMeta, '', originalHref, attachmentType);
+                    // [QNS_UI] Spinner ngay tại nút, khóa theo từng bài học (bài khác vẫn bấm được)
+                    QNS_UI.run({
+                        key: 'lesson.open:' + lessonId,
+                        btn: actionBtn,
+                        label: 'Đang mở bài học...',
+                        silentBusy: true,
+                        toast: { error: 'Không thể mở bài học. Vui lòng thử lại.' }
+                    }, function () {
+                        return openLessonDetail(lessonId, lessonType, lessonTitle, lessonMeta, '', originalHref, attachmentType);
+                    });
                 });
             });
         }
@@ -4942,6 +5415,10 @@
         }
 
         function handleNewSelectedFiles(incomingFiles) {
+            if (window.qnsSubmitBusy) {
+                window.showAppAlert({ type: 'info', title: 'Đang nộp bài', message: 'Vui lòng chờ hệ thống nộp bài xong rồi mới thay đổi danh sách tệp.' });
+                return;
+            }
             const activeLessonId = window.currentActiveLessonId;
             const allLessons = typeof window.getStoredLessons === 'function' ? window.getStoredLessons() : [];
             const currentLessonObj = allLessons.find(l => l.id === activeLessonId);
@@ -5007,6 +5484,7 @@
 
         // Đưa hàm xóa ra window để gọi trực tiếp từ sự kiện onclick template string
         window.removeSubmissionFile = function(index) {
+            if (window.qnsSubmitBusy) return;
             removeSelectedFile(index);
         };
 
@@ -5188,7 +5666,651 @@
             return { valid: true, error: null, isLate: isLate };
         };
 
-        document.getElementById('btn-confirm-submission')?.addEventListener('click', async function() {
+        // ============================================================
+        // [GĐ2] TIẾN ĐỘ NỘP BÀI: GIAO DIỆN, UPLOAD TỪNG TỆP, THỬ LẠI, ĐỐI SOÁT
+        // Tiến độ tệp = số chunk ĐÃ ĐƯỢC máy chủ xác nhận (upload.chunk -> received:true) / tổng chunk.
+        // "Đã tải lên" chỉ khi upload.finish trả fileId; "Thành công" chỉ khi submission.submit
+        // (hoặc submission.status) xác nhận bài nộp có đủ các fileId.
+        // ============================================================
+        window.qnsSubmitTracker = null;   // trạng thái lượt nộp hiện tại (giữ khi lỗi để thử lại, xóa khi thành công)
+        window.qnsSubmitBusy = false;
+
+        window.qnsFormatSubmitTime = function (iso) {
+            const d = iso ? new Date(iso) : null;
+            return (d && !isNaN(d.getTime())) ? d.toLocaleString('vi-VN') : '';
+        };
+
+        window.qnsSubmitMetaHtml = function (sub) {
+            const attempts = Number(sub && sub.attempts) || 0;
+            const when = window.qnsFormatSubmitTime(sub && sub.submittedAt);
+            if (!attempts && !when) return '';
+            return '<div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">' +
+                (attempts ? 'Lần nộp ' + window.qnsEscapeHtml(attempts) : '') +
+                (attempts && when ? ' · ' : '') + window.qnsEscapeHtml(when) + '</div>';
+        };
+
+        const QNS_SUBMIT_UI = (function () {
+            const STATUS_LABEL = {
+                waiting: 'Đang chờ', uploading: 'Đang tải lên', processing: 'Đang xử lý', uploaded: 'Đã tải lên',
+                linking: 'Đang liên kết', success: 'Thành công', failed: 'Thất bại', retrying: 'Đang thử lại'
+            };
+            const CONFIRMED = ['uploaded', 'linking', 'success'];
+            let panel = null, tracker = null, hideTimer = null, busy = false, retryHandler = null;
+
+            function ensureStyle() {
+                if (document.getElementById('qns-sp-style')) return;
+                const st = document.createElement('style');
+                st.id = 'qns-sp-style';
+                st.textContent = `
+.qns-sp{position:fixed;right:16px;bottom:16px;width:360px;max-width:calc(100vw - 24px);background:#fff;border:1px solid #cfe0f5;border-radius:12px;box-shadow:0 10px 30px rgba(21,101,192,.18);z-index:var(--qns-sp-z,5000);overflow:hidden;font-size:.88rem;color:#1f2937}
+.qns-sp [hidden]{display:none!important}
+.qns-sp[hidden]{display:none}
+.qns-sp-head{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#e3f2fd;color:rgb(21,101,192);font-weight:700}
+.qns-sp-title{flex:1;min-width:0}
+.qns-sp-icon-btn{border:0;background:transparent;color:inherit;cursor:pointer;width:30px;height:30px;border-radius:6px;font-size:.95rem}
+.qns-sp-icon-btn:hover:not(:disabled){background:rgba(21,101,192,.12)}
+.qns-sp-icon-btn:disabled{opacity:.4;cursor:not-allowed}
+.qns-sp-body{padding:12px}
+.qns-sp.is-collapsed .qns-sp-body{display:none}
+.qns-sp-msg{margin-bottom:10px;line-height:1.4}
+.qns-sp-msg[data-kind="ok"]{color:#15803d;font-weight:600}
+.qns-sp-msg[data-kind="warn"]{color:#b45309}
+.qns-sp-msg[data-kind="error"]{color:#b91c1c}
+.qns-sp-bar{height:8px;background:#e5eaf2;border-radius:99px;overflow:hidden}
+.qns-sp-fill{height:100%;width:0;background:rgb(21,101,192);border-radius:99px;transition:width .25s ease}
+.qns-sp-overall-text{margin:6px 0 10px;font-size:.8rem;color:#64748b}
+.qns-sp-list{list-style:none;margin:0;padding:0;max-height:40vh;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.qns-sp-item{border:1px solid #e5eaf2;border-radius:8px;padding:8px 10px;background:#f8fbff}
+.qns-sp-row{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.qns-sp-name{font-weight:600;word-break:break-all;min-width:0}
+.qns-sp-size{color:#64748b;font-size:.75rem;white-space:nowrap}
+.qns-sp-item .qns-sp-bar{margin:6px 0 4px}
+.qns-sp-status{font-size:.78rem;font-weight:600;color:rgb(21,101,192)}
+.qns-sp-pct{font-size:.78rem;color:#64748b;text-align:right}
+.qns-sp-err{margin-top:4px;font-size:.78rem;color:#b91c1c;line-height:1.35}
+.qns-sp-item[data-state="waiting"] .qns-sp-status{color:#64748b}
+.qns-sp-item[data-state="uploaded"] .qns-sp-status,.qns-sp-item[data-state="success"] .qns-sp-status{color:#15803d}
+.qns-sp-item[data-state="uploaded"] .qns-sp-fill,.qns-sp-item[data-state="success"] .qns-sp-fill{background:#16a34a}
+.qns-sp-item[data-state="retrying"] .qns-sp-status,.qns-sp-item[data-state="processing"] .qns-sp-status{color:#d97706}
+.qns-sp-item[data-state="retrying"] .qns-sp-fill,.qns-sp-item[data-state="processing"] .qns-sp-fill{background:#f59e0b}
+.qns-sp-item[data-state="failed"]{border-color:#fca5a5;background:#fef2f2}
+.qns-sp-item[data-state="failed"] .qns-sp-status{color:#b91c1c}
+.qns-sp-item[data-state="failed"] .qns-sp-fill{background:#dc2626}
+.qns-sp-btn{border:1px solid rgb(21,101,192);background:#fff;color:rgb(21,101,192);border-radius:8px;padding:8px 14px;min-height:38px;font-weight:600;cursor:pointer}
+.qns-sp-btn.primary{background:rgb(21,101,192);color:#fff}
+.qns-sp-btn:disabled{opacity:.5;cursor:not-allowed}
+.qns-sp-actions{margin-top:10px;display:flex;justify-content:flex-end}
+.qns-sp-retry-one{margin-top:6px}
+@media (max-width:600px){.qns-sp{left:8px;right:8px;bottom:8px;width:auto;max-width:none}.qns-sp-list{max-height:32vh}}`;
+                document.head.appendChild(st);
+            }
+
+            function onPanelClick(e) {
+                const el = e.target && e.target.closest ? e.target.closest('[data-sp]') : null;
+                if (!el || el.disabled) return;
+                const act = el.getAttribute('data-sp');
+                if (act === 'toggle') panel.classList.toggle('is-collapsed');
+                else if (act === 'close') { if (!busy) hide(); }
+                else if (act === 'retry') { if (!busy && retryHandler) retryHandler(null); }
+                else if (act === 'retry-one') { if (!busy && retryHandler) retryHandler(Number(el.getAttribute('data-idx'))); }
+            }
+
+            function ensurePanel() {
+                if (panel) return panel;
+                ensureStyle();
+                panel = document.createElement('div');
+                panel.id = 'qns-submit-panel';
+                panel.className = 'qns-sp';
+                panel.hidden = true;
+                panel.innerHTML =
+                    '<div class="qns-sp-head"><i class="fa-solid fa-cloud-arrow-up"></i><span class="qns-sp-title" data-role="title">Đang nộp bài...</span>' +
+                    '<button type="button" class="qns-sp-icon-btn" data-sp="toggle" aria-label="Thu gọn hoặc mở rộng"><i class="fa-solid fa-minus"></i></button>' +
+                    '<button type="button" class="qns-sp-icon-btn" data-sp="close" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button></div>' +
+                    '<div class="qns-sp-body"><div class="qns-sp-msg" data-role="msg" data-kind="info" aria-live="polite"></div>' +
+                    '<div class="qns-sp-bar"><div class="qns-sp-fill" data-role="overall-fill"></div></div>' +
+                    '<div class="qns-sp-overall-text" data-role="overall-text"></div>' +
+                    '<ul class="qns-sp-list" data-role="list"></ul>' +
+                    '<div class="qns-sp-actions" data-role="actions" hidden><button type="button" class="qns-sp-btn primary" data-sp="retry" data-role="retry-btn">Thử lại</button></div></div>';
+                document.body.appendChild(panel);
+                panel.addEventListener('click', onPanelClick);
+                return panel;
+            }
+
+            function q(role) { return panel ? panel.querySelector('[data-role="' + role + '"]') : null; }
+
+            function itemPercent(it) {
+                if (['processing', 'uploaded', 'linking', 'success'].indexOf(it.status) !== -1) return 100;
+                if (it.total > 0 && it.done) return Math.min(100, Math.round(it.done.size * 100 / it.total));
+                return 0;
+            }
+
+            function itemHtml(it) {
+                return '<li class="qns-sp-item" data-idx="' + it.idx + '" data-state="waiting">' +
+                    '<div class="qns-sp-row"><span class="qns-sp-name">' + window.qnsEscapeHtml(it.name) + '</span><span class="qns-sp-size">' + window.qnsEscapeHtml(it.sizeStr) + '</span></div>' +
+                    '<div class="qns-sp-bar"><div class="qns-sp-fill"></div></div>' +
+                    '<div class="qns-sp-row"><span class="qns-sp-status"></span><span class="qns-sp-pct"></span></div>' +
+                    '<div class="qns-sp-err" hidden></div>' +
+                    '<button type="button" class="qns-sp-btn qns-sp-retry-one" data-sp="retry-one" data-idx="' + it.idx + '" hidden>Thử lại tệp này</button></li>';
+            }
+
+            function renderItem(it) {
+                const list = q('list');
+                const li = list ? list.querySelector('li[data-idx="' + it.idx + '"]') : null;
+                if (!li) return;
+                const pct = itemPercent(it);
+                li.setAttribute('data-state', it.status);
+                li.querySelector('.qns-sp-fill').style.width = pct + '%';
+                let label = STATUS_LABEL[it.status] || it.status;
+                if ((it.status === 'uploading' || it.status === 'retrying') && it.total > 1) label += ' (' + it.done.size + '/' + it.total + ' phần)';
+                li.querySelector('.qns-sp-status').textContent = label;
+                li.querySelector('.qns-sp-pct').textContent = it.status === 'processing' ? '100% · chờ máy chủ xác nhận' : pct + '%';
+                const errEl = li.querySelector('.qns-sp-err');
+                errEl.textContent = it.error || '';
+                errEl.hidden = !it.error;
+                const btn = li.querySelector('.qns-sp-retry-one');
+                btn.hidden = !(it.status === 'failed' && it.retryable);
+                btn.disabled = busy;
+            }
+
+            function updateOverall() {
+                if (!panel || !tracker) return;
+                const items = tracker.items, n = items.length;
+                const fill = q('overall-fill'), txt = q('overall-text');
+                if (n === 0) { fill.style.width = '0%'; txt.textContent = 'Không có tệp đính kèm.'; return; }
+                const sum = items.reduce(function (s, it) { return s + itemPercent(it); }, 0);
+                const confirmed = items.filter(function (it) { return CONFIRMED.indexOf(it.status) !== -1; }).length;
+                const allSuccess = items.every(function (it) { return it.status === 'success'; });
+                let pct = Math.round(sum / n);
+                if (!allSuccess) pct = Math.min(pct, 99);   // chưa được 100% khi bài nộp chưa được máy chủ xác nhận
+                fill.style.width = pct + '%';
+                txt.textContent = allSuccess ? ('Đã nộp ' + n + '/' + n + ' tệp') : ('Đã tải lên ' + confirmed + '/' + n + ' tệp · ' + pct + '%');
+            }
+
+            function open(tr) {
+                ensurePanel();
+                if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+                if (tracker !== tr) {
+                    tracker = tr;
+                    q('list').innerHTML = tr.items.map(itemHtml).join('');
+                }
+                tr.items.forEach(renderItem);
+                updateOverall();
+                panel.hidden = false;
+                panel.classList.remove('is-collapsed');
+                setBusy(busy);
+            }
+
+            function hide() {
+                if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+                if (panel) panel.hidden = true;
+            }
+
+            function updateItem(it) {
+                if (!panel || !tracker || tracker.items[it.idx] !== it) return;
+                renderItem(it);
+                updateOverall();
+            }
+
+            function setMessage(text, kind) {
+                if (!panel) return;
+                const k = kind || 'info';
+                const m = q('msg');
+                m.textContent = text;
+                m.setAttribute('data-kind', k);
+                q('title').textContent = k === 'ok' ? 'Nộp bài thành công' : ((k === 'warn' || k === 'error') ? 'Nộp bài chưa hoàn tất' : 'Đang nộp bài...');
+            }
+
+            function showRetry(show, label) {
+                if (!panel) return;
+                q('actions').hidden = !show;
+                if (label) q('retry-btn').textContent = label;
+            }
+
+            function setBusy(b) {
+                busy = !!b;
+                if (!panel) return;
+                panel.querySelectorAll('[data-sp="close"],[data-sp="retry"],[data-sp="retry-one"]').forEach(function (btn) { btn.disabled = busy; });
+            }
+
+            function autoHide(ms) {
+                if (hideTimer) clearTimeout(hideTimer);
+                hideTimer = setTimeout(function () { hideTimer = null; if (!busy) hide(); }, ms);
+            }
+
+            return {
+                open: open, hide: hide, updateItem: updateItem, setMessage: setMessage, showRetry: showRetry,
+                setBusy: setBusy, autoHide: autoHide,
+                onRetry: function (fn) { retryHandler = fn; }
+            };
+        })();
+
+        function qnsSpSleep(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms); }); }
+
+        function qnsSpMakeError(code, message, retryable) {
+            const e = new Error(message);
+            e.code = code;
+            e.retryable = !!retryable;
+            return e;
+        }
+
+        function qnsSpReadDataUrl(file) {
+            return new Promise(function (resolve, reject) {
+                const reader = new FileReader();
+                reader.onload = function () { resolve(reader.result); };
+                reader.onerror = function () { reject(qnsSpMakeError('FILE_UNREADABLE', 'Không đọc được tệp "' + file.name + '". Hãy xóa tệp rồi chọn lại.', false)); };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Nhóm A (retryable): lỗi tạm thời. Nhóm B: học sinh phải xử lý, KHÔNG cho thử lại.
+        function qnsSpDescribeError(err) {
+            const code = (err && err.code) || 'UNKNOWN';
+            const msg = (err && err.message) ? String(err.message) : '';
+            switch (code) {
+                case 'NETWORK_ERROR': return { message: 'Mất kết nối hoặc máy chủ không phản hồi. Hãy kiểm tra mạng rồi thử lại.', retryable: true };
+                case 'SERVER_BUSY': return { message: 'Hệ thống đang bận. Vui lòng thử lại sau ít giây.', retryable: true };
+                case 'UPLOAD_EXPIRED': return { message: 'Phiên tải tệp đã hết hạn. Bấm "Thử lại" để tải lại tệp này.', retryable: true };
+                case 'INTERNAL': return { message: 'Máy chủ gặp lỗi tạm thời. Vui lòng thử lại.', retryable: true };
+                case 'CHUNK_NOT_CONFIRMED':
+                case 'FINISH_NOT_CONFIRMED':
+                case 'BEGIN_FAILED': return { message: msg || 'Máy chủ chưa xác nhận dữ liệu. Vui lòng thử lại.', retryable: true };
+                case 'DEADLINE_PASSED':
+                case 'ATTEMPTS_EXCEEDED':
+                case 'ACCESS_CLOSED':
+                case 'ACCESS_NOT_OPEN':
+                case 'FORBIDDEN':
+                case 'NOT_FOUND':
+                case 'CONFLICT':
+                case 'FILE_UNREADABLE':
+                case 'VALIDATION_FAILED': return { message: msg || 'Không đủ điều kiện nộp bài.', retryable: false };
+                default: return { message: msg || 'Đã xảy ra lỗi không xác định.', retryable: !!(err && err.retryable === true) };
+            }
+        }
+
+        function qnsSpSetItem(it, status, extra) {
+            it.status = status;
+            if (extra) Object.assign(it, extra);
+            QNS_SUBMIT_UI.updateItem(it);
+        }
+
+        function qnsSpCreateTracker(requestId, opts) {
+            return {
+                requestId: requestId,
+                lessonId: opts.lesson.id,
+                note: opts.note || '',
+                needVerify: false,
+                stagedChecked: false,
+                items: (opts.files || []).map(function (f, i) {
+                    return {
+                        idx: i, file: f, name: f.name, size: f.size, sizeStr: formatFileSize(f.size),
+                        status: 'waiting', done: new Set(), total: 0, uploadId: null,
+                        result: null, error: '', retryable: false, failCount: 0
+                    };
+                })
+            };
+        }
+
+        // Tái dùng tệp đã upload xong ở lần thử trước (cùng tên + dung lượng), tránh tạo tệp Drive trùng
+        async function qnsSpApplyStaged(tr) {
+            const pending = tr.items.filter(function (it) { return !it.result; });
+            if (!pending.length) return;
+            try {
+                const sr = await API.request('upload.listStaged', { lessonId: tr.lessonId });
+                const staged = (sr && Array.isArray(sr.files)) ? sr.files : [];
+                const used = new Set();
+                pending.forEach(function (it) {
+                    const idx = staged.findIndex(function (s, j) { return !used.has(j) && s.name === it.name && Number(s.sizeBytes) === it.size; });
+                    if (idx >= 0) {
+                        used.add(idx);
+                        qnsSpSetItem(it, 'uploaded', { result: staged[idx], error: '', retryable: false });
+                    }
+                });
+            } catch (e) {
+                if (e && e.code === 'UNAUTHENTICATED') throw e;   // lỗi khác: bỏ qua, upload bình thường
+            }
+        }
+
+        async function qnsSpUploadOne(tr, it) {
+            const file = it.file;
+            const formatName = getUploadedFileType(file).formatName;
+            qnsSpSetItem(it, it.failCount > 0 ? 'retrying' : 'uploading', { error: '', retryable: false });
+            try {
+                const CHUNK = 1024 * 1024;
+                let uploadId = null, total = 0, chunkSize = CHUNK;
+                let done = new Set();
+
+                // Phục hồi phiên cũ: chỉ gửi bù các chunk máy chủ chưa có
+                if (it.uploadId) {
+                    try {
+                        const st = await window.qnsRequestWithRetry('upload.status', { uploadId: it.uploadId }, 2, true);
+                        if (st && (st.status === 'completed' || (st.status === 'pending' && !st.expired))) {
+                            uploadId = it.uploadId;
+                            total = Number(st.expectedChunks) || 0;
+                            const missing = new Set((st.missingChunks || []).map(Number));
+                            for (let i = 0; i < total; i++) { if (st.status === 'completed' || !missing.has(i)) done.add(i); }
+                        }
+                    } catch (e) {
+                        if (e && e.code === 'UNAUTHENTICATED') throw e;
+                    }
+                    if (!uploadId) it.uploadId = null;
+                }
+
+                if (!uploadId) {
+                    const expected = Math.ceil(Math.ceil(file.size / 3) * 4 / CHUNK);   // cùng công thức với upload.begin ở máy chủ
+                    const begin = await window.qnsRequestWithRetry('upload.begin', {
+                        lessonId: tr.lessonId, fileName: file.name, fileSize: file.size,
+                        mimeType: file.type, formatName: formatName, expectedChunks: expected
+                    }, 2, false);
+                    if (!begin || !begin.uploadId) throw qnsSpMakeError('BEGIN_FAILED', 'Không thể khởi tạo phiên tải tệp.', true);
+                    uploadId = begin.uploadId;
+                    it.uploadId = uploadId;
+                    total = Number(begin.expectedChunks) || expected;
+                    chunkSize = Number(begin.chunkSize) || CHUNK;
+                }
+                if (total < 1) throw qnsSpMakeError('BEGIN_FAILED', 'Phiên tải tệp không hợp lệ.', true);
+
+                it.done = done;
+                it.total = total;
+                qnsSpSetItem(it, it.status);
+
+                if (done.size < total) {
+                    const dataUrl = await qnsSpReadDataUrl(file);
+                    const base64 = String(dataUrl).split(';base64,')[1] || '';
+                    if (!base64) throw qnsSpMakeError('FILE_UNREADABLE', 'Không đọc được nội dung tệp "' + file.name + '". Hãy xóa tệp rồi chọn lại.', false);
+                    for (let c = 0; c < total; c++) {
+                        if (done.has(c)) continue;
+                        const r = await window.qnsRequestWithRetry('upload.chunk', {
+                            uploadId: uploadId, chunkIndex: c, data: base64.substring(c * chunkSize, (c + 1) * chunkSize)
+                        }, 4, true);
+                        if (!r || !r.received) throw qnsSpMakeError('CHUNK_NOT_CONFIRMED', 'Máy chủ chưa xác nhận phần ' + (c + 1) + '/' + total + ' của tệp.', true);
+                        done.add(c);   // chỉ tính khi máy chủ đã xác nhận
+                        qnsSpSetItem(it, it.status);
+                    }
+                }
+
+                qnsSpSetItem(it, 'processing');   // đã gửi đủ, chờ máy chủ ghép và lưu
+                const fin = await window.qnsRequestWithRetry('upload.finish', {
+                    uploadId: uploadId, fileName: file.name, mimeType: file.type, formatName: formatName
+                }, 3, true);
+                if (!fin || !fin.fileId) throw qnsSpMakeError('FINISH_NOT_CONFIRMED', 'Máy chủ chưa xác nhận đã lưu tệp.', true);
+                qnsSpSetItem(it, 'uploaded', { result: fin, error: '', retryable: false });
+            } catch (err) {
+                if (err && err.code === 'UNAUTHENTICATED') throw err;   // đã chuyển trang đăng nhập, dừng cả luồng
+                console.error('[GĐ2] Upload thất bại:', file.name, err);
+                const info = qnsSpDescribeError(err);
+                it.failCount++;
+                if (err && err.code === 'UPLOAD_EXPIRED') it.uploadId = null;
+                if (!info.retryable) it.uploadId = null;
+                if (info.retryable && it.failCount >= 5) {
+                    info.retryable = false;
+                    info.message += ' Đã thử lại nhiều lần không được, hãy xóa tệp rồi chọn lại hoặc liên hệ giáo viên.';
+                }
+                qnsSpSetItem(it, 'failed', { error: info.message, retryable: info.retryable });
+            }
+        }
+
+        function qnsSpReportFailures(tr) {
+            const ui = QNS_SUBMIT_UI;
+            const failed = tr.items.filter(function (it) { return !it.result; });
+            const ok = tr.items.length - failed.length;
+            const anyRetry = failed.some(function (it) { return it.retryable; });
+            ui.setMessage(failed.length + '/' + tr.items.length + ' tệp chưa tải lên được. ' + ok + ' tệp đã tải lên thành công được giữ nguyên, không phải tải lại. ' +
+                (anyRetry ? 'Bấm "Thử lại" để tải lại các tệp lỗi.' : 'Hãy xóa tệp lỗi khỏi danh sách rồi chọn lại.'), 'error');
+            ui.showRetry(anyRetry, 'Thử lại tệp lỗi');
+        }
+
+        function qnsSpNormalizeInterrupted(tr) {
+            tr.items.forEach(function (it) {
+                if (it.result) { if (it.status !== 'success') qnsSpSetItem(it, 'uploaded'); return; }
+                if (['uploading', 'processing', 'linking', 'retrying'].indexOf(it.status) !== -1) {
+                    qnsSpSetItem(it, 'failed', { error: 'Bị gián đoạn. Bấm "Thử lại" để tiếp tục.', retryable: true });
+                }
+            });
+        }
+
+        // Đối soát: kết quả (nếu có) của đúng requestId này. Trả dữ liệu bài nộp hoặc null.
+        async function qnsSpVerify(tr) {
+            for (let i = 0; i < 3; i++) {
+                try {
+                    const st = await API.request('submission.status', { lessonId: tr.lessonId, requestId: tr.requestId });
+                    if (st && st.found && st.result && st.result.success && st.result.data) return st.result.data;
+                } catch (e) {
+                    if (e && e.code === 'UNAUTHENTICATED') throw e;
+                }
+                if (i < 2) await qnsSpSleep(1500 * (i + 1));
+            }
+            return null;
+        }
+
+        async function qnsSpComplete(tr, data) {
+            const ui = QNS_SUBMIT_UI;
+            const serverFiles = Array.isArray(data && data.files) ? data.files : [];
+            const missing = tr.items.filter(function (it) {
+                return !serverFiles.some(function (f) { return String(f.fileId) === String(it.result.fileId); });
+            });
+            if (missing.length) {
+                tr.needVerify = true;
+                tr.items.forEach(function (it) { qnsSpSetItem(it, 'uploaded'); });
+                ui.setMessage('Máy chủ chưa xác nhận đủ các tệp trong bài nộp. Bấm "Kiểm tra lại" để đối soát.', 'warn');
+                ui.showRetry(true, 'Kiểm tra lại');
+                return false;
+            }
+
+            tr.items.forEach(function (it) { qnsSpSetItem(it, 'success', { error: '', retryable: false }); });
+            ui.setMessage('Nộp bài thành công! Bài nộp đã được máy chủ xác nhận.', 'ok');
+            ui.showRetry(false);
+
+            window.qnsClearSubmitRequestId();
+            window.qnsSubmitTracker = null;
+            window.qnsSetServerAttempts(tr.lessonId, currentStudentId, data && data.attempts);
+
+            selectedSubmissionFiles = [];
+            window.selectedFilesLessonId = null;
+            renderSelectedFilesCards();
+            const noteEl = document.getElementById('submission-note');
+            if (noteEl) noteEl.value = '';
+            const modalEl = document.getElementById('submission-modal');
+            if (modalEl) modalEl.classList.remove('active');
+            ui.autoHide(6000);
+
+            // Làm mới từ Backend (grading.getMyGrade), không dựa vào biến tạm
+            const act = window.currentActiveLesson;
+            if (act && String(act.id) === String(tr.lessonId) && typeof window.openLessonDetail === 'function') {
+                try {
+                    await window.openLessonDetail(act.id, act.type, act.title, act.meta, act.desc, act.link, act.attachmentType);
+                } catch (e) { console.error('[GĐ2] Không làm mới được chi tiết bài học:', e); }
+            }
+            return true;
+        }
+
+        async function qnsSpFinalize(tr) {
+            const ui = QNS_SUBMIT_UI;
+            tr.items.forEach(function (it) { if (it.result) qnsSpSetItem(it, 'linking'); });
+
+            let data = null;
+            if (tr.needVerify) {
+                ui.setMessage('Đang xác minh trạng thái nộp bài...', 'warn');
+                data = await qnsSpVerify(tr);
+            } else {
+                ui.setMessage('Đang xác nhận bài nộp với máy chủ...', 'info');
+            }
+
+            if (!data) {
+                try {
+                    // Luôn dùng ĐÚNG requestId của lượt này: máy chủ trả lại kết quả cũ nếu đã xử lý, không tạo lần nộp mới
+                    data = await window.qnsRequestWithRetry('submission.submit', {
+                        requestId: tr.requestId,
+                        lessonId: tr.lessonId,
+                        fileIds: tr.items.map(function (it) { return String(it.result.fileId); }),
+                        note: tr.note
+                    }, 3, true);
+                } catch (err) {
+                    if (err && err.code === 'UNAUTHENTICATED') throw err;
+                    tr.items.forEach(function (it) { qnsSpSetItem(it, 'uploaded'); });
+                    const code = err && err.code;
+                    if (code === 'NETWORK_ERROR' || code === 'INTERNAL' || !code) {
+                        // Kết quả KHÔNG xác định: máy chủ có thể đã xử lý xong. Đối soát trước khi kết luận.
+                        ui.setMessage('Đang xác minh trạng thái nộp bài...', 'warn');
+                        data = await qnsSpVerify(tr);
+                        if (!data) {
+                            tr.needVerify = true;
+                            ui.setMessage('Chưa xác định được kết quả nộp bài (có thể do mất kết nối). Các tệp đã tải lên vẫn được giữ. Bấm "Kiểm tra lại": hệ thống sẽ đối soát trước và không tạo lần nộp mới.', 'warn');
+                            ui.showRetry(true, 'Kiểm tra lại');
+                            return false;
+                        }
+                    } else {
+                        tr.needVerify = false;   // lỗi nghiệp vụ rõ ràng: lần nộp này chắc chắn chưa được ghi
+                        const info = qnsSpDescribeError(err);
+                        ui.setMessage('Chưa thể hoàn tất nộp bài: ' + info.message + (info.retryable ? ' Bấm "Thử lại" để gửi lại.' : ''), 'error');
+                        ui.showRetry(info.retryable, 'Thử lại');
+                        return false;
+                    }
+                }
+            }
+            return qnsSpComplete(tr, data);
+        }
+
+        // opts: { lesson, files, note } cho lượt mới; { resume: true, only } khi bấm Thử lại trên bảng tiến độ
+        async function qnsRunSubmission(opts) {
+            const ui = QNS_SUBMIT_UI;
+            let tr = window.qnsSubmitTracker;
+            const resuming = !!(opts.resume || (tr && tr.needVerify && opts.lesson && tr.lessonId === opts.lesson.id));
+
+            if (resuming) {
+                if (!tr) return;   // không còn gì để tiếp tục
+            } else {
+                if (tr && tr.needVerify) {
+                    await window.showAppAlert({
+                        type: 'warning', title: 'Chưa xác định kết quả lần nộp trước',
+                        message: 'Một lần nộp ở bài học khác chưa xác định được kết quả. Hãy bấm "Kiểm tra lại" trên bảng tiến độ trước khi nộp bài mới.'
+                    });
+                    ui.open(tr);
+                    ui.showRetry(true, 'Kiểm tra lại');
+                    return;
+                }
+                const requestId = window.qnsGetSubmitRequestId(opts.lesson.id, opts.files, opts.note);
+                if (!tr || tr.requestId !== requestId) tr = window.qnsSubmitTracker = qnsSpCreateTracker(requestId, opts);
+            }
+
+            ui.open(tr);
+            ui.showRetry(false);
+            ui.setMessage('Đang chuẩn bị nộp bài...', 'info');
+            const only = (typeof opts.only === 'number') ? opts.only : null;
+
+            try {
+                if (!tr.needVerify) {
+                    if (!tr.stagedChecked) { await qnsSpApplyStaged(tr); tr.stagedChecked = true; }
+                    const todo = tr.items.filter(function (it) {
+                        return !it.result && (only === null || it.idx === only) && (it.status !== 'failed' || it.retryable);
+                    });
+                    if (todo.length) ui.setMessage('Đang tải tệp lên...', 'info');
+                    for (let i = 0; i < todo.length; i++) { await qnsSpUploadOne(tr, todo[i]); }
+                    if (tr.items.some(function (it) { return !it.result; })) { qnsSpReportFailures(tr); return; }
+                }
+                await qnsSpFinalize(tr);
+            } catch (err) {
+                if (err && err.code === 'UNAUTHENTICATED') { ui.hide(); return; }
+                console.error('[GĐ2] Lỗi không mong đợi khi nộp bài:', err);
+                qnsSpNormalizeInterrupted(tr);
+                ui.setMessage('Đã xảy ra lỗi không mong đợi. Bấm "Thử lại" để tiếp tục; các tệp đã tải lên thành công được giữ nguyên.', 'error');
+                ui.showRetry(true, 'Thử lại');
+            }
+        }
+
+        function qnsSetSubmitButtonBusy(btn, isBusy) {
+            if (!btn) return;
+            if (isBusy) {
+                if (!btn.dataset.idleHtml) btn.dataset.idleHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.setAttribute('aria-busy', 'true');
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right: 6px;"></i> Đang nộp bài...';
+            } else {
+                btn.disabled = false;
+                btn.removeAttribute('aria-busy');
+                if (btn.dataset.idleHtml) { btn.innerHTML = btn.dataset.idleHtml; delete btn.dataset.idleHtml; }
+            }
+        }
+
+        // Khóa thao tác: DUY NHẤT một lượt nộp tại một thời điểm (chặn nhấn liên tục)
+        async function qnsRunLocked(fn) {
+            if (window.qnsSubmitBusy) return;
+            window.qnsSubmitBusy = true;
+            const btn = document.getElementById('btn-confirm-submission');
+            qnsSetSubmitButtonBusy(btn, true);   // phản hồi tức thì, trước mọi thao tác bất đồng bộ
+            QNS_SUBMIT_UI.setBusy(true);
+            try {
+                await fn();
+            } catch (err) {
+                console.error('[GĐ2] Lỗi khi nộp bài:', err);
+                if (!(err && err.code === 'UNAUTHENTICATED')) {
+                    await window.showAppAlert({ type: 'error', title: 'Không thể nộp bài', message: (err && err.message) ? err.message : 'Đã xảy ra lỗi không xác định.' });
+                }
+            } finally {
+                window.qnsSubmitBusy = false;
+                qnsSetSubmitButtonBusy(btn, false);
+                QNS_SUBMIT_UI.setBusy(false);
+            }
+        }
+
+        QNS_SUBMIT_UI.onRetry(function (onlyIdx) {
+            qnsRunLocked(function () { return qnsRunSubmission({ resume: true, only: onlyIdx }); });
+        });
+
+        if (!window.qnsSubmitUnloadBound) {
+            window.qnsSubmitUnloadBound = true;
+            window.addEventListener('beforeunload', function (e) {
+                if (window.qnsSubmitBusy) { e.preventDefault(); e.returnValue = ''; }
+            });
+        }
+
+        window.qnsSubmitFlow = async function () {
+            const activeLesson = window.currentActiveLesson;
+            if (!activeLesson || !activeLesson.id) {
+                await window.showAppAlert({ type: 'error', title: 'Không xác định được bài học', message: 'Vui lòng quay lại danh sách và mở lại bài học.' });
+                return;
+            }
+            const allLessons = typeof window.getStoredLessons === 'function' ? window.getStoredLessons() : [];
+            const currentLessonObj = allLessons.find(l => l.id === activeLesson.id);
+            const tr = window.qnsSubmitTracker;
+            const resuming = !!(tr && tr.needVerify && tr.lessonId === activeLesson.id);   // đang đối soát: không chặn bằng kiểm tra hạn/số lần
+
+            if (!resuming) {
+                if (currentLessonObj && currentLessonObj.settings?.submission?.requireFile !== false && selectedSubmissionFiles.length === 0) {
+                    await window.showAppAlert({ type: 'warning', title: 'Thiếu tệp bài làm', message: 'Bài tập này yêu cầu bạn phải đính kèm tệp bài làm!' });
+                    return;
+                }
+                if (currentLessonObj) {
+                    const fileCheck = window.validateSubmissionSettings(currentLessonObj, selectedSubmissionFiles);
+                    if (!fileCheck.valid) {
+                        await window.showAppAlert({ type: 'warning', title: 'Lỗi tệp bài làm', message: fileCheck.error });
+                        return;
+                    }
+                    const timeCheck = window.validateSubmissionDeadlineAndAttempts(currentLessonObj, currentStudentId);
+                    if (!timeCheck.valid) {
+                        await window.showAppAlert({ type: 'error', title: 'Không thể nộp bài', message: timeCheck.error });
+                        return;
+                    }
+                    window.currentSubmissionIsLate = timeCheck.isLate;
+                } else {
+                    window.currentSubmissionIsLate = false;
+                }
+            }
+
+            if (!QNS_AUTH.isBackendConfigured()) {
+                await window.showAppAlert({ type: 'error', title: 'Chưa kết nối máy chủ', message: 'Không thể nộp bài khi chưa cấu hình API_BASE_URL.' });
+                return;
+            }
+
+            const noteText = document.getElementById('submission-note') ? document.getElementById('submission-note').value.trim() : '';
+            await qnsRunSubmission({ lesson: activeLesson, files: selectedSubmissionFiles.slice(), note: noteText });
+        };
+
+        document.getElementById('btn-confirm-submission')?.addEventListener('click', function () {
+            qnsRunLocked(window.qnsSubmitFlow);
+        });
+
+        // [GĐ2] Handler CŨ đã bị vô hiệu hóa (gắn vào id không tồn tại). Có thể xóa cả khối này sau khi nghiệm thu.
+        document.getElementById('btn-confirm-submission-legacy-disabled')?.addEventListener('click', async function() {
             const activeLesson = window.currentActiveLesson;
             const allLessons = typeof window.getStoredLessons === 'function' ? window.getStoredLessons() : [];
             const currentLessonObj = allLessons.find(l => l.id === (activeLesson ? activeLesson.id : null));
@@ -5225,6 +6347,7 @@
             try {
                 uploadResult = await window.uploadSubmissionFilesToBackend(selectedSubmissionFiles, {
                     lessonId: activeLesson ? activeLesson.id : null,
+                    requestId: window.qnsGetSubmitRequestId(activeLesson ? activeLesson.id : null, selectedSubmissionFiles, noteText),
                     studentId: currentStudentId
                 });
             } catch (uploadError) {
